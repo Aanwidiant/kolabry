@@ -62,20 +62,37 @@ export const createUser = async (c: Context) => {
 
 // Get Users
 export const getUsers = async (c: Context) => {
-  const { search, page = 1, limit = 10 } = c.req.query();
+  const {
+    search,
+    page = 1,
+    limit = 10,
+    sortBy = "createdAt",
+    order = "desc",
+  } = c.req.query();
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
-
   const offset = (pageNumber - 1) * limitNumber;
 
+  const allowedSortBy = ["username", "email", "createdAt"];
+  const allowedOrder = ["asc", "desc"];
+
+  const sortField = allowedSortBy.includes(sortBy) ? sortBy : "createdAt";
+  const sortOrder = allowedOrder.includes(order.toLowerCase())
+    ? order.toLowerCase()
+    : "desc";
+
+  const filters = search
+    ? {
+        OR: [
+          { username: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
   const users = await prisma.user.findMany({
-    where: {
-      OR: [
-        { username: { contains: search as string, mode: "insensitive" } },
-        { email: { contains: search as string, mode: "insensitive" } },
-      ],
-    },
+    where: filters,
     select: {
       id: true,
       username: true,
@@ -86,19 +103,11 @@ export const getUsers = async (c: Context) => {
     skip: offset,
     take: limitNumber,
     orderBy: {
-      createdAt: "desc",
+      [sortField]: sortOrder,
     },
   });
 
-  const totalUsers = await prisma.user.count({
-    where: {
-      OR: [
-        { username: { contains: search as string, mode: "insensitive" } },
-        { email: { contains: search as string, mode: "insensitive" } },
-      ],
-    },
-  });
-
+  const totalUsers = await prisma.user.count({ where: filters });
   const totalPages = Math.ceil(totalUsers / limitNumber);
 
   return c.json({
