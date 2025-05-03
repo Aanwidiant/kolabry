@@ -2,6 +2,7 @@ import { Context } from "hono";
 import bcrypt from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { Prisma, UserRole } from "@prisma/client";
 
 const generateToken = (userId: number, username: string, role: string) => {
   return sign({ id: userId, username, role }, process.env.JWT_SECRET!, {
@@ -82,11 +83,21 @@ export const getUsers = async (c: Context) => {
     ? order.toLowerCase()
     : "desc";
 
-  const filters = search
+  const filters: Prisma.UserWhereInput = search
     ? {
         OR: [
-          { username: { contains: search, mode: "insensitive" } },
-          { email: { contains: search, mode: "insensitive" } },
+          {
+            username: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive, // ✅ enum
+            },
+          },
+          {
+            email: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive, // ✅ enum
+            },
+          },
         ],
       }
     : {};
@@ -135,27 +146,18 @@ export const updateUser = async (c: Context) => {
     return c.json({ error: "Anda tidak diizinkan untuk mengubah role" }, 403);
   }
 
-  const updateData: {
-    username?: string;
-    email?: string;
-    role?: string;
-    password?: string;
-  } = {};
+  const updateData: Prisma.UserUpdateInput = {};
 
   if (username !== undefined) updateData.username = username;
   if (email !== undefined) updateData.email = email;
 
   if (role !== undefined) {
     if (user.role === "ADMIN") {
-      if (
-        role !== "KOL_MANAGER" &&
-        role !== "ADMIN" &&
-        role !== "CLIENT" &&
-        role !== "STAFF"
-      ) {
+      const allowedRoles: UserRole[] = ["KOL_MANAGER", "ADMIN", "BRAND"];
+      if (!allowedRoles.includes(role as UserRole)) {
         return c.json({ error: "Role tidak valid" }, 400);
       }
-      updateData.role = role;
+      updateData.role = role as UserRole;
     } else {
       return c.json(
         { error: "Anda tidak memiliki izin untuk mengubah role" },
