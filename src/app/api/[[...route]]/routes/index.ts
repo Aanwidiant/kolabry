@@ -1,1 +1,2 @@
-export { default as Users } from "./userRoutes";
+export { default as User } from "./userRoutes";
+export { default as Kol } from "./kolRoutes";
