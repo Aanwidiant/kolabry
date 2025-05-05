@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import { User, Kol } from "./routes";
+import {User, Kol, KolType} from "./routes";
 
 const app = new Hono().basePath("/api");
 
 app.route("/user", User);
 app.route("/kol", Kol);
+app.route("/kol-type", KolType);
 
 export async function GET(request: Request) {
   return app.fetch(request);
