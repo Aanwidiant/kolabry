@@ -1,25 +1,6 @@
-import type { KolInput, NicheType, AgeRangeType } from "@/types/kolTypes";
+import type { Kol, NicheType, AgeRangeType } from "@/types";
 
-export function validateKol(data: Partial<KolInput>) {
-  const requiredFields: (keyof KolInput)[] = [
-    "id",
-    "name",
-    "niche",
-    "followers",
-    "engagement_rate",
-    "reach",
-    "rate_card",
-    "audience_male",
-    "audience_female",
-    "audience_age_range",
-  ];
-
-  for (const field of requiredFields) {
-    if (data[field] === undefined || data[field] === null) {
-      return { valid: false, message: `${field} is required.` };
-    }
-  }
-
+export function validateKol(data: Partial<Kol>) {
   const NicheTypes: NicheType[] = [
     "FASHION",
     "BEAUTY",

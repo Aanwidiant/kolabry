@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { prisma } from "@/lib/prisma";
 import { validateKol } from "../validations/kolValidation";
-import { KolInput } from "@/types/kolTypes";
+import { Kol } from "@/types";
 import { Prisma, NicheType } from "@prisma/client";
 import { Pagination } from "../helpers/pagination";
 
@@ -11,7 +11,7 @@ export const createKol = async (c: Context) => {
     const body = await c.req.json();
     const dataArray = Array.isArray(body) ? body : [body];
 
-    const results: { success: boolean; message: string; data?: KolInput }[] =
+    const results: { success: boolean; message: string; data?: Kol }[] =
       [];
 
     for (const [index, item] of dataArray.entries()) {
@@ -153,9 +153,10 @@ export const getKols = async (c: Context) => {
 // Update KOL data
 export const updateKol = async (c: Context) => {
   try {
+    const id = parseInt(c.req.param("id"));
     const body = await c.req.json();
 
-    if (!body.id) {
+    if (!id) {
       return c.json(
         {
           success: false,
@@ -166,7 +167,7 @@ export const updateKol = async (c: Context) => {
     }
 
     const existingKol = await prisma.kols.findUnique({
-      where: { id: body.id },
+      where: { id: id },
     });
 
     if (!existingKol) {
@@ -192,7 +193,7 @@ export const updateKol = async (c: Context) => {
       );
     }
 
-    const { id, ...updateFields } = body;
+    const { ...updateFields } = body;
 
     await prisma.kols.update({
       where: { id },
