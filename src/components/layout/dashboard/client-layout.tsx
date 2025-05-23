@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Navbar from "@/components/layout/dashboard/navbar";
 import Sidebar from "@/components/layout/dashboard/sidebar";
+import Footer from "@/components/layout/dashboard/footer";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const [mobileVisible, setMobileVisible] = useState(false);
@@ -18,9 +19,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     mobileVisible={mobileVisible}
                     onMobileClose={() => setMobileVisible(false)}
                 />
-                <main className="flex-1 min-h-screen bg-light pt-16">
-                    {children}
-                </main>
+                <div className="flex-1 flex flex-col pt-16">
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                </div>
             </div>
         </>
     );

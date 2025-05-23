@@ -1,4 +1,39 @@
+'use client'
+import React, {useState} from "react";
+import {Eye, EyeSlash} from "@/components/icons";
+import Fetch from "@/utilities/fetch";
+import {toast} from "react-toastify";
+import useAuthStore from "@/store/authStore";
+import {useRouter} from "next/navigation";
+
 export default function LoginPage() {
+    const router = useRouter();
+    const login = useAuthStore((state) => state.login);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const res = await Fetch.POST("/user/login", {email, password});
+
+            if (res.success) {
+                login(res.data.token, res.data.user);
+                toast.success(res.message || "Login berhasil!");
+                router.push("/dashboard");
+            } else {
+                toast.error(res.message || "Login gagal!");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <main className="w-full min-h-screen grid grid-cols-2 bg-light">
             <div className="hidden md:col-span-1 m-2 p-12 rounded-xl bg-primary md:flex flex-col justify-center gap-4">
@@ -17,33 +52,55 @@ export default function LoginPage() {
                         className='text-primary'>Kolabry</span></h2>
                     <p className='text-gray font-light text-sm'>Enter your email and password to access your
                         account.</p>
-                    <form action="/login" method="POST" className="flex flex-col gap-6 w-full">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="email" className="font-medium text-dark text-sm">
                                 Email
                             </label>
                             <input type="email" id="email" name="email" required
+                                   onChange={(e) => setEmail(e.target.value)}
                                    className="w-full rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out"
                                    placeholder="Email"/>
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <label htmlFor="password" className="font-medium text-dark text-sm">Password</label>
-                            <input type="password" id="password" name="password" required
-                                   className="w-full rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out"
-                                   placeholder="Password"/>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    required
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full rounded-md border bg-transparent p-2 pr-10 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out"
+                                    placeholder="Password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray hover:text-dark transition"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <EyeSlash className="fill-dark w-5 h-5"/> :
+                                        <Eye className="fill-dark w-5 h-5"/>}
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit"
-                                className="w-fit text-light bg-primary hover:bg-secondary hover:shadow-sm hover:shadow-gray font-medium rounded-lg px-6 py-2 cursor-pointer">
-                            Login
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-fit text-light bg-primary hover:bg-secondary hover:shadow-sm hover:shadow-gray font-medium rounded-lg px-6 py-2 cursor-pointer"
+                        >
+                            {loading ? "Loading..." : "Login"}
                         </button>
                     </form>
                     <p className='w-full text-center text-gray font-light text-sm'>Don`t have an account? <span
                         className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Contact Admin Now!</span>
                     </p>
-                    <p className='px-4 text-sm font-light text-gray mx-auto text-center'>By continuing, you agree to our <span
-                        className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Terms & Conditions</span> and <span
-                        className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Privacy Policy</span>.
+                    <p className='px-4 text-sm font-light text-gray mx-auto text-center'>By continuing, you agree to
+                        our <span
+                            className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Terms & Conditions</span> and <span
+                            className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Privacy Policy</span>.
                     </p>
                 </div>
             </div>

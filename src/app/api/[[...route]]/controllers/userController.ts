@@ -181,7 +181,7 @@ export const getUsers = async (c: Context) => {
 // Update User
 export const updateUser = async (c: Context) => {
     const id = parseInt(c.req.param("id"));
-    const { username, email, role, password} = await c.req.json();
+    const {username, email, role, password} = await c.req.json();
     const user = c.get("user");
 
     if (!id) {
@@ -370,7 +370,14 @@ export const loginUser = async (c: Context) => {
         {
             success: true,
             message: "Login successfully.",
-            data: {token},
+            data: {
+                token,
+                user: {
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                },
+            },
         },
         200
     );
