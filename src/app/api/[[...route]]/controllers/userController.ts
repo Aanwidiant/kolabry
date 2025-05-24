@@ -348,6 +348,7 @@ export const loginUser = async (c: Context) => {
             {
                 success: false,
                 message: "Email not registered",
+                error: "email"
             },
             401
         );
@@ -359,6 +360,7 @@ export const loginUser = async (c: Context) => {
             {
                 success: false,
                 message: "Wrong password",
+                error: "password"
             },
             401
         );

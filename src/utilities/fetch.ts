@@ -34,6 +34,14 @@ instance.interceptors.request.use(
     }
 );
 
+instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        return Promise.resolve(error.response);
+    }
+);
+
+
 const GET = async (url: string, config?: object) => {
     const response = await instance.get(url, config);
     return responseBody(response);

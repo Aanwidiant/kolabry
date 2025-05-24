@@ -13,6 +13,8 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [emailError, setEmailError] = useState<string>('');
+    const [passwordError, setPasswordError] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,14 +22,20 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await Fetch.POST("/user/login", {email, password});
+            const response = await Fetch.POST("/user/login", {email, password});
 
-            if (res.success) {
-                login(res.data.token, res.data.user);
-                toast.success(res.message || "Login berhasil!");
+            if (response.success) {
+                login(response.data.token, response.data.user);
+                toast.success(response.message || "Login berhasil!");
                 router.push("/dashboard");
             } else {
-                toast.error(res.message || "Login gagal!");
+                if (response.error === "email") {
+                    setEmailError(response.message);
+                } else if (response.error === "password") {
+                    setPasswordError(response.message);
+                } else {
+                    toast.error(response.message || "Login gagal!");
+                }
             }
         } finally {
             setLoading(false);
@@ -50,17 +58,29 @@ export default function LoginPage() {
                 <div className="w-full max-w-md p-4 space-y-8">
                     <h2 className='text-2xl font-bold tracking-wide'>Hello, Welcome to <span
                         className='text-primary'>Kolabry</span></h2>
-                    <p className='text-gray font-light text-sm'>Enter your email and password to access your
+                    <p className='text-gray text-sm'>Enter your email and password to access your
                         account.</p>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="email" className="font-medium text-dark text-sm">
                                 Email
                             </label>
-                            <input type="email" id="email" name="email" required
-                                   onChange={(e) => setEmail(e.target.value)}
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   value={email}
+                                   required
+                                   onChange={(e) => {
+                                       setEmail(e.target.value);
+                                       setEmailError("");
+                                   }}
                                    className="w-full rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out"
                                    placeholder="Email"/>
+                            {emailError && (
+                                <p className='text-xs text-red-500'>
+                                    {emailError}
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-2">
@@ -70,8 +90,12 @@ export default function LoginPage() {
                                     type={showPassword ? "text" : "password"}
                                     id="password"
                                     name="password"
+                                    value={password}
                                     required
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setPasswordError("");
+                                    }}
                                     className="w-full rounded-md border bg-transparent p-2 pr-10 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out"
                                     placeholder="Password"
                                 />
@@ -85,6 +109,11 @@ export default function LoginPage() {
                                         <Eye className="fill-dark w-5 h-5"/>}
                                 </button>
                             </div>
+                            {passwordError && (
+                                <p className='text-xs text-red-500'>
+                                    {passwordError}
+                                </p>
+                            )}
                         </div>
                         <button
                             type="submit"
@@ -94,14 +123,14 @@ export default function LoginPage() {
                             {loading ? "Loading..." : "Login"}
                         </button>
                     </form>
-                    <p className='w-full text-center text-gray font-light text-sm'>Don`t have an account? <span
+                    <p className='w-full text-center text-gray text-sm'>Don`t have an account? <span
                         className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Contact Admin Now!</span>
                     </p>
-                    <p className='px-4 text-sm font-light text-gray mx-auto text-center'>By continuing, you agree to
-                        our <span
-                            className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Terms & Conditions</span> and <span
-                            className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Privacy Policy</span>.
-                    </p>
+                    {/*<p className='px-4 text-sm text-gray mx-auto text-center'>By continuing, you agree to*/}
+                    {/*    our <span*/}
+                    {/*        className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Terms & Conditions</span> and <span*/}
+                    {/*        className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>Privacy Policy</span>.*/}
+                    {/*</p>*/}
                 </div>
             </div>
         </main>
