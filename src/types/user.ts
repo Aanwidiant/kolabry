@@ -8,7 +8,4 @@ export interface User {
     updated_at: Date;
 }
 
-export type UserRole =
-    | "ADMIN"
-    | "KOL_MANAGER"
-    | "BRAND";
+export type UserRole = 'ADMIN' | 'KOL_MANAGER' | 'BRAND';

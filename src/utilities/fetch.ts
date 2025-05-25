@@ -41,7 +41,6 @@ instance.interceptors.response.use(
     }
 );
 
-
 const GET = async (url: string, config?: object) => {
     const response = await instance.get(url, config);
     return responseBody(response);
@@ -67,6 +66,6 @@ const DELETE = async (url: string, config?: object) => {
     return responseBody(response);
 };
 
-const Fetch = { GET, POST, PUT, PATCH, DELETE};
+const Fetch = { GET, POST, PUT, PATCH, DELETE };
 
 export default Fetch;

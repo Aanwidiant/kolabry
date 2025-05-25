@@ -1,4 +1,4 @@
-import { NicheType, AgeRangeType } from "./kol";
+import { NicheType, AgeRangeType } from './kol';
 
 export interface Campaign {
     id: number;
@@ -17,6 +17,4 @@ export interface Campaign {
     updated_at: Date;
 }
 
-export type GenderType =
-    | "MALE"
-    | "FEMALE";
+export type GenderType = 'MALE' | 'FEMALE';

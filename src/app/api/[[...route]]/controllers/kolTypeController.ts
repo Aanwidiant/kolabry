@@ -1,8 +1,8 @@
-import type { Context } from "hono";
-import { prisma } from "@/lib/prisma";
-import { validateKolType } from "../validations/kolTypeValidation";
-import { Prisma } from "@prisma/client";
-import { Pagination } from "../helpers/pagination";
+import type { Context } from 'hono';
+import { prisma } from '@/lib/prisma';
+import { validateKolType } from '../validations/kolTypeValidation';
+import { Prisma } from '@prisma/client';
+import { Pagination } from '../helpers/pagination';
 
 export const createKolType = async (c: Context) => {
     const body = await c.req.json();
@@ -11,7 +11,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "name, min_followers is required",
+                message: 'name, min_followers is required',
             },
             400
         );
@@ -25,7 +25,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "name KOL Type already used.",
+                message: 'name KOL Type already used.',
             },
             400
         );
@@ -55,7 +55,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: true,
-                message: "KOL type successfully created.",
+                message: 'KOL type successfully created.',
                 data: newKolType,
             },
             201
@@ -64,7 +64,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "An error occurred while creating KOL Type.",
+                message: 'An error occurred while creating KOL Type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -73,7 +73,7 @@ export const createKolType = async (c: Context) => {
 };
 
 export const getKolTypes = async (c: Context) => {
-    const { search = "", page = "1", limit = "10" } = c.req.query();
+    const { search = '', page = '1', limit = '10' } = c.req.query();
 
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
@@ -81,11 +81,11 @@ export const getKolTypes = async (c: Context) => {
 
     const whereClause = search
         ? {
-            name: {
-                contains: search,
-                mode: Prisma.QueryMode.insensitive,
-            },
-        }
+              name: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+              },
+          }
         : {};
 
     try {
@@ -101,7 +101,7 @@ export const getKolTypes = async (c: Context) => {
             return c.json(
                 {
                     success: true,
-                    message: "No KOL Types found.",
+                    message: 'No KOL Types found.',
                 },
                 200
             );
@@ -120,7 +120,7 @@ export const getKolTypes = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to fetch KOL Types.",
+                message: 'Failed to fetch KOL Types.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -129,7 +129,7 @@ export const getKolTypes = async (c: Context) => {
 };
 
 export const updateKolType = async (c: Context) => {
-    const id = parseInt(c.req.param("id"));
+    const id = parseInt(c.req.param('id'));
     const body = await c.req.json();
 
     const { name, min_followers, max_followers } = body;
@@ -138,7 +138,7 @@ export const updateKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "No fields to update were provided.",
+                message: 'No fields to update were provided.',
             },
             400
         );
@@ -148,7 +148,7 @@ export const updateKolType = async (c: Context) => {
     });
 
     if (!existingKolType) {
-        return c.json({ success: false, message: "KOL Type not found" }, 404);
+        return c.json({ success: false, message: 'KOL Type not found' }, 404);
     }
 
     if (name) {
@@ -163,7 +163,7 @@ export const updateKolType = async (c: Context) => {
             return c.json(
                 {
                     success: false,
-                    message: "Name is already used by another KOL type.",
+                    message: 'Name is already used by another KOL type.',
                 },
                 400
             );
@@ -193,14 +193,14 @@ export const updateKolType = async (c: Context) => {
 
         return c.json({
             success: true,
-            message: "KOL type updated successfully.",
+            message: 'KOL type updated successfully.',
             data: updatedKolType,
         });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "Failed to update KOL type.",
+                message: 'Failed to update KOL type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -209,13 +209,13 @@ export const updateKolType = async (c: Context) => {
 };
 
 export const deleteKolType = async (c: Context) => {
-    const id = parseInt(c.req.param("id"));
+    const id = parseInt(c.req.param('id'));
 
     if (!id) {
         return c.json(
             {
                 success: false,
-                message: "KOL Type ID is required.",
+                message: 'KOL Type ID is required.',
             },
             400
         );
@@ -228,7 +228,7 @@ export const deleteKolType = async (c: Context) => {
             return c.json(
                 {
                     success: false,
-                    message: "KOL Type not found.",
+                    message: 'KOL Type not found.',
                 },
                 404
             );
@@ -238,7 +238,7 @@ export const deleteKolType = async (c: Context) => {
         return c.json(
             {
                 success: true,
-                message: "KOL Type successfully deleted.",
+                message: 'KOL Type successfully deleted.',
             },
             200
         );
@@ -246,7 +246,7 @@ export const deleteKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to delete KOL Type.",
+                message: 'Failed to delete KOL Type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500

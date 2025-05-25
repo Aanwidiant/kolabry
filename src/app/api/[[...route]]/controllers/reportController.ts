@@ -1,5 +1,5 @@
-import type { Context } from "hono";
-import { prisma } from "@/lib/prisma";
+import type { Context } from 'hono';
+import { prisma } from '@/lib/prisma';
 
 export const createReports = async (c: Context) => {
     try {
@@ -9,7 +9,7 @@ export const createReports = async (c: Context) => {
             return c.json(
                 {
                     success: false,
-                    message: "Request body must be an array of reports.",
+                    message: 'Request body must be an array of reports.',
                 },
                 400
             );
@@ -47,21 +47,21 @@ export const createReports = async (c: Context) => {
             } = item;
 
             if (
-                typeof campaign_id !== "number" ||
-                typeof kol_id !== "number" ||
-                typeof like_count !== "number" ||
-                typeof comment_count !== "number" ||
-                typeof share_count !== "number" ||
-                typeof save_count !== "number" ||
-                typeof engagement !== "number" ||
-                typeof reach !== "number" ||
-                typeof er !== "number" ||
-                typeof cpe !== "number"
+                typeof campaign_id !== 'number' ||
+                typeof kol_id !== 'number' ||
+                typeof like_count !== 'number' ||
+                typeof comment_count !== 'number' ||
+                typeof share_count !== 'number' ||
+                typeof save_count !== 'number' ||
+                typeof engagement !== 'number' ||
+                typeof reach !== 'number' ||
+                typeof er !== 'number' ||
+                typeof cpe !== 'number'
             ) {
                 errors.push({
                     index: idx,
                     message:
-                        "Invalid or missing fields. Required: campaign_id, kol_id, like_count, comment_count, share_count, save_count, engagement, reach, er, cpe.",
+                        'Invalid or missing fields. Required: campaign_id, kol_id, like_count, comment_count, share_count, save_count, engagement, reach, er, cpe.',
                 });
             } else {
                 validReports.push(item as ReportInput);
@@ -114,8 +114,8 @@ export const createReports = async (c: Context) => {
                 success: errors.length === 0,
                 message:
                     errors.length === 0
-                        ? "Reports created successfully."
-                        : "Some reports could not be created.",
+                        ? 'Reports created successfully.'
+                        : 'Some reports could not be created.',
                 errors,
                 insertedCount: filteredReports.length,
             },
@@ -125,7 +125,7 @@ export const createReports = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to create reports.",
+                message: 'Failed to create reports.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -146,9 +146,12 @@ type UpdatableKolReportFields = {
 
 export const updateReport = async (c: Context) => {
     try {
-        const id = Number(c.req.param("id"));
+        const id = Number(c.req.param('id'));
         if (!id) {
-            return c.json({ success: false, message: "Report ID is required." }, 400);
+            return c.json(
+                { success: false, message: 'Report ID is required.' },
+                400
+            );
         }
 
         const body: Partial<UpdatableKolReportFields> = await c.req.json();
@@ -158,18 +161,21 @@ export const updateReport = async (c: Context) => {
         });
 
         if (!existingReport) {
-            return c.json({ success: false, message: "Report not found." }, 404);
+            return c.json(
+                { success: false, message: 'Report not found.' },
+                404
+            );
         }
 
         const allowedFields: (keyof UpdatableKolReportFields)[] = [
-            "like_count",
-            "comment_count",
-            "share_count",
-            "save_count",
-            "engagement",
-            "reach",
-            "er",
-            "cpe",
+            'like_count',
+            'comment_count',
+            'share_count',
+            'save_count',
+            'engagement',
+            'reach',
+            'er',
+            'cpe',
         ];
 
         const dataToUpdate: Partial<UpdatableKolReportFields> = {};
@@ -188,7 +194,7 @@ export const updateReport = async (c: Context) => {
         }
 
         if (!isChanged) {
-            return c.json({ success: true, message: "No changes made." });
+            return c.json({ success: true, message: 'No changes made.' });
         }
 
         await prisma.kol_reports.update({
@@ -196,12 +202,15 @@ export const updateReport = async (c: Context) => {
             data: dataToUpdate,
         });
 
-        return c.json({ success: true, message: "Report updated successfully." });
+        return c.json({
+            success: true,
+            message: 'Report updated successfully.',
+        });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "An error occurred while updating the report.",
+                message: 'An error occurred while updating the report.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -211,10 +220,10 @@ export const updateReport = async (c: Context) => {
 
 export const getReports = async (c: Context) => {
     try {
-        const campaignId = Number(c.req.param("id"));
+        const campaignId = Number(c.req.param('id'));
         if (!campaignId) {
             return c.json(
-                { success: false, message: "Campaign ID is required." },
+                { success: false, message: 'Campaign ID is required.' },
                 400
             );
         }
@@ -225,7 +234,10 @@ export const getReports = async (c: Context) => {
         });
 
         if (!campaignExists) {
-            return c.json({ success: false, message: "Campaign not found." }, 404);
+            return c.json(
+                { success: false, message: 'Campaign not found.' },
+                404
+            );
         }
 
         // Ambil report kol untuk campaign itu, bisa join kol data juga
@@ -247,7 +259,7 @@ export const getReports = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to fetch reports.",
+                message: 'Failed to fetch reports.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -257,9 +269,12 @@ export const getReports = async (c: Context) => {
 
 export const deleteReport = async (c: Context) => {
     try {
-        const id = Number(c.req.param("id"));
+        const id = Number(c.req.param('id'));
         if (!id) {
-            return c.json({ success: false, message: "Report ID is required." }, 400);
+            return c.json(
+                { success: false, message: 'Report ID is required.' },
+                400
+            );
         }
 
         const existingReport = await prisma.kol_reports.findUnique({
@@ -267,19 +282,25 @@ export const deleteReport = async (c: Context) => {
         });
 
         if (!existingReport) {
-            return c.json({ success: false, message: "Report not found." }, 404);
+            return c.json(
+                { success: false, message: 'Report not found.' },
+                404
+            );
         }
 
         await prisma.kol_reports.delete({
             where: { id },
         });
 
-        return c.json({ success: true, message: "Report deleted successfully." });
+        return c.json({
+            success: true,
+            message: 'Report deleted successfully.',
+        });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "Failed to delete report.",
+                message: 'Failed to delete report.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500

@@ -1,26 +1,26 @@
-import type {Context} from "hono";
-import {prisma} from "@/lib/prisma";
-import {Pagination} from "../helpers/pagination";
-import {Prisma} from "@prisma/client";
-import {validateCampaign} from "@/app/api/[[...route]]/validations/campaignValidation";
+import type { Context } from 'hono';
+import { prisma } from '@/lib/prisma';
+import { Pagination } from '../helpers/pagination';
+import { Prisma } from '@prisma/client';
+import { validateCampaign } from '@/app/api/[[...route]]/validations/campaignValidation';
 
 export const createCampaign = async (c: Context) => {
     try {
         const body = await c.req.json();
-        const user = c.get("user");
+        const user = c.get('user');
 
         const requiredFields = [
-            "name",
-            "kol_type_id",
-            "target_niche",
-            "target_engagement",
-            "target_reach",
-            "target_gender",
-            "target_gender_min",
-            "target_age_range",
-            "start_date",
-            "end_date",
-            "kol_ids",
+            'name',
+            'kol_type_id',
+            'target_niche',
+            'target_engagement',
+            'target_reach',
+            'target_gender',
+            'target_gender_min',
+            'target_age_range',
+            'start_date',
+            'end_date',
+            'kol_ids',
         ];
 
         const missingField = requiredFields.find(
@@ -83,7 +83,7 @@ export const createCampaign = async (c: Context) => {
         return c.json(
             {
                 success: true,
-                message: "Campaign created successfully.",
+                message: 'Campaign created successfully.',
             },
             201
         );
@@ -91,38 +91,38 @@ export const createCampaign = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "An error occurred while creating the campaign.",
+                message: 'An error occurred while creating the campaign.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
         );
     }
-}
+};
 
 export const getCampaigns = async (c: Context) => {
     try {
-        const page = Number(c.req.query("page") || "1");
-        const limit = Number(c.req.query("limit") || "10");
+        const page = Number(c.req.query('page') || '1');
+        const limit = Number(c.req.query('limit') || '10');
         const offset = (page - 1) * limit;
-        const search = c.req.query("search")?.toString() || "";
+        const search = c.req.query('search')?.toString() || '';
 
         const where = search
             ? {
-                name: {
-                    contains: search,
-                    mode: Prisma.QueryMode.insensitive,
-                },
-            }
+                  name: {
+                      contains: search,
+                      mode: Prisma.QueryMode.insensitive,
+                  },
+              }
             : {};
 
-        const total = await prisma.campaigns.count({where});
+        const total = await prisma.campaigns.count({ where });
 
         const campaigns = await prisma.campaigns.findMany({
             where,
             skip: offset,
             take: limit,
             orderBy: {
-                created_at: "desc",
+                created_at: 'desc',
             },
             include: {
                 campaign_kols: {
@@ -147,13 +147,13 @@ export const getCampaigns = async (c: Context) => {
         return c.json({
             success: true,
             data: campaignsWithKols,
-            pagination: Pagination({page, limit, total}),
+            pagination: Pagination({ page, limit, total }),
         });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "Failed to fetch campaigns",
+                message: 'Failed to fetch campaigns',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -169,32 +169,35 @@ export const updateCampaign = async (c: Context) => {
         const campaign_id = Number(body.id);
         if (!campaign_id) {
             return c.json(
-                {success: false, message: "Campaign id is required."},
+                { success: false, message: 'Campaign id is required.' },
                 400
             );
         }
 
-        const {kol_ids, kol_type_id, ...campaignData} = body;
+        const { kol_ids, kol_type_id, ...campaignData } = body;
 
         const allowedFields: (keyof CampaignUpdateData)[] = [
-            "name",
-            "target_niche",
-            "target_engagement",
-            "target_reach",
-            "target_gender",
-            "target_gender_min",
-            "target_age_range",
-            "start_date",
-            "end_date",
+            'name',
+            'target_niche',
+            'target_engagement',
+            'target_reach',
+            'target_gender',
+            'target_gender_min',
+            'target_age_range',
+            'start_date',
+            'end_date',
         ];
 
         const existingCampaign = await prisma.campaigns.findUnique({
-            where: {id: campaign_id},
-            include: {campaign_kols: true},
+            where: { id: campaign_id },
+            include: { campaign_kols: true },
         });
 
         if (!existingCampaign) {
-            return c.json({success: false, message: "Campaign not found."}, 404);
+            return c.json(
+                { success: false, message: 'Campaign not found.' },
+                404
+            );
         }
 
         const dataToUpdate: Partial<CampaignUpdateData> = {};
@@ -209,21 +212,24 @@ export const updateCampaign = async (c: Context) => {
         // Konversi tanggal jika string
         if (
             dataToUpdate.start_date &&
-            typeof dataToUpdate.start_date === "string"
+            typeof dataToUpdate.start_date === 'string'
         ) {
             dataToUpdate.start_date = new Date(dataToUpdate.start_date);
         }
-        if (dataToUpdate.end_date && typeof dataToUpdate.end_date === "string") {
+        if (
+            dataToUpdate.end_date &&
+            typeof dataToUpdate.end_date === 'string'
+        ) {
             dataToUpdate.end_date = new Date(dataToUpdate.end_date);
         }
 
         // Cek perubahan kol_type_id secara eksplisit
-        if (typeof kol_type_id === "number") {
+        if (typeof kol_type_id === 'number') {
             const existingKolTypeId = existingCampaign.kol_type_id;
             if (existingKolTypeId !== kol_type_id) {
                 isCampaignChanged = true;
                 (dataToUpdate as any).kol_type = {
-                    connect: {id: kol_type_id},
+                    connect: { id: kol_type_id },
                 };
             }
         }
@@ -266,20 +272,20 @@ export const updateCampaign = async (c: Context) => {
 
         // Early return jika tidak ada perubahan
         if (!isCampaignChanged && !isKolIdsChanged) {
-            return c.json({success: true, message: "No changes made."});
+            return c.json({ success: true, message: 'No changes made.' });
         }
 
         // Update campaign jika ada perubahan
         if (isCampaignChanged) {
             await prisma.campaigns.update({
-                where: {id: campaign_id},
+                where: { id: campaign_id },
                 data: dataToUpdate,
             });
         }
 
         // Update kol_ids jika berubah
         if (isKolIdsChanged) {
-            await prisma.campaign_kol.deleteMany({where: {campaign_id}});
+            await prisma.campaign_kol.deleteMany({ where: { campaign_id } });
             const campaignKolsData = kol_ids.map((kolId: number) => ({
                 campaign_id,
                 kol_id: kolId,
@@ -290,12 +296,15 @@ export const updateCampaign = async (c: Context) => {
             });
         }
 
-        return c.json({success: true, message: "Campaign updated successfully."});
+        return c.json({
+            success: true,
+            message: 'Campaign updated successfully.',
+        });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "An error occurred while updating the campaign.",
+                message: 'An error occurred while updating the campaign.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -304,37 +313,37 @@ export const updateCampaign = async (c: Context) => {
 };
 
 export const deleteCampaign = async (c: Context) => {
-    const id = Number(c.req.param("id"));
+    const id = Number(c.req.param('id'));
 
     if (!id || isNaN(id)) {
         return c.json(
             {
                 success: false,
-                message: "Valid Campaign ID is required.",
+                message: 'Valid Campaign ID is required.',
             },
             400
         );
     }
 
     try {
-        const existing = await prisma.campaigns.findUnique({where: {id}});
+        const existing = await prisma.campaigns.findUnique({ where: { id } });
 
         if (!existing) {
             return c.json(
                 {
                     success: false,
-                    message: "Campaign not found.",
+                    message: 'Campaign not found.',
                 },
                 404
             );
         }
 
-        await prisma.campaigns.delete({where: {id}});
+        await prisma.campaigns.delete({ where: { id } });
 
         return c.json(
             {
                 success: true,
-                message: "Campaign successfully deleted.",
+                message: 'Campaign successfully deleted.',
             },
             200
         );
@@ -342,7 +351,7 @@ export const deleteCampaign = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to delete campaign.",
+                message: 'Failed to delete campaign.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500

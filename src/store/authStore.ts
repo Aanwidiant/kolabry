@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { setAuthToken, removeAuthToken } from "@/utilities/auth";
+import { create } from 'zustand';
+import { setAuthToken, removeAuthToken } from '@/utilities/auth';
 
 interface User {
     username: string;
