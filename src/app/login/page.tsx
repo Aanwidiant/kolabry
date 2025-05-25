@@ -97,7 +97,7 @@ export default function LoginPage() {
                                     setEmail(e.target.value);
                                     setEmailError('');
                                 }}
-                                className='w-full rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out'
+                                className="w-full input-style"
                                 placeholder='Email'
                             />
                             {emailError && (
@@ -125,7 +125,7 @@ export default function LoginPage() {
                                         setPassword(e.target.value);
                                         setPasswordError('');
                                     }}
-                                    className='w-full rounded-md border bg-transparent p-2 pr-10 text-sm text-dark placeholder-gray border-gray outline-none focus:border-2 focus:border-primary focus:ring-2 focus:ring-secondary transition-all duration-150 ease-in-out'
+                                    className='w-full input-style'
                                     placeholder='Password'
                                 />
                                 <button

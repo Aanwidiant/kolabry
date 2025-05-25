@@ -1,13 +1,14 @@
-'use client';
 import { useState, useEffect, useRef } from 'react';
+import { Chevron } from '@/components/icons';
 
 interface SingleSelectProps {
     label: string;
-    options: { label: string; value: string }[];
-    value: string | null;
-    onChange: (value: string) => void;
+    options: { label: string; value: string | number }[];
+    value: string | number| null;
+    onChange: (value: string | number) => void;
     searchable?: boolean;
     placeholder?: string;
+    width?: string;
 }
 
 export default function SingleSelect({
@@ -17,6 +18,7 @@ export default function SingleSelect({
     onChange,
     searchable = false,
     placeholder = 'Pilih salah satu...',
+    width = 'w-64',
 }: SingleSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
@@ -31,7 +33,7 @@ export default function SingleSelect({
     const selectedLabel =
         options.find((option) => option.value === value)?.label || placeholder;
 
-    const handleSelect = (val: string) => {
+    const handleSelect = (val: string | number) => {
         onChange(val);
         setIsOpen(false);
         setQuery('');
@@ -52,26 +54,31 @@ export default function SingleSelect({
     }, []);
 
     return (
-        <div className='flex flex-col gap-2 w-64' ref={containerRef}>
-            <label className='text-sm font-medium text-gray-700'>{label}</label>
+        <div className={`flex flex-col gap-2 ${width}`} ref={containerRef}>
+            <label className='label-style'>{label}</label>
             <div className='relative'>
                 <button
                     type='button'
-                    className='w-full border rounded-md px-4 py-2 text-left bg-white hover:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                    className='w-full input-style flex items-center justify-between'
                     onClick={() => setIsOpen((prev) => !prev)}
                 >
-                    {selectedLabel}
+                    <span>{selectedLabel}</span>
+                    <Chevron
+                        className={`h-5 w-5 text-gray transition-transform duration-200 ${
+                            isOpen ? 'rotate-90' : 'rotate-270'
+                        }`}
+                    />
                 </button>
 
                 {isOpen && (
-                    <div className='absolute mt-1 w-full bg-white border rounded-md shadow z-10 max-h-60 overflow-auto'>
+                    <div className='absolute mt-1 w-full bg-white border border-gray rounded-md z-10 max-h-60 overflow-auto'>
                         {searchable && (
                             <input
                                 type='text'
-                                placeholder='Cari...'
+                                placeholder='Search...'
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                className='w-full px-3 py-2 border-b outline-none'
+                                className='w-full p-2 border-b outline-none text-sm'
                             />
                         )}
                         {filteredOptions.length > 0 ? (
@@ -79,7 +86,7 @@ export default function SingleSelect({
                                 <div
                                     key={option.value}
                                     onClick={() => handleSelect(option.value)}
-                                    className={`cursor-pointer px-4 py-2 hover:bg-primary/10 ${
+                                    className={`cursor-pointer p-2 text-sm hover:bg-primary/50 hover:text-dark ${
                                         option.value === value
                                             ? 'bg-primary text-white'
                                             : ''
@@ -89,8 +96,8 @@ export default function SingleSelect({
                                 </div>
                             ))
                         ) : (
-                            <div className='px-4 py-2 text-sm text-gray-500'>
-                                Tidak ada hasil
+                            <div className='p-2 text-sm text-gray'>
+                                No result found.
                             </div>
                         )}
                     </div>

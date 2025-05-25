@@ -23,7 +23,7 @@ export default function ClientLayout({
                     mobileVisible={mobileVisible}
                     onMobileClose={() => setMobileVisible(false)}
                 />
-                <div className='flex-1 flex flex-col pt-16'>
+                <div className='flex-1 flex flex-col pt-16 overflow-auto'>
                     <main className='flex-1'>{children}</main>
                     <Footer />
                 </div>

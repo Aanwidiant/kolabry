@@ -1,22 +1,21 @@
-'use client';
 import SingleSelect from './single-select';
 
 interface PaginationLimitProps {
     label?: string;
-    value: string;
-    onChange: (value: string) => void;
+    value: number;
+    onChange: (value: string | number) => void;
 }
 
 export default function PaginationLimit({
-    label = 'Tampilkan per halaman',
+    label = 'Per Page',
     value,
     onChange,
 }: PaginationLimitProps) {
     const options = [
-        { label: '10', value: '10' },
-        { label: '25', value: '25' },
-        { label: '50', value: '50' },
-        { label: '100', value: '100' },
+        { label: '10', value: 10 },
+        { label: '25', value: 25 },
+        { label: '50', value: 50 },
+        { label: '100', value: 100 },
     ];
 
     return (
@@ -25,8 +24,7 @@ export default function PaginationLimit({
             options={options}
             value={value}
             onChange={onChange}
-            searchable={false}
-            placeholder='Pilih limit...'
+            width='w-18'
         />
     );
 }
