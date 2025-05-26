@@ -101,7 +101,7 @@ export default function LoginPage() {
                                 placeholder='Email'
                             />
                             {emailError && (
-                                <p className='text-xs text-red-500'>
+                                <p className='text-xs text-error'>
                                     {emailError}
                                 </p>
                             )}
@@ -148,7 +148,7 @@ export default function LoginPage() {
                                 </button>
                             </div>
                             {passwordError && (
-                                <p className='text-xs text-red-500'>
+                                <p className='text-xs text-error'>
                                     {passwordError}
                                 </p>
                             )}

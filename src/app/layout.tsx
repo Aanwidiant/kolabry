@@ -16,9 +16,9 @@ export default function RootLayout({
     return (
         <html
             lang='en'
-            className='scroll-smooth transition duration-300 ease-in-out'
+            className='scroll-smooth transition duration-300 ease-in-out font-body'
         >
-            <body className='bg-light text-dark'>
+            <body className='bg-light text-dark custom-scroll'>
                 {children}
                 <ToastContainer />
             </body>

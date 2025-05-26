@@ -1,13 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
 @import 'tailwindcss';
 
 @theme {
-    --font-display: 'Poppins', 'Montserrat', sans-serif;
+    --font-body: 'Onest', sans-serif;
 
     --color-primary: #2f80ed;
     --color-secondary: #56ccf2;
     --color-dark: #1f2937;
     --color-gray: #6b7280;
     --color-light: #f3f4f6;
+
+    --color-success: #0BAE25;
+    --color-error: #F13333;
+    --color-warning: #FAC10F;
+    --color-info: #3CACEB;
 }
 
 @layer utilities {
@@ -22,6 +28,24 @@
     .animate-barLoader {
         animation: barLoader 0.8s infinite ease-in-out;
         @apply bg-light;
+    }
+
+    .custom-scroll {
+        scrollbar-color: #912CF6 transparent;
+        scrollbar-width: thin;
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #912CF6;
+        border-radius: 8px;
     }
 }
 

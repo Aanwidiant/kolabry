@@ -132,7 +132,7 @@ export default function UsersPage() {
                                                     />
                                                     <ActionButton
                                                         icon={
-                                                            <Trash className='w-6 h-6 text-red-500' />
+                                                            <Trash className='w-6 h-6 text-error' />
                                                         }
                                                         tooltipText='Delete'
                                                     />

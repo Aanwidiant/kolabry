@@ -153,7 +153,7 @@ export default function Sidebar({
                                         {((isMdScreen && !collapsed) ||
                                             !isMdScreen) &&
                                             isClient && (
-                                                <span className='whitespace-nowrap'>
+                                                <span className='whitespace-nowrap group-hover:text-white'>
                                                     {label}
                                                 </span>
                                             )}
