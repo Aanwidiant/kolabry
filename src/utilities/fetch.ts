@@ -1,10 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import useAuthStore from '@/store/authStore';
 
-const responseBody = (response: AxiosResponse) => {
-    response.data.statusCode = response.status;
-    return response.data;
-};
+const responseBody = (response: AxiosResponse) => response?.data;
 
 const instance: AxiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_FETCH_URL,

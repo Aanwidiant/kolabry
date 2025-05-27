@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import { Close } from '@/components/icons';
+import Button from '@/components/globals/button';
 
 interface ModalProps {
     icon?: ReactNode;
@@ -50,6 +51,9 @@ export default function Modal({
 
                 {footer && (
                     <div className='sticky bottom-0 z-10 flex w-full justify-end border-t border-gray-200 bg-gray-100 px-6 py-3 gap-2'>
+                        <Button onClick={onClose} variant='outline'>
+                            Cancel
+                        </Button>
                         {footer}
                     </div>
                 )}

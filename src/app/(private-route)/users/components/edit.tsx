@@ -83,14 +83,9 @@ export function EditUser({
             icon={<Edit className='w-8 h-8 fill-dark' />}
             title='Edit User'
             footer={
-                <>
-                    <Button onClick={onClose} variant='outline'>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleSave} disabled={loading}>
-                        {loading ? 'Updating...' : 'Update'}
-                    </Button>
-                </>
+                <Button onClick={handleSave} disabled={loading}>
+                    {loading ? 'Updating...' : 'Update'}
+                </Button>
             }
         >
             <div className='grid gap-4'>

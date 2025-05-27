@@ -1,4 +1,4 @@
-export interface Kol {
+export interface Kols {
     id: number;
     name: string;
     niche: NicheType;

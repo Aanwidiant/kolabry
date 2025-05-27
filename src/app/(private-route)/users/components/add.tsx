@@ -68,14 +68,9 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
             icon={<Add className='w-8 h-8 fill-dark' />}
             title='Add New User'
             footer={
-                <>
-                    <Button onClick={onClose} variant='outline'>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleAdd} disabled={loading}>
-                        {loading ? 'Creating...' : 'Create'}
-                    </Button>
-                </>
+                <Button onClick={handleAdd} disabled={loading}>
+                    {loading ? 'Creating...' : 'Create'}
+                </Button>
             }
         >
             <div className='grid gap-4'>

@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import { prisma } from '@/lib/prisma';
 import { validateKol } from '../validations/kolValidation';
-import { Kol } from '@/types';
+import { Kols } from '@/types';
 import { Prisma, NicheType } from '@prisma/client';
 import { Pagination } from '../helpers/pagination';
 
@@ -11,7 +11,8 @@ export const createKol = async (c: Context) => {
         const body = await c.req.json();
         const dataArray = Array.isArray(body) ? body : [body];
 
-        const results: { success: boolean; message: string; data?: Kol }[] = [];
+        const results: { success: boolean; message: string; data?: Kols }[] =
+            [];
 
         for (const [index, item] of dataArray.entries()) {
             const requiredFields = [

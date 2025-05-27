@@ -40,18 +40,13 @@ export default function DeleteUser({
             title='Delete User'
             onClose={onClose}
             footer={
-                <>
-                    <Button onClick={onClose} variant='outline'>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleDelete}
-                        disabled={loading}
-                        variant='destructive'
-                    >
-                        {loading ? 'Deleting...' : 'Delete'}
-                    </Button>
-                </>
+                <Button
+                    onClick={handleDelete}
+                    disabled={loading}
+                    variant='destructive'
+                >
+                    {loading ? 'Deleting...' : 'Delete'}
+                </Button>
             }
         >
             <div className='flex flex-col'>
