@@ -1,8 +1,6 @@
 import type { Campaign, GenderType, NicheType, AgeRangeType } from '@/types';
 
-export function validateCampaign(
-    data: Partial<Campaign> & { kol_ids?: number[] }
-) {
+export function validateCampaign(data: Partial<Campaign> & { kol_ids?: number[] }) {
     if (!Array.isArray(data.kol_ids) || data.kol_ids.length === 0) {
         return { valid: false, message: 'kol_ids must be a non-empty array.' };
     }
@@ -63,10 +61,7 @@ export function validateCampaign(
         return { valid: false, message: 'target_gender_min must be a number.' };
     }
 
-    if (
-        !(data.start_date instanceof Date) ||
-        isNaN(data.start_date.getTime())
-    ) {
+    if (!(data.start_date instanceof Date) || isNaN(data.start_date.getTime())) {
         return {
             valid: false,
             message: 'start_date must be a valid Date object.',

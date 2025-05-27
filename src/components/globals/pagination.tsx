@@ -7,11 +7,7 @@ interface PaginationProps {
     onPageChange: (page: number) => void;
 }
 
-export default function Pagination({
-    totalPages,
-    currentPage,
-    onPageChange,
-}: PaginationProps) {
+export default function Pagination({ totalPages, currentPage, onPageChange }: PaginationProps) {
     const getPageNumbers = () => {
         if (totalPages <= 5) {
             return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -22,25 +18,10 @@ export default function Pagination({
         }
 
         if (currentPage >= totalPages - 2) {
-            return [
-                1,
-                '...',
-                totalPages - 3,
-                totalPages - 2,
-                totalPages - 1,
-                totalPages,
-            ];
+            return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
         }
 
-        return [
-            1,
-            '...',
-            currentPage - 1,
-            currentPage,
-            currentPage + 1,
-            '...',
-            totalPages,
-        ];
+        return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
     };
 
     return (
@@ -75,10 +56,7 @@ export default function Pagination({
                         {page}
                     </button>
                 ) : (
-                    <span
-                        key={i}
-                        className='px-3 py-1 text-gray cursor-default select-none'
-                    >
+                    <span key={i} className='px-3 py-1 text-gray cursor-default select-none'>
                         {page}
                     </span>
                 )
@@ -86,9 +64,7 @@ export default function Pagination({
 
             {/* Next Button */}
             <button
-                onClick={() =>
-                    onPageChange(Math.min(currentPage + 1, totalPages))
-                }
+                onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className={`p-1 rounded-md border ${
                     currentPage === totalPages

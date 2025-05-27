@@ -11,8 +11,7 @@ export const createKol = async (c: Context) => {
         const body = await c.req.json();
         const dataArray = Array.isArray(body) ? body : [body];
 
-        const results: { success: boolean; message: string; data?: Kols }[] =
-            [];
+        const results: { success: boolean; message: string; data?: Kols }[] = [];
 
         for (const [index, item] of dataArray.entries()) {
             const requiredFields = [
@@ -27,9 +26,7 @@ export const createKol = async (c: Context) => {
                 'audience_age_range',
             ];
 
-            const missingField = requiredFields.find(
-                (field) => item[field] === undefined || item[field] === null
-            );
+            const missingField = requiredFields.find((field) => item[field] === undefined || item[field] === null);
 
             if (missingField) {
                 results.push({
@@ -95,9 +92,7 @@ export const getKols = async (c: Context) => {
             Object.values(NicheType).includes(value as NicheType);
 
         const whereClause: Prisma.kolsWhereInput = {
-            ...(niche && isValidNiche(niche)
-                ? { niche: niche as NicheType }
-                : {}),
+            ...(niche && isValidNiche(niche) ? { niche: niche as NicheType } : {}),
             ...(search
                 ? {
                       name: {

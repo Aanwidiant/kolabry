@@ -6,11 +6,7 @@ interface PaginationLimitProps {
     onChange: (value: string | number) => void;
 }
 
-export default function PaginationLimit({
-    label = 'Per Page',
-    value,
-    onChange,
-}: PaginationLimitProps) {
+export default function PaginationLimit({ label = 'Per Page', value, onChange }: PaginationLimitProps) {
     const options = [
         { label: '10', value: 10 },
         { label: '25', value: 25 },
@@ -18,13 +14,5 @@ export default function PaginationLimit({
         { label: '100', value: 100 },
     ];
 
-    return (
-        <SingleSelect
-            label={label}
-            options={options}
-            value={value}
-            onChange={onChange}
-            width='w-18'
-        />
-    );
+    return <SingleSelect label={label} options={options} value={value} onChange={onChange} width='w-18' />;
 }

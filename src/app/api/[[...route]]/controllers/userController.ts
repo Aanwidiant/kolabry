@@ -79,13 +79,7 @@ export const createUser = async (c: Context) => {
 
 // Get User List
 export const getUsers = async (c: Context) => {
-    const {
-        search = '',
-        page = '1',
-        limit = '10',
-        sortBy = 'created_at',
-        order = 'asc',
-    } = c.req.query();
+    const { search = '', page = '1', limit = '10', sortBy = 'created_at', order = 'asc' } = c.req.query();
 
     const pageNumber = parseInt(page, 10);
     const limitNumber = Math.max(parseInt(limit, 10), 1);
@@ -125,9 +119,7 @@ export const getUsers = async (c: Context) => {
     }
 
     const sortField = allowedSortBy.includes(sortBy) ? sortBy : 'created_at';
-    const sortOrder = allowedOrder.includes(order.toLowerCase())
-        ? (order.toLowerCase() as 'asc' | 'desc')
-        : 'asc';
+    const sortOrder = allowedOrder.includes(order.toLowerCase()) ? (order.toLowerCase() as 'asc' | 'desc') : 'asc';
 
     const filters: Prisma.usersWhereInput = search
         ? {
@@ -437,10 +429,7 @@ export const changePassword = async (c: Context) => {
         );
     }
 
-    const isPasswordValid = await bcrypt.compare(
-        oldPassword,
-        existingUser.password
-    );
+    const isPasswordValid = await bcrypt.compare(oldPassword, existingUser.password);
 
     if (!isPasswordValid) {
         return c.json(

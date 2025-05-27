@@ -1,5 +1,4 @@
-const validatePasswordContain =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+const validatePasswordContain = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
 export const validatePassword = (password: string): string | null => {
     if (!validatePasswordContain.test(password)) {

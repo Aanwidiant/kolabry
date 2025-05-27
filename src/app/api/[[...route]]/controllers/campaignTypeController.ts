@@ -1,10 +1,10 @@
 import type { Context } from 'hono';
 import { prisma } from '@/lib/prisma';
-import { validateKolType } from '../validations/kolTypeValidation';
+import { validateCampaignType } from '../validations/campaignTypeValidation';
 import { Prisma } from '@prisma/client';
 import { Pagination } from '../helpers/pagination';
 
-export const createKolType = async (c: Context) => {
+export const createCampaignType = async (c: Context) => {
     const body = await c.req.json();
 
     if (!body.name || !body.min_followers) {
@@ -17,7 +17,7 @@ export const createKolType = async (c: Context) => {
         );
     }
 
-    const existingName = await prisma.kol_types.findFirst({
+    const existingName = await prisma.campaign_types.findFirst({
         where: { name: body.name },
     });
 
@@ -25,13 +25,13 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'name KOL Type already used.',
+                message: 'name Campaign Type already used.',
             },
             400
         );
     }
 
-    const validation = validateKolType(body);
+    const validation = validateCampaignType(body);
     if (!validation.valid) {
         return c.json(
             {
@@ -44,7 +44,7 @@ export const createKolType = async (c: Context) => {
 
     try {
         const { name, min_followers, max_followers } = body;
-        const newKolType = await prisma.kol_types.create({
+        const newCampaignType = await prisma.campaign_types.create({
             data: {
                 name,
                 min_followers,
@@ -55,8 +55,8 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: true,
-                message: 'KOL type successfully created.',
-                data: newKolType,
+                message: 'Campaign type successfully created.',
+                data: newCampaignType,
             },
             201
         );
@@ -64,7 +64,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'An error occurred while creating KOL Type.',
+                message: 'An error occurred while creating Campaign Type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -72,7 +72,7 @@ export const createKolType = async (c: Context) => {
     }
 };
 
-export const getKolTypes = async (c: Context) => {
+export const getCampaignTypes = async (c: Context) => {
     const { search = '', page = '1', limit = '10' } = c.req.query();
 
     const pageNumber = parseInt(page, 10);
@@ -89,19 +89,19 @@ export const getKolTypes = async (c: Context) => {
         : {};
 
     try {
-        const kolTypes = await prisma.kol_types.findMany({
+        const campaignTypes = await prisma.campaign_types.findMany({
             where: whereClause,
             skip: offset,
             take: limitNumber,
         });
 
-        const total = await prisma.kol_types.count({ where: whereClause });
+        const total = await prisma.campaign_types.count({ where: whereClause });
 
-        if (kolTypes.length === 0) {
+        if (campaignTypes.length === 0) {
             return c.json(
                 {
                     success: true,
-                    message: 'No KOL Types found.',
+                    message: 'No Campaign Types found.',
                 },
                 200
             );
@@ -109,7 +109,7 @@ export const getKolTypes = async (c: Context) => {
 
         return c.json({
             success: true,
-            data: kolTypes,
+            data: campaignTypes,
             pagination: Pagination({
                 page: pageNumber,
                 limit: limitNumber,
@@ -120,7 +120,7 @@ export const getKolTypes = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'Failed to fetch KOL Types.',
+                message: 'Failed to fetch Campaign Types.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -128,7 +128,7 @@ export const getKolTypes = async (c: Context) => {
     }
 };
 
-export const updateKolType = async (c: Context) => {
+export const updateCampaignType = async (c: Context) => {
     const id = parseInt(c.req.param('id'));
     const body = await c.req.json();
 
@@ -143,16 +143,16 @@ export const updateKolType = async (c: Context) => {
             400
         );
     }
-    const existingKolType = await prisma.kol_types.findUnique({
+    const existingCampaignType = await prisma.campaign_types.findUnique({
         where: { id },
     });
 
-    if (!existingKolType) {
-        return c.json({ success: false, message: 'KOL Type not found' }, 404);
+    if (!existingCampaignType) {
+        return c.json({ success: false, message: 'Campaign Type not found' }, 404);
     }
 
     if (name) {
-        const nameConflict = await prisma.kol_types.findFirst({
+        const nameConflict = await prisma.campaign_types.findFirst({
             where: {
                 name,
                 NOT: { id },
@@ -163,14 +163,14 @@ export const updateKolType = async (c: Context) => {
             return c.json(
                 {
                     success: false,
-                    message: 'Name is already used by another KOL type.',
+                    message: 'Name is already used by another Campaign type.',
                 },
                 400
             );
         }
     }
 
-    const validation = validateKolType(body, existingKolType.min_followers);
+    const validation = validateCampaignType(body, existingCampaignType.min_followers);
     if (!validation.valid) {
         return c.json(
             {
@@ -182,7 +182,7 @@ export const updateKolType = async (c: Context) => {
     }
 
     try {
-        const updatedKolType = await prisma.kol_types.update({
+        const updatedCampaignType = await prisma.campaign_types.update({
             where: { id },
             data: {
                 ...(name && { name }),
@@ -193,14 +193,14 @@ export const updateKolType = async (c: Context) => {
 
         return c.json({
             success: true,
-            message: 'KOL type updated successfully.',
-            data: updatedKolType,
+            message: 'Campaign type updated successfully.',
+            data: updatedCampaignType,
         });
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: 'Failed to update KOL type.',
+                message: 'Failed to update Campaign type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -208,37 +208,37 @@ export const updateKolType = async (c: Context) => {
     }
 };
 
-export const deleteKolType = async (c: Context) => {
+export const deleteCampaignType = async (c: Context) => {
     const id = parseInt(c.req.param('id'));
 
     if (!id) {
         return c.json(
             {
                 success: false,
-                message: 'KOL Type ID is required.',
+                message: 'Campaign Type ID is required.',
             },
             400
         );
     }
 
     try {
-        const existing = await prisma.kol_types.findUnique({ where: { id } });
+        const existing = await prisma.campaign_types.findUnique({ where: { id } });
 
         if (!existing) {
             return c.json(
                 {
                     success: false,
-                    message: 'KOL Type not found.',
+                    message: 'Campaign Type not found.',
                 },
                 404
             );
         }
 
-        await prisma.kol_types.delete({ where: { id } });
+        await prisma.campaign_types.delete({ where: { id } });
         return c.json(
             {
                 success: true,
-                message: 'KOL Type successfully deleted.',
+                message: 'Campaign Type successfully deleted.',
             },
             200
         );
@@ -246,7 +246,7 @@ export const deleteKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'Failed to delete KOL Type.',
+                message: 'Failed to delete Campaign Type.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500

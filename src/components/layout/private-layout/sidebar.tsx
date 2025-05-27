@@ -1,15 +1,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import {
-    Arrow,
-    Campaign,
-    Dashboard,
-    Kol,
-    KolType,
-    Logout,
-    Report,
-    Users,
-} from '@/components/icons';
+import { Arrow, Campaign, Dashboard, Kol, CampaignType, Logout, Report, Users } from '@/components/icons';
 import useAuthStore from '@/store/authStore';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -36,7 +27,7 @@ const roleSidebarItems: Record<Role, SidebarItem[]> = {
     KOL_MANAGER: [
         { label: 'Dashboard', icon: Dashboard, href: '/dashboard' },
         { label: 'KOL', icon: Kol, href: '/kols' },
-        { label: 'KOL Type', icon: KolType, href: '/kol-type' },
+        { label: 'Campaign Type', icon: CampaignType, href: '/campaign-type' },
         { label: 'Campaign', icon: Campaign, href: '/campaigns' },
         { label: 'Report', icon: Report, href: '/reports' },
         { label: 'Log Out', icon: Logout, href: '#' },
@@ -48,10 +39,7 @@ const roleSidebarItems: Record<Role, SidebarItem[]> = {
     ],
 };
 
-export default function Sidebar({
-    mobileVisible,
-    onMobileClose,
-}: SidebarProps) {
+export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) {
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout } = useAuthStore();
@@ -97,9 +85,7 @@ export default function Sidebar({
             <div
                 onClick={onMobileClose}
                 className={`fixed inset-0 bg-dark/10 z-20 md:hidden transition-opacity ${
-                    mobileVisible
-                        ? 'opacity-100 pointer-events-auto'
-                        : 'opacity-0 pointer-events-none'
+                    mobileVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
             />
 
@@ -110,65 +96,51 @@ export default function Sidebar({
                     ${isMdScreen && collapsed ? 'md:w-16' : 'md:w-56'} px-3`}
             >
                 <ul className='space-y-2 font-medium'>
-                    {sidebarItems.map(
-                        ({ label, icon: Icon, href }: SidebarItem) => {
-                            if (label === 'Log Out') {
-                                return (
-                                    <li key={label}>
-                                        <button
-                                            onClick={handleLogout}
-                                            className={`flex items-center p-2 w-full text-dark rounded-lg hover:bg-primary hover:text-dark group ${
-                                                collapsed
-                                                    ? 'md:justify-center'
-                                                    : 'space-x-3'
-                                            }`}
-                                        >
-                                            <Icon className='w-6 h-6 fill-dark group-hover:fill-light' />
-                                            {((isMdScreen && !collapsed) ||
-                                                !isMdScreen) &&
-                                                isClient && (
-                                                    <span className='whitespace-nowrap text-dark group-hover:text-white'>
-                                                        {label}
-                                                    </span>
-                                                )}
-                                        </button>
-                                    </li>
-                                );
-                            }
-
+                    {sidebarItems.map(({ label, icon: Icon, href }: SidebarItem) => {
+                        if (label === 'Log Out') {
                             return (
                                 <li key={label}>
-                                    <Link
-                                        href={href}
-                                        onClick={onMobileClose}
-                                        className={`flex items-center p-2 rounded-lg ${
-                                            pathname === href
-                                                ? 'bg-primary text-white'
-                                                : 'text-dark hover:bg-primary hover:text-dark'
-                                        } group ${collapsed ? 'md:justify-center' : 'space-x-3'}`}
+                                    <button
+                                        onClick={handleLogout}
+                                        className={`flex items-center p-2 w-full text-dark rounded-lg hover:bg-primary hover:text-dark group ${
+                                            collapsed ? 'md:justify-center' : 'space-x-3'
+                                        }`}
                                     >
-                                        <Icon
-                                            className={`w-6 h-6 fill-current group-hover:fill-light`}
-                                        />
-                                        {((isMdScreen && !collapsed) ||
-                                            !isMdScreen) &&
-                                            isClient && (
-                                                <span className='whitespace-nowrap group-hover:text-white'>
-                                                    {label}
-                                                </span>
-                                            )}
-                                    </Link>
+                                        <Icon className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                        {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
+                                            <span className='whitespace-nowrap text-dark group-hover:text-white'>
+                                                {label}
+                                            </span>
+                                        )}
+                                    </button>
                                 </li>
                             );
                         }
-                    )}
+
+                        return (
+                            <li key={label}>
+                                <Link
+                                    href={href}
+                                    onClick={onMobileClose}
+                                    className={`flex items-center p-2 rounded-lg ${
+                                        pathname === href
+                                            ? 'bg-primary text-white'
+                                            : 'text-dark hover:bg-primary hover:text-dark'
+                                    } group ${collapsed ? 'md:justify-center' : 'space-x-3'}`}
+                                >
+                                    <Icon className={`w-6 h-6 fill-current group-hover:fill-light`} />
+                                    {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
+                                        <span className='whitespace-nowrap group-hover:text-white'>{label}</span>
+                                    )}
+                                </Link>
+                            </li>
+                        );
+                    })}
                 </ul>
 
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    aria-label={
-                        collapsed ? 'Expand sidebar' : 'Collapse sidebar'
-                    }
+                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                     className='hidden md:block absolute bottom-3 right-3 p-2 rounded-md hover:bg-primary transition-transform group'
                 >
                     <Arrow

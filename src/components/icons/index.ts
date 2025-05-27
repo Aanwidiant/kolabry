@@ -13,7 +13,7 @@ export { default as EyeSlash } from './eye-slash';
 export { default as Eye } from './eye';
 export { default as Help } from './help';
 export { default as Info } from './info';
-export { default as KolType } from './kol-type';
+export { default as CampaignType } from './campaign-type';
 export { default as Kol } from './kol';
 export { default as Leaderboard } from './leaderboard';
 export { default as Logout } from './logout';

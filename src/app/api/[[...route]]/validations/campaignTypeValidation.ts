@@ -1,9 +1,6 @@
-import type { KolType } from '@/types';
+import type { CampaignType } from '@/types';
 
-export function validateKolType(
-    data: Partial<KolType>,
-    existingMinFollowers?: number
-) {
+export function validateCampaignType(data: Partial<CampaignType>, existingMinFollowers?: number) {
     if (typeof data.id !== 'number') {
         return { valid: false, message: 'id must be a number.' };
     }
@@ -23,14 +20,9 @@ export function validateKolType(
         };
     }
 
-    const min =
-        'min_followers' in data ? data.min_followers : existingMinFollowers;
+    const min = 'min_followers' in data ? data.min_followers : existingMinFollowers;
 
-    if (
-        data.max_followers !== null &&
-        typeof min === 'number' &&
-        data.max_followers <= min
-    ) {
+    if (data.max_followers !== null && typeof min === 'number' && data.max_followers <= min) {
         return {
             valid: false,
             message: 'max_followers must be greater than min_followers.',

@@ -83,23 +83,19 @@ export const createReports = async (c: Context) => {
         });
 
         // Buat Set supaya mudah cek existing
-        const existingSet = new Set(
-            existingPairs.map((e) => `${e.campaign_id}-${e.kol_id}`)
-        );
+        const existingSet = new Set(existingPairs.map((e) => `${e.campaign_id}-${e.kol_id}`));
 
         // Filter yang sudah ada dan berikan error
-        const filteredReports = validReports.filter(
-            ({ campaign_id, kol_id }, idx) => {
-                if (existingSet.has(`${campaign_id}-${kol_id}`)) {
-                    errors.push({
-                        index: idx,
-                        message: `Report for campaign_id=${campaign_id} and kol_id=${kol_id} already exists.`,
-                    });
-                    return false; // skip insert
-                }
-                return true;
+        const filteredReports = validReports.filter(({ campaign_id, kol_id }, idx) => {
+            if (existingSet.has(`${campaign_id}-${kol_id}`)) {
+                errors.push({
+                    index: idx,
+                    message: `Report for campaign_id=${campaign_id} and kol_id=${kol_id} already exists.`,
+                });
+                return false; // skip insert
             }
-        );
+            return true;
+        });
 
         // Insert batch yang valid dan belum ada
         if (filteredReports.length > 0) {
@@ -112,10 +108,7 @@ export const createReports = async (c: Context) => {
         return c.json(
             {
                 success: errors.length === 0,
-                message:
-                    errors.length === 0
-                        ? 'Reports created successfully.'
-                        : 'Some reports could not be created.',
+                message: errors.length === 0 ? 'Reports created successfully.' : 'Some reports could not be created.',
                 errors,
                 insertedCount: filteredReports.length,
             },
@@ -148,10 +141,7 @@ export const updateReport = async (c: Context) => {
     try {
         const id = Number(c.req.param('id'));
         if (!id) {
-            return c.json(
-                { success: false, message: 'Report ID is required.' },
-                400
-            );
+            return c.json({ success: false, message: 'Report ID is required.' }, 400);
         }
 
         const body: Partial<UpdatableKolReportFields> = await c.req.json();
@@ -161,10 +151,7 @@ export const updateReport = async (c: Context) => {
         });
 
         if (!existingReport) {
-            return c.json(
-                { success: false, message: 'Report not found.' },
-                404
-            );
+            return c.json({ success: false, message: 'Report not found.' }, 404);
         }
 
         const allowedFields: (keyof UpdatableKolReportFields)[] = [
@@ -222,10 +209,7 @@ export const getReports = async (c: Context) => {
     try {
         const campaignId = Number(c.req.param('id'));
         if (!campaignId) {
-            return c.json(
-                { success: false, message: 'Campaign ID is required.' },
-                400
-            );
+            return c.json({ success: false, message: 'Campaign ID is required.' }, 400);
         }
 
         // Optional: cek campaign ada atau tidak
@@ -234,10 +218,7 @@ export const getReports = async (c: Context) => {
         });
 
         if (!campaignExists) {
-            return c.json(
-                { success: false, message: 'Campaign not found.' },
-                404
-            );
+            return c.json({ success: false, message: 'Campaign not found.' }, 404);
         }
 
         // Ambil report kol untuk campaign itu, bisa join kol data juga
@@ -271,10 +252,7 @@ export const deleteReport = async (c: Context) => {
     try {
         const id = Number(c.req.param('id'));
         if (!id) {
-            return c.json(
-                { success: false, message: 'Report ID is required.' },
-                400
-            );
+            return c.json({ success: false, message: 'Report ID is required.' }, 400);
         }
 
         const existingReport = await prisma.kol_reports.findUnique({
@@ -282,10 +260,7 @@ export const deleteReport = async (c: Context) => {
         });
 
         if (!existingReport) {
-            return c.json(
-                { success: false, message: 'Report not found.' },
-                404
-            );
+            return c.json({ success: false, message: 'Report not found.' }, 404);
         }
 
         await prisma.kol_reports.delete({

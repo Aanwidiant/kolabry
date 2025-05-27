@@ -8,10 +8,7 @@ interface NavigasiProps {
     toggleSidebar?: () => void;
 }
 
-export default function LandingNavigasi({
-    layout,
-    toggleSidebar,
-}: NavigasiProps) {
+export default function LandingNavigasi({ layout, toggleSidebar }: NavigasiProps) {
     const pathName = usePathname();
 
     const layoutClass =

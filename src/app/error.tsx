@@ -25,13 +25,10 @@ export default function Error({
                         />
                     </div>
                     <div className='flex flex-col justify-center w-full px-4 lg:w-1/2 space-y-6'>
-                        <h1 className='text-5xl font-semibold'>
-                            Ups! Terjadi kesalahan
-                        </h1>
+                        <h1 className='text-5xl font-semibold'>Ups! Terjadi kesalahan</h1>
                         <p className='text-lg text-dark-etd dark:text-light-etd'>
-                            Kami mengalami masalah saat memuat halaman ini.
-                            Mohon coba lagi atau hubungi kami jika masalah
-                            berlanjut.
+                            Kami mengalami masalah saat memuat halaman ini. Mohon coba lagi atau hubungi kami jika
+                            masalah berlanjut.
                         </p>
                         <div className='flex gap-4'>
                             <Button

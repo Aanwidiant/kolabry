@@ -7,10 +7,7 @@ export default async function LandingFooter() {
             <div className='container flex flex-wrap'>
                 <div className='w-full px-4 mb-10 md:w-1/3'>
                     <h2 className='mb-5 flex gap-x-3 items-center'>
-                        <Link
-                            href='/'
-                            className='text-2xl lg:text-3xl italic font-semibold text-dark'
-                        >
+                        <Link href='/' className='text-2xl lg:text-3xl italic font-semibold text-dark'>
                             Kolabry
                         </Link>
                     </h2>
@@ -22,9 +19,7 @@ export default async function LandingFooter() {
                     <h3 className='mb-5 text-xl font-semibold'>Ikuti Kami</h3>
                 </div>
                 <div className='w-full px-4 mb-10 md:w-1/3'>
-                    <h3 className='flex flex-col mb-5 text-xl font-semibold'>
-                        Tautan Menu
-                    </h3>
+                    <h3 className='flex flex-col mb-5 text-xl font-semibold'>Tautan Menu</h3>
                     <LandingNavigasi layout='footer' />
                 </div>
                 <div className='w-full p-5 border-t border-dark'>

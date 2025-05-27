@@ -12,12 +12,7 @@ interface DeleteUserModalProps {
     onDelete: () => void;
 }
 
-export default function DeleteUser({
-    userId,
-    userName,
-    onClose,
-    onDelete,
-}: DeleteUserModalProps) {
+export default function DeleteUser({ userId, userName, onClose, onDelete }: DeleteUserModalProps) {
     const [loading, setLoading] = useState(false);
 
     const handleDelete = async () => {
@@ -40,19 +35,14 @@ export default function DeleteUser({
             title='Delete User'
             onClose={onClose}
             footer={
-                <Button
-                    onClick={handleDelete}
-                    disabled={loading}
-                    variant='destructive'
-                >
+                <Button onClick={handleDelete} disabled={loading} variant='destructive'>
                     {loading ? 'Deleting...' : 'Delete'}
                 </Button>
             }
         >
             <div className='flex flex-col'>
                 <p>
-                    Are you sure you want to delete user{' '}
-                    <span className='font-semibold text-dark'>{userName}</span>?
+                    Are you sure you want to delete user <span className='font-semibold text-dark'>{userName}</span>?
                 </p>
                 <p>This action cannot be undone.</p>
             </div>

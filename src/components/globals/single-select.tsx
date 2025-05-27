@@ -27,13 +27,10 @@ export default function SingleSelect({
     const containerRef = useRef<HTMLDivElement>(null);
 
     const filteredOptions = searchable
-        ? options.filter((option) =>
-              option.label.toLowerCase().includes(query.toLowerCase())
-          )
+        ? options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
         : options;
 
-    const selectedLabel =
-        options.find((option) => option.value === value)?.label || placeholder;
+    const selectedLabel = options.find((option) => option.value === value)?.label || placeholder;
 
     const handleSelect = (val: string | number) => {
         onChange(val);
@@ -43,16 +40,12 @@ export default function SingleSelect({
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(e.target as Node)
-            ) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
                 setIsOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-            document.removeEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     return (
@@ -90,18 +83,14 @@ export default function SingleSelect({
                                     key={option.value}
                                     onClick={() => handleSelect(option.value)}
                                     className={`cursor-pointer p-2 text-sm hover:bg-primary/50 hover:text-dark ${
-                                        option.value === value
-                                            ? 'bg-primary text-white'
-                                            : ''
+                                        option.value === value ? 'bg-primary text-white' : ''
                                     }`}
                                 >
                                     {option.label}
                                 </div>
                             ))
                         ) : (
-                            <div className='p-2 text-sm text-gray'>
-                                No result found.
-                            </div>
+                            <div className='p-2 text-sm text-gray'>No result found.</div>
                         )}
                     </div>
                 )}

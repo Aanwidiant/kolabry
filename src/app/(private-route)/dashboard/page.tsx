@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/utilities/auth';
 import useAuthStore from '@/store/authStore';
 import { decodeToken } from '@/utilities/decode';
+import AdminDashboard from '@/components/dashboard/admin-dashboard';
+import KolManagerDashboard from '@/components/dashboard/kol-manager-dashboard';
+import BrandDashboard from '@/components/dashboard/brand-dashboard';
 
 export default function DashboardPage() {
     const { user, token, login } = useAuthStore();
@@ -14,11 +17,7 @@ export default function DashboardPage() {
         if (storedToken && !token) {
             const payload = decodeToken(storedToken);
 
-            if (
-                payload &&
-                typeof payload.username === 'string' &&
-                typeof payload.role === 'string'
-            ) {
+            if (payload && typeof payload.username === 'string' && typeof payload.role === 'string') {
                 login(storedToken, {
                     username: payload.username,
                     role: payload.role,
@@ -38,21 +37,15 @@ export default function DashboardPage() {
     switch (user.role) {
         case 'ADMIN':
             return (
-                <main>
-                    <h1>Admin Dashboard</h1>
-                </main>
+                <AdminDashboard/>
             );
         case 'KOL_MANAGER':
             return (
-                <main>
-                    <h1>Manager Dashboard</h1>
-                </main>
+                <KolManagerDashboard/>
             );
         case 'BRAND':
             return (
-                <main>
-                    <h1>User Dashboard</h1>
-                </main>
+                <BrandDashboard/>
             );
         default:
             return <p>Role not recognized.</p>;

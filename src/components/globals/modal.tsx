@@ -12,16 +12,9 @@ interface ModalProps {
     className?: string;
 }
 
-export default function Modal({
-    icon,
-    title,
-    children,
-    footer,
-    onClose,
-    className,
-}: ModalProps) {
+export default function Modal({ icon, title, children, footer, onClose, className }: ModalProps) {
     return (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
+        <div className='fixed inset-0 z-30 flex items-center justify-center bg-black/50'>
             <div
                 className={clsx(
                     'relative w-full max-w-3xl max-h-[90%] overflow-auto bg-white rounded-lg shadow-lg animate-fade-in m-2',
@@ -30,14 +23,8 @@ export default function Modal({
             >
                 <div className='flex items-center justify-between px-6 pt-6'>
                     <div className='flex items-center gap-2'>
-                        {icon && (
-                            <div className='p-1 border border-gray-300 rounded-lg'>
-                                {icon}
-                            </div>
-                        )}
-                        {title && (
-                            <h2 className='text-lg font-semibold'>{title}</h2>
-                        )}
+                        {icon && <div className='p-1 border border-gray-300 rounded-lg'>{icon}</div>}
+                        {title && <h2 className='text-lg font-semibold'>{title}</h2>}
                     </div>
                     <button
                         onClick={onClose}

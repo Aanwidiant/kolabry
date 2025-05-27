@@ -25,12 +25,9 @@ export default function Unauthorized() {
                         />
                     </div>
                     <div className='flex flex-col justify-center w-full px-4 lg:w-1/2 space-y-6'>
-                        <h1 className='text-5xl font-semibold'>
-                            Opps! Page not found
-                        </h1>
+                        <h1 className='text-5xl font-semibold'>Opps! Page not found</h1>
                         <p className='text-lg text-dark-etd dark:text-light-etd'>
-                            Ada yang tidak beres! Sepertinya, linknya rusak atau
-                            halaman telah dihapus.
+                            Ada yang tidak beres! Sepertinya, linknya rusak atau halaman telah dihapus.
                         </p>
                         <div className='flex gap-4'>
                             <Button onClick={handleGoBack}>Kembali</Button>

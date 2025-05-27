@@ -23,9 +23,7 @@ export const createCampaign = async (c: Context) => {
             'kol_ids',
         ];
 
-        const missingField = requiredFields.find(
-            (field) => body[field] === undefined || body[field] === null
-        );
+        const missingField = requiredFields.find((field) => body[field] === undefined || body[field] === null);
 
         if (missingField) {
             return c.json(
@@ -168,10 +166,7 @@ export const updateCampaign = async (c: Context) => {
         const body = await c.req.json();
         const campaign_id = Number(body.id);
         if (!campaign_id) {
-            return c.json(
-                { success: false, message: 'Campaign id is required.' },
-                400
-            );
+            return c.json({ success: false, message: 'Campaign id is required.' }, 400);
         }
 
         const { kol_ids, kol_type_id, ...campaignData } = body;
@@ -194,10 +189,7 @@ export const updateCampaign = async (c: Context) => {
         });
 
         if (!existingCampaign) {
-            return c.json(
-                { success: false, message: 'Campaign not found.' },
-                404
-            );
+            return c.json({ success: false, message: 'Campaign not found.' }, 404);
         }
 
         const dataToUpdate: Partial<CampaignUpdateData> = {};
@@ -210,16 +202,10 @@ export const updateCampaign = async (c: Context) => {
         }
 
         // Konversi tanggal jika string
-        if (
-            dataToUpdate.start_date &&
-            typeof dataToUpdate.start_date === 'string'
-        ) {
+        if (dataToUpdate.start_date && typeof dataToUpdate.start_date === 'string') {
             dataToUpdate.start_date = new Date(dataToUpdate.start_date);
         }
-        if (
-            dataToUpdate.end_date &&
-            typeof dataToUpdate.end_date === 'string'
-        ) {
+        if (dataToUpdate.end_date && typeof dataToUpdate.end_date === 'string') {
             dataToUpdate.end_date = new Date(dataToUpdate.end_date);
         }
 
@@ -258,9 +244,7 @@ export const updateCampaign = async (c: Context) => {
         // Cek perubahan kol_ids
         let isKolIdsChanged = false;
         if (Array.isArray(kol_ids)) {
-            const existingKolIds = existingCampaign.campaign_kols
-                .map((k) => k.kol_id)
-                .sort();
+            const existingKolIds = existingCampaign.campaign_kols.map((k) => k.kol_id).sort();
             const newKolIds = kol_ids.slice().sort();
             if (
                 existingKolIds.length !== newKolIds.length ||

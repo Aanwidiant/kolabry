@@ -64,14 +64,8 @@ export default function UsersPage() {
             </div>
             <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
                 <div className='flex flex-wrap gap-3'>
-                    <SearchInput
-                        onSearch={setSearch}
-                        search={'username, email'}
-                    />
-                    <PaginationLimit
-                        value={limit}
-                        onChange={handleLimitChange}
-                    />
+                    <SearchInput onSearch={setSearch} search={'username, email'} />
+                    <PaginationLimit value={limit} onChange={handleLimitChange} />
                 </div>
                 <div className='place-self-end'>
                     <Button
@@ -90,33 +84,23 @@ export default function UsersPage() {
                     <table className='min-w-full text-sm'>
                         <thead className='border-b border-gray'>
                             <tr className='bg-primary/50'>
-                                <th className='w-16 text-center p-4 rounded-tl-lg'>
-                                    No
-                                </th>
+                                <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
                                 <th className='text-center p-4'>Username</th>
                                 <th className='text-center p-4'>Email</th>
                                 <th className='text-center p-4'>Role</th>
-                                <th className='text-center p-4 rounded-tr-lg'>
-                                    Action
-                                </th>
+                                <th className='text-center p-4 rounded-tr-lg'>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td
-                                        colSpan={5}
-                                        className='py-4 text-center'
-                                    >
+                                    <td colSpan={5} className='py-4 text-center'>
                                         <SpinnerLoader scale='scale-80' />
                                     </td>
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan={5}
-                                        className='text-center py-4 text-xl font-semibold'
-                                    >
+                                    <td colSpan={5} className='text-center py-4 text-xl font-semibold'>
                                         Data not found.
                                     </td>
                                 </tr>
@@ -128,39 +112,23 @@ export default function UsersPage() {
                                             key={user.id}
                                             className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
                                         >
-                                            <td
-                                                className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}
-                                            >
+                                            <td className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}>
                                                 {(page - 1) * limit + index + 1}
                                             </td>
-                                            <td className='px-4 py-2 text-left'>
-                                                {user.username}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {user.email}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {user.role}
-                                            </td>
-                                            <td
-                                                className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
-                                            >
+                                            <td className='px-4 py-2 text-left'>{user.username}</td>
+                                            <td className='px-4 py-2 text-right'>{user.email}</td>
+                                            <td className='px-4 py-2 text-right'>{user.role}</td>
+                                            <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
                                                 <div className='flex justify-center gap-2'>
                                                     <ActionButton
                                                         icon={
                                                             <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                         }
-                                                        onClick={() =>
-                                                            setSelectedUserEdit(
-                                                                user
-                                                            )
-                                                        }
+                                                        onClick={() => setSelectedUserEdit(user)}
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
-                                                        icon={
-                                                            <Trash className='w-6 h-6 text-error' />
-                                                        }
+                                                        icon={<Trash className='w-6 h-6 text-error' />}
                                                         onClick={() =>
                                                             setSelectedUser({
                                                                 id: user.id,
@@ -186,17 +154,8 @@ export default function UsersPage() {
                     />
                 )}
             </div>
-            {openAddUser && (
-                <AddUser
-                    onClose={() => setOpenAddUser(false)}
-                    onAdd={getUsers}
-                />
-            )}
-            <EditUser
-                userData={selectedUserEdit}
-                onClose={() => setSelectedUserEdit(null)}
-                onUpdate={getUsers}
-            />
+            {openAddUser && <AddUser onClose={() => setOpenAddUser(false)} onAdd={getUsers} />}
+            <EditUser userData={selectedUserEdit} onClose={() => setSelectedUserEdit(null)} onUpdate={getUsers} />
             {selectedUser && (
                 <DeleteUser
                     userId={selectedUser.id}

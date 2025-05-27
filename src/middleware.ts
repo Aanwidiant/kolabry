@@ -6,7 +6,7 @@ const publicRoutes = new Set(['/', '/login']);
 
 const roleAccessMap: Record<string, string[]> = {
     ADMIN: ['/dashboard', '/users', '/reports'],
-    KOL_MANAGER: ['/dashboard', '/kols', '/kol-type', '/campaigns', '/reports'],
+    KOL_MANAGER: ['/dashboard', '/kols', '/campaign-type', '/campaigns', '/reports'],
     BRAND: ['/dashboard', '/reports'],
 };
 
@@ -25,11 +25,7 @@ export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
     const cleanPath = pathname.toLowerCase().replace(/\/$/, '') || '/';
 
-    if (
-        cleanPath.startsWith('/_next') ||
-        cleanPath.startsWith('/api') ||
-        cleanPath === '/favicon.ico'
-    ) {
+    if (cleanPath.startsWith('/_next') || cleanPath.startsWith('/api') || cleanPath === '/favicon.ico') {
         return NextResponse.next();
     }
 
@@ -51,8 +47,7 @@ export async function middleware(req: NextRequest) {
         const allowedPaths = roleAccessMap[role] ?? [];
 
         const isAllowed = allowedPaths.some(
-            (basePath) =>
-                cleanPath === basePath || cleanPath.startsWith(`${basePath}/`)
+            (basePath) => cleanPath === basePath || cleanPath.startsWith(`${basePath}/`)
         );
 
         if (!isAllowed) {
@@ -70,7 +65,7 @@ export const config = {
         '/dashboard/:path*',
         '/users/:path*',
         '/kols/:path*',
-        '/kol-type/:path*',
+        '/campaign-type/:path*',
         '/campaigns/:path*',
         '/reports/:path*',
     ],

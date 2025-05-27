@@ -8,11 +8,7 @@ interface SearchInputProps {
     widthInput?: string;
 }
 
-export default function SearchInput({
-    onSearch,
-    search,
-    widthInput = 'w-56',
-}: SearchInputProps) {
+export default function SearchInput({ onSearch, search, widthInput = 'w-56' }: SearchInputProps) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = () => {

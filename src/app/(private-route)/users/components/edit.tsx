@@ -5,6 +5,7 @@ import { Edit, Eye, EyeSlash, Warning } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
+import { roleOptions } from '@/constants/option';
 
 interface EditUserProps {
     userData: UserData | null;
@@ -20,11 +21,7 @@ interface UserData {
     password: string;
 }
 
-export function EditUser({
-    userData: initialUserData,
-    onClose,
-    onUpdate,
-}: EditUserProps) {
+export function EditUser({ userData: initialUserData, onClose, onUpdate }: EditUserProps) {
     const [formData, setFormData] = useState<Partial<UserData>>({});
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -71,12 +68,6 @@ export function EditUser({
         }
     };
 
-    const roles = [
-        { label: 'ADMIN', value: 'ADMIN' },
-        { label: 'KOL MANAGER', value: 'KOL_MANAGER' },
-        { label: 'BRAND', value: 'BRAND' },
-    ];
-
     return (
         <Modal
             onClose={onClose}
@@ -90,10 +81,7 @@ export function EditUser({
         >
             <div className='grid gap-4'>
                 <div className='grid grid-cols-5 items-center gap-4'>
-                    <label
-                        className='col-span-2 font-medium'
-                        htmlFor='username'
-                    >
+                    <label className='col-span-2 font-medium' htmlFor='username'>
                         Username
                     </label>
                     <input
@@ -125,7 +113,7 @@ export function EditUser({
                     <div className='col-span-3'>
                         <SingleSelect
                             id='role'
-                            options={roles}
+                            options={roleOptions}
                             value={formData.role ?? null}
                             onChange={handleRoleChange}
                             width='w-full'
@@ -133,10 +121,7 @@ export function EditUser({
                     </div>
                 </div>
                 <div className='grid grid-cols-5 gap-4'>
-                    <label
-                        className='col-span-2 pt-2 font-medium'
-                        htmlFor='password'
-                    >
+                    <label className='col-span-2 pt-2 font-medium' htmlFor='password'>
                         Password
                     </label>
                     <div className='col-span-3'>
@@ -154,11 +139,7 @@ export function EditUser({
                                 type='button'
                                 onClick={() => setShowPassword(!showPassword)}
                                 className='absolute right-3 top-1/2 -translate-y-1/2 text-gray hover:text-dark transition'
-                                aria-label={
-                                    showPassword
-                                        ? 'Hide password'
-                                        : 'Show password'
-                                }
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                             >
                                 {showPassword ? (
                                     <EyeSlash className='fill-dark w-5 h-5' />
@@ -168,8 +149,7 @@ export function EditUser({
                             </button>
                         </div>
                         <div className='mt-1 flex gap-x-2 items-center text-xs text-error italic'>
-                            <Warning className='w-5 h-5' /> Change only if
-                            requested by the user.
+                            <Warning className='w-5 h-5' /> Change only if requested by the user.
                         </div>
                     </div>
                 </div>

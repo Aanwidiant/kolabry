@@ -5,10 +5,7 @@ interface SidebarProps {
     toggleSidebar: () => void;
 }
 
-export default function LandingSidebar({
-    isOpen,
-    toggleSidebar,
-}: SidebarProps) {
+export default function LandingSidebar({ isOpen, toggleSidebar }: SidebarProps) {
     return (
         <div>
             <div
@@ -17,18 +14,10 @@ export default function LandingSidebar({
                 } lg:static lg:transform-none lg:opacity-100 lg:w-full lg:h-auto`}
             >
                 <div className='px-4 w-full'>
-                    <LandingNavigasi
-                        layout='sidebar'
-                        toggleSidebar={toggleSidebar}
-                    />
+                    <LandingNavigasi layout='sidebar' toggleSidebar={toggleSidebar} />
                 </div>
             </div>
-            {isOpen && (
-                <div
-                    className='fixed inset-0 z-30 lg:hidden'
-                    onClick={toggleSidebar}
-                />
-            )}
+            {isOpen && <div className='fixed inset-0 z-30 lg:hidden' onClick={toggleSidebar} />}
         </div>
     );
 }

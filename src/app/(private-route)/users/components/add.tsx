@@ -5,6 +5,7 @@ import { Eye, EyeSlash, Add } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
+import { roleOptions } from '@/constants/option';
 
 interface AddUserProps {
     onClose: () => void;
@@ -33,12 +34,7 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
     };
 
     const handleAdd = async () => {
-        if (
-            !formData.username ||
-            !formData.email ||
-            !formData.role ||
-            !formData.password
-        ) {
+        if (!formData.username || !formData.email || !formData.role || !formData.password) {
             toast.error('Please fill in all fields.');
             return;
         }
@@ -56,12 +52,6 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
         }
     };
 
-    const roles = [
-        { label: 'ADMIN', value: 'ADMIN' },
-        { label: 'KOL MANAGER', value: 'KOL_MANAGER' },
-        { label: 'BRAND', value: 'BRAND' },
-    ];
-
     return (
         <Modal
             onClose={onClose}
@@ -75,10 +65,7 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
         >
             <div className='grid gap-4'>
                 <div className='grid grid-cols-5 items-center gap-4'>
-                    <label
-                        className='col-span-2 font-medium'
-                        htmlFor='username'
-                    >
+                    <label className='col-span-2 font-medium' htmlFor='username'>
                         Username
                     </label>
                     <input
@@ -110,7 +97,7 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
                     <div className='col-span-3'>
                         <SingleSelect
                             id='role'
-                            options={roles}
+                            options={roleOptions}
                             value={formData.role ?? null}
                             onChange={handleRoleChange}
                             width='w-full'
@@ -118,10 +105,7 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
                     </div>
                 </div>
                 <div className='grid grid-cols-5 gap-4'>
-                    <label
-                        className='col-span-2 pt-2 font-medium'
-                        htmlFor='password'
-                    >
+                    <label className='col-span-2 pt-2 font-medium' htmlFor='password'>
                         Password
                     </label>
                     <div className='col-span-3'>
@@ -138,11 +122,7 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
                                 type='button'
                                 onClick={() => setShowPassword(!showPassword)}
                                 className='absolute right-3 top-1/2 -translate-y-1/2 text-gray hover:text-dark transition'
-                                aria-label={
-                                    showPassword
-                                        ? 'Hide password'
-                                        : 'Show password'
-                                }
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                             >
                                 {showPassword ? (
                                     <EyeSlash className='fill-dark w-5 h-5' />

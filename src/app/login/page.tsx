@@ -50,42 +50,27 @@ export default function LoginPage() {
     return (
         <main className='w-full min-h-screen grid grid-cols-2 bg-light'>
             <div className='hidden md:col-span-1 m-2 p-12 rounded-xl bg-primary md:flex flex-col justify-center gap-4'>
-                <h1 className='text-3xl font-bold tracking-widest text-white'>
-                    KOLABRY
-                </h1>
+                <h1 className='text-3xl font-bold tracking-widest text-white'>KOLABRY</h1>
                 <h2 className='text-xl text-light font-medium tracking-wide'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Ipsa, quae.
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, quae.
                 </h2>
                 <div className='w-96 h-80 self-center bg-secondary rounded-xl'>
-                    <p className='w-full h-full text-center place-content-center'>
-                        for image
-                    </p>
+                    <p className='w-full h-full text-center place-content-center'>for image</p>
                 </div>
                 <p className='text-light font-light text-sm'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Accusamus autem consectetur, eius eos ex exercitationem fuga
-                    ipsum modi sunt temporibus!
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus autem consectetur, eius eos ex
+                    exercitationem fuga ipsum modi sunt temporibus!
                 </p>
             </div>
             <div className='col-span-2 md:col-span-1 flex justify-center items-center'>
                 <div className='w-full max-w-md p-4 space-y-8'>
                     <h2 className='text-2xl font-bold tracking-wide'>
-                        Hello, Welcome to{' '}
-                        <span className='text-primary'>Kolabry</span>
+                        Hello, Welcome to <span className='text-primary'>Kolabry</span>
                     </h2>
-                    <p className='text-gray text-sm'>
-                        Enter your email and password to access your account.
-                    </p>
-                    <form
-                        onSubmit={handleSubmit}
-                        className='flex flex-col gap-6 w-full'
-                    >
+                    <p className='text-gray text-sm'>Enter your email and password to access your account.</p>
+                    <form onSubmit={handleSubmit} className='flex flex-col gap-6 w-full'>
                         <div className='flex flex-col gap-2'>
-                            <label
-                                htmlFor='email'
-                                className='font-medium text-dark text-sm'
-                            >
+                            <label htmlFor='email' className='font-medium text-dark text-sm'>
                                 Email
                             </label>
                             <input
@@ -101,18 +86,11 @@ export default function LoginPage() {
                                 className='w-full input-style'
                                 placeholder='Email'
                             />
-                            {emailError && (
-                                <p className='text-xs text-error'>
-                                    {emailError}
-                                </p>
-                            )}
+                            {emailError && <p className='text-xs text-error'>{emailError}</p>}
                         </div>
 
                         <div className='flex flex-col gap-2'>
-                            <label
-                                htmlFor='password'
-                                className='font-medium text-dark text-sm'
-                            >
+                            <label htmlFor='password' className='font-medium text-dark text-sm'>
                                 Password
                             </label>
                             <div className='relative'>
@@ -131,15 +109,9 @@ export default function LoginPage() {
                                 />
                                 <button
                                     type='button'
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
+                                    onClick={() => setShowPassword(!showPassword)}
                                     className='absolute right-3 top-1/2 -translate-y-1/2 text-gray hover:text-dark transition'
-                                    aria-label={
-                                        showPassword
-                                            ? 'Hide password'
-                                            : 'Show password'
-                                    }
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 >
                                     {showPassword ? (
                                         <EyeSlash className='fill-dark w-5 h-5' />
@@ -148,11 +120,7 @@ export default function LoginPage() {
                                     )}
                                 </button>
                             </div>
-                            {passwordError && (
-                                <p className='text-xs text-error'>
-                                    {passwordError}
-                                </p>
-                            )}
+                            {passwordError && <p className='text-xs text-error'>{passwordError}</p>}
                         </div>
                         {loading ? (
                             <Button>

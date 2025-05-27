@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Button from '@/components/globals/button';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import Pagination from '@/components/globals/pagination';
@@ -14,11 +14,7 @@ export default function Home() {
             {/*</h1>*/}
             {/*<Button isLoading={true}>Button</Button>*/}
             <SpinnerLoader />
-            <Pagination
-                totalPages={6}
-                currentPage={currentPage}
-                onPageChange={(page) => setCurrentPage(page)}
-            />
+            <Pagination totalPages={6} currentPage={currentPage} onPageChange={(page) => setCurrentPage(page)} />
         </main>
     );
 }

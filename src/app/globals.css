@@ -10,10 +10,10 @@
     --color-gray: #6b7280;
     --color-light: #f3f4f6;
 
-    --color-success: #0BAE25;
-    --color-error: #F13333;
-    --color-warning: #FAC10F;
-    --color-info: #3CACEB;
+    --color-success: #0bae25;
+    --color-error: #f13333;
+    --color-warning: #fac10f;
+    --color-info: #3caceb;
 }
 
 @layer utilities {
@@ -47,15 +47,25 @@
         background-color: #2f80ed;
         border-radius: 8px;
     }
-}
 
+    /* globals.css */
+    .input-style.no-arrow::-webkit-outer-spin-button,
+    .input-style.no-arrow::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .input-style.no-arrow[type='number'] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+}
 
 @layer components {
     .input-style {
         @apply rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-primary focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 transition-all duration-150 ease-in-out;
     }
     .label-style {
-        @apply font-medium text-dark text-sm
+        @apply font-medium text-dark text-sm;
     }
 }
 
