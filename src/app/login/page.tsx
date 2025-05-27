@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import useAuthStore from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/globals/button';
+import BarLoader from '@/components/globals/bar-loader';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -97,7 +98,7 @@ export default function LoginPage() {
                                     setEmail(e.target.value);
                                     setEmailError('');
                                 }}
-                                className="w-full input-style"
+                                className='w-full input-style'
                                 placeholder='Email'
                             />
                             {emailError && (
@@ -153,9 +154,13 @@ export default function LoginPage() {
                                 </p>
                             )}
                         </div>
-                        <Button type='submit' isLoading={loading}>
-                            Login
-                        </Button>
+                        {loading ? (
+                            <Button>
+                                <BarLoader />
+                            </Button>
+                        ) : (
+                            <Button type='submit'>Login</Button>
+                        )}
                     </form>
                     <p className='w-full text-center text-gray text-sm'>
                         Don`t have an account?{' '}

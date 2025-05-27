@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Search } from '@/components/icons';
+import Button from '@/components/globals/button';
 
 interface SearchInputProps {
     onSearch: (query: string) => void;
@@ -25,13 +27,10 @@ export default function SearchInput({
 
     return (
         <div className='flex flex-col gap-2'>
-            <label
-                htmlFor='search-input'
-                className='label-style'
-            >
+            <label htmlFor='search-input' className='label-style'>
                 Search by {search}
             </label>
-            <div className='flex gap-2 flex-wrap items-center'>
+            <div className='flex gap-1 flex-wrap items-center'>
                 <input
                     id='search-input'
                     className={`input-style ${widthInput}`}
@@ -39,6 +38,9 @@ export default function SearchInput({
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
+                <Button onClick={handleSearch}>
+                    <Search className='w-6 h-6' />
+                </Button>
             </div>
         </div>
     );

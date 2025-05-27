@@ -1,4 +1,5 @@
 import React from 'react';
+import { Chevron } from '@/components/icons';
 
 interface PaginationProps {
     totalPages: number;
@@ -43,19 +44,19 @@ export default function Pagination({
     };
 
     return (
-        <nav className='inline-flex items-center space-x-1 select-none'>
+        <nav className='w-full inline-flex place-content-center items-center py-4 space-x-1 select-none'>
             {/* Previous Button */}
             <button
                 onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 rounded-md border ${
+                className={`p-1 rounded-md border ${
                     currentPage === 1
-                        ? 'cursor-not-allowed text-gray-400 border-gray-300'
-                        : 'hover:bg-primary hover:text-white border-gray-400'
+                        ? 'cursor-not-allowed text-gray border-gray'
+                        : 'hover:bg-primary hover:text-light border-primary'
                 }`}
                 aria-label='Previous page'
             >
-                Prev
+                <Chevron className='w-6 h-6 rotate-180' />
             </button>
 
             {/* Page Numbers */}
@@ -67,8 +68,8 @@ export default function Pagination({
                         aria-current={page === currentPage ? 'page' : undefined}
                         className={`px-3 py-1 rounded-md border ${
                             page === currentPage
-                                ? 'bg-primary text-white border-primary'
-                                : 'hover:bg-primary/20 border-gray-400'
+                                ? 'bg-primary text-light border-primary'
+                                : 'hover:bg-primary/20 border-gray'
                         }`}
                     >
                         {page}
@@ -76,7 +77,7 @@ export default function Pagination({
                 ) : (
                     <span
                         key={i}
-                        className='px-3 py-1 text-gray-500 cursor-default select-none'
+                        className='px-3 py-1 text-gray cursor-default select-none'
                     >
                         {page}
                     </span>
@@ -89,14 +90,14 @@ export default function Pagination({
                     onPageChange(Math.min(currentPage + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded-md border ${
+                className={`p-1 rounded-md border ${
                     currentPage === totalPages
-                        ? 'cursor-not-allowed text-gray-400 border-gray-300'
-                        : 'hover:bg-primary hover:text-white border-gray-400'
+                        ? 'cursor-not-allowed text-gray border-gray'
+                        : 'hover:bg-primary hover:text-light border-primary'
                 }`}
                 aria-label='Next page'
             >
-                Next
+                <Chevron className='w-6 h-6' />
             </button>
         </nav>
     );

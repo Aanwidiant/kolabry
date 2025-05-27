@@ -20,7 +20,7 @@ export default function RootLayout({
         >
             <body className='bg-light text-dark custom-scroll'>
                 {children}
-                <ToastContainer />
+                <ToastContainer position='bottom-right' />
             </body>
         </html>
     );

@@ -31,7 +31,7 @@
     }
 
     .custom-scroll {
-        scrollbar-color: #912CF6 transparent;
+        scrollbar-color: #2f80ed transparent;
         scrollbar-width: thin;
     }
 
@@ -44,7 +44,7 @@
     }
 
     .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: #912CF6;
+        background-color: #2f80ed;
         border-radius: 8px;
     }
 }

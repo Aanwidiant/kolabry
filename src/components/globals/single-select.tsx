@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Chevron } from '@/components/icons';
 
 interface SingleSelectProps {
-    label: string;
+    label?: string;
     options: { label: string; value: string | number }[];
-    value: string | number| null;
+    value: string | number | null;
     onChange: (value: string | number) => void;
     searchable?: boolean;
     placeholder?: string;
     width?: string;
+    id?: string;
 }
 
 export default function SingleSelect({
@@ -17,8 +18,9 @@ export default function SingleSelect({
     value,
     onChange,
     searchable = false,
-    placeholder = 'Pilih salah satu...',
+    placeholder = 'Select an option.',
     width = 'w-64',
+    id,
 }: SingleSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
@@ -58,6 +60,7 @@ export default function SingleSelect({
             <label className='label-style'>{label}</label>
             <div className='relative'>
                 <button
+                    id={id}
                     type='button'
                     className='w-full input-style flex items-center justify-between'
                     onClick={() => setIsOpen((prev) => !prev)}
@@ -71,7 +74,7 @@ export default function SingleSelect({
                 </button>
 
                 {isOpen && (
-                    <div className='absolute mt-1 w-full bg-white border border-gray rounded-md z-10 max-h-60 overflow-auto'>
+                    <div className='absolute mt-1 w-full bg-white border border-gray rounded-md z-20 max-h-60 overflow-auto'>
                         {searchable && (
                             <input
                                 type='text'
