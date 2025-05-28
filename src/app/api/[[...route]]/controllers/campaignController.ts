@@ -11,7 +11,7 @@ export const createCampaign = async (c: Context) => {
 
         const requiredFields = [
             'name',
-            'kol_type_id',
+            'campaign_type_id',
             'target_niche',
             'target_engagement',
             'target_reach',
@@ -56,7 +56,7 @@ export const createCampaign = async (c: Context) => {
             data: {
                 user_id: user.id,
                 name: body.name,
-                kol_type_id: body.kol_type_id,
+                campaign_type_id: body.campaign_type_id,
                 target_niche: body.target_niche,
                 target_engagement: body.target_engagement,
                 target_reach: body.target_reach,
@@ -169,7 +169,7 @@ export const updateCampaign = async (c: Context) => {
             return c.json({ success: false, message: 'Campaign id is required.' }, 400);
         }
 
-        const { kol_ids, kol_type_id, ...campaignData } = body;
+        const { kol_ids, campaign_type_id, ...campaignData } = body;
 
         const allowedFields: (keyof CampaignUpdateData)[] = [
             'name',
@@ -210,12 +210,12 @@ export const updateCampaign = async (c: Context) => {
         }
 
         // Cek perubahan kol_type_id secara eksplisit
-        if (typeof kol_type_id === 'number') {
-            const existingKolTypeId = existingCampaign.kol_type_id;
-            if (existingKolTypeId !== kol_type_id) {
+        if (typeof campaign_type_id === 'number') {
+            const existingKolTypeId = existingCampaign.campaign_type_id;
+            if (existingKolTypeId !== campaign_type_id) {
                 isCampaignChanged = true;
-                (dataToUpdate as any).kol_type = {
-                    connect: { id: kol_type_id },
+                (dataToUpdate as CampaignUpdateData).campaign_type = {
+                    connect: { id: campaign_type_id },
                 };
             }
         }
@@ -225,7 +225,7 @@ export const updateCampaign = async (c: Context) => {
         for (const key of allowedFields) {
             if (!(key in dataToUpdate)) continue;
 
-            const valueInDb = (existingCampaign as any)[key];
+            const valueInDb = (existingCampaign as CampaignUpdateData)[key];
             const valueInUpdate = dataToUpdate[key];
 
             if (valueInUpdate === undefined) continue;

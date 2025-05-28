@@ -1,5 +1,4 @@
 'use client';
-import Button from '@/components/globals/button';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import Pagination from '@/components/globals/pagination';
 import { useState } from 'react';

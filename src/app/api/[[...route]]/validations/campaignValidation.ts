@@ -49,15 +49,15 @@ export function validateCampaign(data: Partial<Campaign> & { kol_ids?: number[] 
         };
     }
 
-    if (typeof data.target_engagement !== 'number') {
+    if ('target_engagement' in data && typeof data.target_engagement !== 'number') {
         return { valid: false, message: 'target_engagement must be a number.' };
     }
 
-    if (typeof data.target_reach !== 'number') {
+    if ('target_reach' in data && typeof data.target_reach !== 'number') {
         return { valid: false, message: 'target_reach must be a number.' };
     }
 
-    if (typeof data.target_gender_min !== 'number') {
+    if ('target_gender_min' in data && typeof data.target_gender_min !== 'number') {
         return { valid: false, message: 'target_gender_min must be a number.' };
     }
 

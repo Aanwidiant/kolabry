@@ -32,7 +32,7 @@ export const createReports = async (c: Context) => {
         const errors: Array<{ index: number; message: string }> = [];
         const validReports: ReportInput[] = [];
 
-        body.forEach((item: any, idx: number) => {
+        body.forEach((item: ReportInput, idx: number) => {
             const {
                 campaign_id,
                 kol_id,
@@ -174,7 +174,7 @@ export const updateReport = async (c: Context) => {
                 const oldValue = existingReport[key];
 
                 if (newValue !== undefined && newValue !== oldValue) {
-                    dataToUpdate[key] = newValue as any;
+                    dataToUpdate[key] = newValue as number;
                     isChanged = true;
                 }
             }
