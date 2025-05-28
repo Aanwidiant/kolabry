@@ -10,7 +10,7 @@ interface ActionButtonProps {
     tooltipId?: string;
 }
 
-export function ActionButton({
+export default function ActionButton({
     icon,
     tooltipText,
     onClick,

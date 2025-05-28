@@ -7,11 +7,11 @@ import PaginationLimit from '@/components/globals/pagination-limit';
 import Fetch from '@/utilities/fetch';
 import Pagination from '@/components/globals/pagination';
 import SpinnerLoader from '@/components/globals/spinner-loader';
-import { ActionButton } from '@/components/globals/action-button';
+import ActionButton from '@/components/globals/action-button';
 import Button from '@/components/globals/button';
-import { EditUser } from '@/app/(private-route)/users/components/edit';
-import { AddUser } from '@/app/(private-route)/users/components/add';
-import DeleteUser from '@/app/(private-route)/users/components/delete';
+import EditUser from './components/edit';
+import AddUser from './components/add';
+import DeleteUser from './components/delete';
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -20,9 +20,9 @@ export default function UsersPage() {
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [selectedUserEdit, setSelectedUserEdit] = useState<User | null>(null);
-    const [openAddUser, setOpenAddUser] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<{
+    const [selectedEdit, setSelectedEdit] = useState<User | null>(null);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [selectedDelete, setSelectedDelete] = useState<{
         id: number;
         name: string;
     } | null>(null);
@@ -70,7 +70,7 @@ export default function UsersPage() {
                 <div className='place-self-end'>
                     <Button
                         onClick={() => {
-                            setOpenAddUser(true);
+                            setOpenAdd(true);
                         }}
                     >
                         <Add className='w-6 h-6' />
@@ -124,13 +124,13 @@ export default function UsersPage() {
                                                         icon={
                                                             <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                         }
-                                                        onClick={() => setSelectedUserEdit(user)}
+                                                        onClick={() => setSelectedEdit(user)}
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
                                                         icon={<Trash className='w-6 h-6 text-error' />}
                                                         onClick={() =>
-                                                            setSelectedUser({
+                                                            setSelectedDelete({
                                                                 id: user.id,
                                                                 name: user.username,
                                                             })
@@ -154,13 +154,13 @@ export default function UsersPage() {
                     />
                 )}
             </div>
-            {openAddUser && <AddUser onClose={() => setOpenAddUser(false)} onAdd={getUsers} />}
-            <EditUser userData={selectedUserEdit} onClose={() => setSelectedUserEdit(null)} onUpdate={getUsers} />
-            {selectedUser && (
+            {openAdd && <AddUser onClose={() => setOpenAdd(false)} onAdd={getUsers} />}
+            <EditUser userData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getUsers} />
+            {selectedDelete && (
                 <DeleteUser
-                    userId={selectedUser.id}
-                    userName={selectedUser.name}
-                    onClose={() => setSelectedUser(null)}
+                    userId={selectedDelete.id}
+                    userName={selectedDelete.name}
+                    onClose={() => setSelectedDelete(null)}
                     onDelete={getUsers}
                 />
             )}

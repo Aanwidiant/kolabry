@@ -6,23 +6,16 @@ import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { roleOptions } from '@/constants/option';
+import { User, UserRole } from '@/types';
 
 interface EditUserProps {
-    userData: UserData | null;
+    userData: User | null;
     onClose: () => void;
     onUpdate: () => void;
 }
 
-interface UserData {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-    password: string;
-}
-
-export function EditUser({ userData: initialUserData, onClose, onUpdate }: EditUserProps) {
-    const [formData, setFormData] = useState<Partial<UserData>>({});
+export default function EditUser({ userData: initialUserData, onClose, onUpdate }: EditUserProps) {
+    const [formData, setFormData] = useState<Partial<User>>({});
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -43,10 +36,9 @@ export function EditUser({ userData: initialUserData, onClose, onUpdate }: EditU
     };
 
     const handleRoleChange = (value: string | number) => {
-        setFormData((prev) => ({
-            ...prev,
-            role: value as string,
-        }));
+        if (typeof value === 'string' && ['ADMIN', 'KOL_MANAGER', 'BRAND'].includes(value)) {
+            setFormData((prev) => ({ ...prev, role: value as UserRole }));
+        }
     };
 
     const handleSave = async () => {

@@ -1,15 +1,15 @@
-import type { CampaignType } from '@/types';
+import type { CampaignTypes } from '@/types';
 
-export function validateCampaignType(data: Partial<CampaignType>, existingMinFollowers?: number) {
-    if (typeof data.id !== 'number') {
+export function validateCampaignType(data: Partial<CampaignTypes>, existingMinFollowers?: number) {
+    if ('id' in data && typeof data.id !== 'number') {
         return { valid: false, message: 'id must be a number.' };
     }
 
-    if (typeof data.name !== 'string') {
+    if ('name' in data && typeof data.name !== 'string') {
         return { valid: false, message: 'name must be a string.' };
     }
 
-    if (typeof data.min_followers !== 'number') {
+    if ('min_followers' in data && typeof data.min_followers !== 'number') {
         return { valid: false, message: 'min_followers must be a number.' };
     }
 

@@ -1,4 +1,4 @@
-export interface CampaignType {
+export interface CampaignTypes {
     id: number;
     name: string;
     min_followers: number;

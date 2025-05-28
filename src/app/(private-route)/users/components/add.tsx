@@ -6,21 +6,15 @@ import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { roleOptions } from '@/constants/option';
+import { User, UserRole } from '@/types';
 
 interface AddUserProps {
     onClose: () => void;
     onAdd: () => void;
 }
 
-interface UserData {
-    username: string;
-    email: string;
-    role: string;
-    password: string;
-}
-
-export function AddUser({ onClose, onAdd }: AddUserProps) {
-    const [formData, setFormData] = useState<Partial<UserData>>({});
+export default function AddUser({ onClose, onAdd }: AddUserProps) {
+    const [formData, setFormData] = useState<Partial<User>>({});
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -30,7 +24,9 @@ export function AddUser({ onClose, onAdd }: AddUserProps) {
     };
 
     const handleRoleChange = (value: string | number) => {
-        setFormData((prev) => ({ ...prev, role: value as string }));
+        if (typeof value === 'string' && ['ADMIN', 'KOL_MANAGER', 'BRAND'].includes(value)) {
+            setFormData((prev) => ({ ...prev, role: value as UserRole }));
+        }
     };
 
     const handleAdd = async () => {

@@ -36,17 +36,11 @@ export default function DashboardPage() {
 
     switch (user.role) {
         case 'ADMIN':
-            return (
-                <AdminDashboard/>
-            );
+            return <AdminDashboard />;
         case 'KOL_MANAGER':
-            return (
-                <KolManagerDashboard/>
-            );
+            return <KolManagerDashboard />;
         case 'BRAND':
-            return (
-                <BrandDashboard/>
-            );
+            return <BrandDashboard />;
         default:
             return <p>Role not recognized.</p>;
     }

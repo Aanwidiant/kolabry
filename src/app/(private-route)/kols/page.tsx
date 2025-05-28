@@ -104,13 +104,11 @@ export default function KolsPage() {
                         <Add className='w-6 h-6' />
                         <p>Add KOL</p>
                     </Button>
-                    <Button
-                    >
+                    <Button>
                         <Download className='w-6 h-6' />
                         <p>Download Template</p>
                     </Button>
-                    <Button
-                    >
+                    <Button>
                         <Upload className='w-6 h-6' />
                         <p>Upload File</p>
                     </Button>
