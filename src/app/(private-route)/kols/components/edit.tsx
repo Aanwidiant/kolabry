@@ -1,31 +1,38 @@
-import React, { useState } from 'react';
-import SingleSelect from '@/components/globals/single-select';
+import React, { useEffect, useState } from 'react';
 import Fetch from '@/utilities/fetch';
-import { Add } from '@/components/icons';
+import { Edit } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { Kols } from '@/types';
+import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import { AgeRangeType, NicheType } from '@prisma/client';
 
-interface AddKolProps {
+interface EditKolProps {
+    kolData: Kols | null;
     onClose: () => void;
-    onAdd: () => void;
+    onUpdate: () => void;
 }
 
-export function AddKol({ onClose, onAdd }: AddKolProps) {
+export default function EditKol({ kolData: initialKolData, onClose, onUpdate }: EditKolProps) {
     const [formData, setFormData] = useState<Partial<Kols>>({});
     const [loading, setLoading] = useState(false);
 
-    const numberFields = ['followers', 'engagement_rate', 'reach', 'rate_card', 'audience_male', 'audience_female'];
+    useEffect(() => {
+        if (initialKolData) {
+            setFormData(initialKolData);
+        }
+    }, [initialKolData]);
+
+    if (!initialKolData) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: numberFields.includes(name) ? (value === '' ? '' : Number(value)) : value,
+            [name]: type === 'number' ? Number(value) : value,
         }));
     };
 
@@ -57,34 +64,18 @@ export function AddKol({ onClose, onAdd }: AddKolProps) {
         }
     };
 
-    const handleAdd = async () => {
-        const requiredFields: (keyof Kols)[] = [
-            'name',
-            'niche',
-            'followers',
-            'engagement_rate',
-            'reach',
-            'rate_card',
-            'audience_male',
-            'audience_female',
-            'audience_age_range',
-        ];
-
-        const missing = requiredFields.find((field) => formData[field] === undefined || formData[field] === '');
-
-        if (missing) {
-            toast.error(`Field '${missing}' is required.`);
-            return;
-        }
-
+    const handleSave = async () => {
+        if (!formData.id) return;
         setLoading(true);
+
+        const payload = { ...formData };
         try {
-            await Fetch.POST('/kol', [formData]);
-            onAdd();
+            const response = await Fetch.PATCH(`/kol/${formData.id}`, payload);
+            onUpdate();
             onClose();
-            toast.success('KOL created successfully.');
+            toast.success(response.message);
         } catch {
-            toast.error('Failed to create KOL.');
+            toast.error('Error updating KOL.');
         } finally {
             setLoading(false);
         }
@@ -93,11 +84,11 @@ export function AddKol({ onClose, onAdd }: AddKolProps) {
     return (
         <Modal
             onClose={onClose}
-            icon={<Add className='w-8 h-8 fill-dark' />}
-            title='Add New Key Opinion Leader'
+            icon={<Edit className='w-8 h-8 fill-dark' />}
+            title='Edit KOL'
             footer={
-                <Button onClick={handleAdd} disabled={loading}>
-                    {loading ? 'Creating...' : 'Create'}
+                <Button onClick={handleSave} disabled={loading}>
+                    {loading ? 'Updating...' : 'Update'}
                 </Button>
             }
         >

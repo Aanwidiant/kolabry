@@ -6,7 +6,8 @@ import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { roleOptions } from '@/constants/option';
-import { User, UserRole } from '@/types';
+import { User } from '@/types';
+import { UserRole } from '@prisma/client';
 
 interface EditUserProps {
     userData: User | null;
@@ -35,7 +36,7 @@ export default function EditUser({ userData: initialUserData, onClose, onUpdate 
         }));
     };
 
-    const handleRoleChange = (value: string | number) => {
+    const handleRoleChange = (value: string | number | null) => {
         if (typeof value === 'string' && ['ADMIN', 'KOL_MANAGER', 'BRAND'].includes(value)) {
             setFormData((prev) => ({ ...prev, role: value as UserRole }));
         }
@@ -109,6 +110,7 @@ export default function EditUser({ userData: initialUserData, onClose, onUpdate 
                             value={formData.role ?? null}
                             onChange={handleRoleChange}
                             width='w-full'
+                            allowClear={false}
                         />
                     </div>
                 </div>

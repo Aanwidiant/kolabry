@@ -27,7 +27,8 @@ export default function CampaignTypePage() {
         name: string;
     } | null>(null);
 
-    const handleLimitChange = (value: string | number) => {
+    const handleLimitChange = (value: string | number | null) => {
+        if (value === null) return;
         const parsed = typeof value === 'string' ? parseInt(value) : value;
         setLimit(parsed);
         setPage(1);

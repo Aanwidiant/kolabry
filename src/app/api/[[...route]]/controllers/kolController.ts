@@ -2,7 +2,7 @@ import { Context } from 'hono';
 import { prisma } from '@/lib/prisma';
 import { validateKol } from '../validations/kolValidation';
 import { Kols } from '@/types';
-import { Prisma, NicheType } from '@prisma/client';
+import { Prisma, NicheType, AgeRangeType } from '@prisma/client';
 import { Pagination } from '../helpers/pagination';
 
 // Create KOL data
@@ -60,12 +60,14 @@ export const createKol = async (c: Context) => {
                 });
             }
         }
+        const hasError = results.some((r) => !r.success);
+
         return c.json(
             {
-                success: true,
+                success: !hasError,
                 results,
             },
-            201
+            hasError ? 400 : 201
         );
     } catch (err) {
         return c.json(
@@ -82,7 +84,7 @@ export const createKol = async (c: Context) => {
 // Get KOL data
 export const getKols = async (c: Context) => {
     try {
-        const { search = '', page = '1', limit = '10', niche } = c.req.query();
+        const { search = '', page = '1', limit = '10', niche, ageRange } = c.req.query();
 
         const currentPage = parseInt(page, 10);
         const take = parseInt(limit, 10);
@@ -91,8 +93,12 @@ export const getKols = async (c: Context) => {
         const isValidNiche = (value: string): value is NicheType =>
             Object.values(NicheType).includes(value as NicheType);
 
-        const whereClause: Prisma.kolsWhereInput = {
+        const isValidAgeRange = (value: string): value is AgeRangeType =>
+            Object.values(AgeRangeType).includes(value as AgeRangeType);
+
+        const filters: Prisma.kolsWhereInput = {
             ...(niche && isValidNiche(niche) ? { niche: niche as NicheType } : {}),
+            ...(ageRange && isValidAgeRange(ageRange) ? { audience_age_range: ageRange as AgeRangeType } : {}),
             ...(search
                 ? {
                       name: {
@@ -105,12 +111,12 @@ export const getKols = async (c: Context) => {
 
         const [data, total] = await Promise.all([
             prisma.kols.findMany({
-                where: whereClause,
+                where: filters,
                 skip,
                 take,
                 orderBy: { id: 'asc' },
             }),
-            prisma.kols.count({ where: whereClause }),
+            prisma.kols.count({ where: filters }),
         ]);
 
         if (data.length === 0) {

@@ -1,7 +1,11 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import useAuthStore from '@/store/authStore';
 
 const responseBody = (response: AxiosResponse) => response?.data;
+
+if (!process.env.NEXT_PUBLIC_FETCH_URL) {
+    throw new Error('NEXT_PUBLIC_FETCH_URL is not defined');
+}
 
 const instance: AxiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_FETCH_URL,
@@ -13,28 +17,32 @@ const instance: AxiosInstance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        const { token } = useAuthStore.getState();
+        const token = useAuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        if (config.data instanceof FormData) {
-            delete config.headers['Content-Type'];
-        } else {
+        if (!(config.data instanceof FormData)) {
             config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+        } else {
+            delete config.headers['Content-Type'];
         }
 
         return config;
     },
-    (error) => {
+    (error: AxiosError) => {
         return Promise.reject(error);
     }
 );
 
 instance.interceptors.response.use(
     (response) => response,
-    (error) => {
-        return Promise.resolve(error.response);
+    (error: AxiosError) => {
+        return Promise.reject({
+            status: error.response?.status,
+            data: error.response?.data || error.message,
+            message: error.message,
+        });
     }
 );
 

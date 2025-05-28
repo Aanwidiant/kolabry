@@ -79,7 +79,7 @@ export const createUser = async (c: Context) => {
 
 // Get User List
 export const getUsers = async (c: Context) => {
-    const { search = '', page = '1', limit = '10', sortBy = 'created_at', order = 'asc' } = c.req.query();
+    const { search = '', page = '1', limit = '10', role } = c.req.query();
 
     const pageNumber = parseInt(page, 10);
     const limitNumber = Math.max(parseInt(limit, 10), 1);
@@ -95,50 +95,29 @@ export const getUsers = async (c: Context) => {
         );
     }
 
-    const allowedSortBy = ['username', 'email', 'created_at'];
-    const allowedOrder = ['asc', 'desc'];
+    const isValidRole = (value: string): value is UserRole => Object.values(UserRole).includes(value as UserRole);
 
-    if (!allowedSortBy.includes(sortBy)) {
-        return c.json(
-            {
-                success: false,
-                message: `Invalid sortBy field. Allowed values: ${allowedSortBy.join(', ')}`,
-            },
-            400
-        );
-    }
-
-    if (!allowedOrder.includes(order.toLowerCase())) {
-        return c.json(
-            {
-                success: false,
-                message: `Invalid order direction. Allowed values: ${allowedOrder.join(', ')}`,
-            },
-            400
-        );
-    }
-
-    const sortField = allowedSortBy.includes(sortBy) ? sortBy : 'created_at';
-    const sortOrder = allowedOrder.includes(order.toLowerCase()) ? (order.toLowerCase() as 'asc' | 'desc') : 'asc';
-
-    const filters: Prisma.usersWhereInput = search
-        ? {
-              OR: [
-                  {
-                      username: {
-                          contains: search,
-                          mode: 'insensitive',
+    const filters: Prisma.usersWhereInput = {
+        ...(role && isValidRole(role) ? { role: role as UserRole } : {}),
+        ...(search
+            ? {
+                  OR: [
+                      {
+                          username: {
+                              contains: search,
+                              mode: 'insensitive',
+                          },
                       },
-                  },
-                  {
-                      email: {
-                          contains: search,
-                          mode: 'insensitive',
+                      {
+                          email: {
+                              contains: search,
+                              mode: 'insensitive',
+                          },
                       },
-                  },
-              ],
-          }
-        : {};
+                  ],
+              }
+            : {}),
+    };
     try {
         const [users, totalUsers] = await Promise.all([
             prisma.users.findMany({
@@ -152,9 +131,6 @@ export const getUsers = async (c: Context) => {
                 },
                 skip: offset,
                 take: limitNumber,
-                orderBy: {
-                    [sortField]: sortOrder,
-                },
             }),
             prisma.users.count({ where: filters }),
         ]);

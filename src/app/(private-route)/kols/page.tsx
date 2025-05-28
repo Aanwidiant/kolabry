@@ -7,11 +7,13 @@ import PaginationLimit from '@/components/globals/pagination-limit';
 import Button from '@/components/globals/button';
 import Fetch from '@/utilities/fetch';
 import SpinnerLoader from '@/components/globals/spinner-loader';
-import { ActionButton } from '@/components/globals/action-button';
+import ActionButton from '@/components/globals/action-button';
 import Pagination from '@/components/globals/pagination';
 import SingleSelect from '@/components/globals/single-select';
 import DeleteKol from '@/app/(private-route)/kols/components/delete';
 import { AddKol } from '@/app/(private-route)/kols/components/add';
+import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
+import EditKol from '@/app/(private-route)/kols/components/edit';
 
 export default function KolsPage() {
     const [kols, setKols] = useState<Kols[]>([]);
@@ -21,6 +23,7 @@ export default function KolsPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [selectedNiche, setSelectedNiche] = useState<string | null>(null);
+    const [selectedAgeRange, setSelectedAgeRange] = useState<string | null>(null);
     const [selectedEdit, setSelectedEdit] = useState<Kols | null>(null);
     const [openAdd, setOpenAdd] = useState(false);
     const [selectedDelete, setSelectedDelete] = useState<{
@@ -28,14 +31,20 @@ export default function KolsPage() {
         name: string;
     } | null>(null);
 
-    const handleLimitChange = (value: string | number) => {
+    const handleLimitChange = (value: string | number | null) => {
+        if (value === null) return;
         const parsed = typeof value === 'string' ? parseInt(value) : value;
         setLimit(parsed);
         setPage(1);
     };
 
-    const handleNicheChange = (value: string | number) => {
+    const handleNicheChange = (value: string | number | null) => {
         setSelectedNiche(value as string);
+        setPage(1);
+    };
+
+    const handleAgeRangeChange = (value: string | number | null) => {
+        setSelectedAgeRange(value as string);
         setPage(1);
     };
 
@@ -47,6 +56,7 @@ export default function KolsPage() {
                 limit: String(limit),
                 search,
                 ...(selectedNiche ? { niche: selectedNiche } : {}),
+                ...(selectedAgeRange ? { ageRange: selectedAgeRange } : {}),
             });
 
             const response = await Fetch.GET(`/kol?${query.toString()}`);
@@ -57,23 +67,11 @@ export default function KolsPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, limit, search, selectedNiche]);
+    }, [page, limit, search, selectedNiche, selectedAgeRange]);
 
     useEffect(() => {
         getKols().then();
     }, [getKols]);
-
-    const niche_type = [
-        { label: 'FASHION', value: 'FASHION' },
-        { label: 'BEAUTY', value: 'BEAUTY' },
-        { label: 'TECH', value: 'TECH' },
-        { label: 'PARENTING', value: 'PARENTING' },
-        { label: 'LIFESTYLE', value: 'LIFESTYLE' },
-        { label: 'FOOD', value: 'FOOD' },
-        { label: 'HEALTH', value: 'HEALTH' },
-        { label: 'EDUCATION', value: 'EDUCATION' },
-        { label: 'FINANCIAL', value: 'FINANCIAL' },
-    ];
 
     return (
         <main className='pb-10'>
@@ -84,16 +82,25 @@ export default function KolsPage() {
             <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
                 <div className='flex flex-wrap gap-3'>
                     <SearchInput onSearch={setSearch} search={'name'} />
-                    <PaginationLimit value={limit} onChange={handleLimitChange} />
                     <SingleSelect
                         id='niche_type'
                         label='Niche'
-                        options={niche_type}
+                        options={nicheTypeOptions}
                         value={selectedNiche ?? null}
                         onChange={handleNicheChange}
                         width='w-32'
                         placeholder='Select niche'
                     />
+                    <SingleSelect
+                        id='age_range'
+                        label='Age Range'
+                        options={ageRangeOptions}
+                        value={selectedAgeRange ?? null}
+                        onChange={handleAgeRangeChange}
+                        width='w-40'
+                        placeholder='Select age range'
+                    />
+                    <PaginationLimit value={limit} onChange={handleLimitChange} />
                 </div>
                 <div className='place-self-end flex flex-wrap gap-3'>
                     <Button
@@ -106,11 +113,11 @@ export default function KolsPage() {
                     </Button>
                     <Button>
                         <Download className='w-6 h-6' />
-                        <p>Download Template</p>
+                        <p>Template</p>
                     </Button>
                     <Button>
                         <Upload className='w-6 h-6' />
-                        <p>Upload File</p>
+                        <p>Add Bulk</p>
                     </Button>
                 </div>
             </div>
@@ -215,11 +222,7 @@ export default function KolsPage() {
                 )}
             </div>
             {openAdd && <AddKol onClose={() => setOpenAdd(false)} onAdd={getKols} />}
-            {/*<EditUser*/}
-            {/*    userData={selectedEdit}*/}
-            {/*    onClose={() => setSelectedEdit(null)}*/}
-            {/*    onUpdate={getKols}*/}
-            {/*/>*/}
+            <EditKol kolData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getKols} />
             {selectedDelete && (
                 <DeleteKol
                     kolId={selectedDelete.id}

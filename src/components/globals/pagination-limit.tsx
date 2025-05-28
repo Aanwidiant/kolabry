@@ -3,7 +3,7 @@ import SingleSelect from './single-select';
 interface PaginationLimitProps {
     label?: string;
     value: number;
-    onChange: (value: string | number) => void;
+    onChange: (value: string | number | null) => void;
 }
 
 export default function PaginationLimit({ label = 'Per Page', value, onChange }: PaginationLimitProps) {
@@ -14,5 +14,14 @@ export default function PaginationLimit({ label = 'Per Page', value, onChange }:
         { label: '100', value: 100 },
     ];
 
-    return <SingleSelect label={label} options={options} value={value} onChange={onChange} width='w-18' />;
+    return (
+        <SingleSelect
+            label={label}
+            options={options}
+            value={value}
+            onChange={onChange}
+            allowClear={false}
+            width='w-18'
+        />
+    );
 }

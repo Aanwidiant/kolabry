@@ -12,6 +12,8 @@ import Button from '@/components/globals/button';
 import EditUser from './components/edit';
 import AddUser from './components/add';
 import DeleteUser from './components/delete';
+import SingleSelect from '@/components/globals/single-select';
+import { roleOptions } from '@/constants/option';
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -19,6 +21,7 @@ export default function UsersPage() {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [selectedEdit, setSelectedEdit] = useState<User | null>(null);
     const [openAdd, setOpenAdd] = useState(false);
@@ -27,9 +30,15 @@ export default function UsersPage() {
         name: string;
     } | null>(null);
 
-    const handleLimitChange = (value: string | number) => {
+    const handleLimitChange = (value: string | number | null) => {
+        if (value === null) return;
         const parsed = typeof value === 'string' ? parseInt(value) : value;
         setLimit(parsed);
+        setPage(1);
+    };
+
+    const handleRoleChange = (value: string | number | null) => {
+        setSelectedRole(value as string);
         setPage(1);
     };
 
@@ -40,6 +49,7 @@ export default function UsersPage() {
                 page: String(page),
                 limit: String(limit),
                 search,
+                ...(selectedRole ? { role: selectedRole } : {}),
             });
 
             const response = await Fetch.GET(`/user?${query.toString()}`);
@@ -50,7 +60,7 @@ export default function UsersPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, limit, search]);
+    }, [page, limit, search, selectedRole]);
 
     useEffect(() => {
         getUsers().then();
@@ -65,6 +75,15 @@ export default function UsersPage() {
             <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
                 <div className='flex flex-wrap gap-3'>
                     <SearchInput onSearch={setSearch} search={'username, email'} />
+                    <SingleSelect
+                        id='role'
+                        label='Role'
+                        options={roleOptions}
+                        value={selectedRole ?? null}
+                        onChange={handleRoleChange}
+                        width='w-36'
+                        placeholder='Select role'
+                    />
                     <PaginationLimit value={limit} onChange={handleLimitChange} />
                 </div>
                 <div className='place-self-end'>

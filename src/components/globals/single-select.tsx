@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import { Chevron } from '@/components/icons';
+import { Chevron, Close } from '@/components/icons';
 
 interface SingleSelectProps {
     label?: string;
     options: { label: string; value: string | number }[];
     value: string | number | null;
-    onChange: (value: string | number) => void;
+    onChange: (value: string | number | null) => void;
     searchable?: boolean;
     placeholder?: string;
     width?: string;
     id?: string;
+    allowClear?: boolean;
 }
 
 export default function SingleSelect({
@@ -20,6 +21,7 @@ export default function SingleSelect({
     searchable = false,
     placeholder = 'Select an option.',
     width = 'w-64',
+    allowClear = true,
     id,
 }: SingleSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -59,11 +61,22 @@ export default function SingleSelect({
                     onClick={() => setIsOpen((prev) => !prev)}
                 >
                     <span>{selectedLabel}</span>
-                    <Chevron
-                        className={`h-5 w-5 text-gray transition-transform duration-200 ${
-                            isOpen ? 'rotate-90' : 'rotate-270'
-                        }`}
-                    />
+                    {allowClear && value !== null ? (
+                        <Close
+                            className='h-4 w-4 text-gray hover:text-error'
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onChange(null);
+                                setIsOpen(false);
+                            }}
+                        />
+                    ) : (
+                        <Chevron
+                            className={`h-5 w-5 text-gray transition-transform duration-200 ${
+                                isOpen ? 'rotate-90' : 'rotate-270'
+                            }`}
+                        />
+                    )}
                 </button>
 
                 {isOpen && (
