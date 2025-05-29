@@ -95,7 +95,7 @@ export default function SingleSelect({
                                 <div
                                     key={option.value}
                                     onClick={() => handleSelect(option.value)}
-                                    className={`cursor-pointer p-2 text-sm hover:bg-primary/50 hover:text-dark ${
+                                    className={`cursor-pointer text-end p-2 text-sm hover:bg-primary/50 hover:text-dark ${
                                         option.value === value ? 'bg-primary text-white' : ''
                                     }`}
                                 >

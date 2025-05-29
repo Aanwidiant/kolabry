@@ -14,6 +14,7 @@ import DeleteKol from '@/app/(private-route)/kols/components/delete';
 import { AddKol } from '@/app/(private-route)/kols/components/add';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import EditKol from '@/app/(private-route)/kols/components/edit';
+import DataNotFound from '@/components/globals/data-not-found';
 
 export default function KolsPage() {
     const [kols, setKols] = useState<Kols[]>([]);
@@ -148,8 +149,8 @@ export default function KolsPage() {
                                 </tr>
                             ) : kols.length === 0 ? (
                                 <tr>
-                                    <td colSpan={11} className='text-center py-4 text-xl font-semibold'>
-                                        Data not found.
+                                    <td colSpan={11}>
+                                        <DataNotFound />
                                     </td>
                                 </tr>
                             ) : (

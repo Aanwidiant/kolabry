@@ -5,25 +5,25 @@ import Button from '@/components/globals/button';
 import { Trash } from '@/components/icons';
 import Fetch from '@/utilities/fetch';
 
-interface DeleteKolModalProps {
-    kolId: number;
+interface DeleteCampaignProps {
+    campaignId: number;
     name: string;
     onClose: () => void;
     onDelete: () => void;
 }
 
-export default function DeleteKol({ kolId, name, onClose, onDelete }: DeleteKolModalProps) {
+export default function DeleteCampaign({ campaignId, name, onClose, onDelete }: DeleteCampaignProps) {
     const [loading, setLoading] = useState(false);
 
     const handleDelete = async () => {
         setLoading(true);
         try {
-            const res = await Fetch.DELETE(`/kol/${kolId}`, {});
-            toast.success(res.message || 'Kol deleted successfully');
+            const res = await Fetch.DELETE(`/campaign/${campaignId}`, {});
+            toast.success(res.message || 'Campaign deleted successfully');
             onDelete();
             onClose();
         } catch {
-            toast.error('Failed to delete kol.');
+            toast.error('Failed to delete campaign.');
         } finally {
             setLoading(false);
         }
@@ -32,7 +32,7 @@ export default function DeleteKol({ kolId, name, onClose, onDelete }: DeleteKolM
     return (
         <Modal
             icon={<Trash className='w-8 h-8 fill-error' />}
-            title='Delete User'
+            title='Delete Campaign'
             onClose={onClose}
             footer={
                 <Button onClick={handleDelete} disabled={loading} variant='destructive'>
@@ -42,7 +42,8 @@ export default function DeleteKol({ kolId, name, onClose, onDelete }: DeleteKolM
         >
             <div className='flex flex-col'>
                 <p>
-                    Are you sure you want to delete KOL <span className='font-semibold text-dark'>{`"${name}"`}</span>?
+                    Are you sure you want to delete campaign{' '}
+                    <span className='font-semibold text-dark'>{`"${name}"`}</span>?
                 </p>
                 <p>This action cannot be undone.</p>
             </div>

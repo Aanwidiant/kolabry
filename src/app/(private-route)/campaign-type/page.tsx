@@ -12,6 +12,7 @@ import Button from '@/components/globals/button';
 import AddCampaignType from './components/add';
 import EditCampaignType from './components/edit';
 import DeleteCampaignType from './components/delete';
+import DataNotFound from '@/components/globals/data-not-found';
 
 export default function CampaignTypePage() {
     const [campaignTypes, setCampaignTypes] = useState<CampaignTypes[]>([]);
@@ -102,8 +103,8 @@ export default function CampaignTypePage() {
                                 </tr>
                             ) : campaignTypes.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className='text-center py-4 text-xl font-semibold'>
-                                        Data not found.
+                                    <td colSpan={5}>
+                                        <DataNotFound />
                                     </td>
                                 </tr>
                             ) : (

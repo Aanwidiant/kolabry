@@ -14,6 +14,7 @@ import AddUser from './components/add';
 import DeleteUser from './components/delete';
 import SingleSelect from '@/components/globals/single-select';
 import { roleOptions } from '@/constants/option';
+import DataNotFound from '@/components/globals/data-not-found';
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -119,8 +120,8 @@ export default function UsersPage() {
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className='text-center py-4 text-xl font-semibold'>
-                                        Data not found.
+                                    <td colSpan={5}>
+                                        <DataNotFound />
                                     </td>
                                 </tr>
                             ) : (

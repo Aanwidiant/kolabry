@@ -42,7 +42,8 @@ export default function DeleteUser({ userId, userName, onClose, onDelete }: Dele
         >
             <div className='flex flex-col'>
                 <p>
-                    Are you sure you want to delete user <span className='font-semibold text-dark'>{userName}</span>?
+                    Are you sure you want to delete user{' '}
+                    <span className='font-semibold text-dark'>{`"${userName}"`}</span>?
                 </p>
                 <p>This action cannot be undone.</p>
             </div>

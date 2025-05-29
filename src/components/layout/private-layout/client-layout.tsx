@@ -11,10 +11,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return (
         <>
             <Navbar onMenuClick={() => setMobileVisible(!mobileVisible)} isSidebarOpen={mobileVisible} />
-            <div className='flex'>
+            <div className='flex h-screen overflow-hidden'>
                 <Sidebar mobileVisible={mobileVisible} onMobileClose={() => setMobileVisible(false)} />
-                <div className='flex-1 flex flex-col pt-16 overflow-auto'>
-                    <main className='flex-1'>{children}</main>
+                <div className='flex-1 pt-16 flex flex-col overflow-hidden'>
+                    <main className='flex-1 overflow-y-auto'>{children}</main>
                     <Footer />
                 </div>
             </div>

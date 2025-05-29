@@ -1,6 +1,6 @@
 import { NicheType, AgeRangeType } from './kol';
 
-export interface Campaign {
+export interface Campaigns {
     id: number;
     user_id: number;
     name: string;

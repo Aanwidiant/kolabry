@@ -124,7 +124,7 @@ export default function LoginPage() {
                         </div>
                         {loading ? (
                             <Button>
-                                <BarLoader />
+                                <BarLoader scale={0.6} />
                             </Button>
                         ) : (
                             <Button type='submit'>Login</Button>

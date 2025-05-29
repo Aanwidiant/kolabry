@@ -90,7 +90,7 @@ export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) 
             />
 
             <aside
-                className={`fixed top-0 left-0 z-20 min-h-screen pt-19 transition-all bg-light border-r border-gray
+                className={`min-h-screen md:h-screen overflow-y-auto fixed top-0 left-0 z-20 pt-19 transition-all bg-light border-r border-gray
                     md:translate-x-0 md:relative md:pt-19
                     ${mobileVisible ? 'w-56 translate-x-0' : '-translate-x-full w-56'} 
                     ${isMdScreen && collapsed ? 'md:w-16' : 'md:w-56'} px-3`}

@@ -43,7 +43,7 @@ export default function DeleteCampaignType({ campaignTypeId, name, onClose, onDe
             <div className='flex flex-col'>
                 <p>
                     Are you sure you want to delete campaign type{' '}
-                    <span className='font-semibold text-dark'>{name}</span>?
+                    <span className='font-semibold text-dark'>{`"${name}"`}</span>?
                 </p>
                 <p>This action cannot be undone.</p>
             </div>
