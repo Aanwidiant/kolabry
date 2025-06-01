@@ -1,6 +1,6 @@
-import type { Campaign, GenderType, NicheType, AgeRangeType } from '@/types';
+import type { Campaigns, GenderType, NicheType, AgeRangeType } from '@/types';
 
-export function validateCampaign(data: Partial<Campaign> & { kol_ids?: number[] }) {
+export function validateCampaign(data: Partial<Campaigns> & { kol_ids?: number[] }) {
     if (!Array.isArray(data.kol_ids) || data.kol_ids.length === 0) {
         return { valid: false, message: 'kol_ids must be a non-empty array.' };
     }

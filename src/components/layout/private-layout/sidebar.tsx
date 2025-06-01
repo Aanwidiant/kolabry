@@ -106,9 +106,9 @@ export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) 
                                             collapsed ? 'md:justify-center' : 'space-x-3'
                                         }`}
                                     >
-                                        <Icon className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                        <Icon className='w-6 h-6 fill-error group-hover:fill-light' />
                                         {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
-                                            <span className='whitespace-nowrap text-dark group-hover:text-white'>
+                                            <span className='whitespace-nowrap text-error group-hover:text-white'>
                                                 {label}
                                             </span>
                                         )}
