@@ -1,9 +1,9 @@
-import {Context} from "hono";
-import {prisma} from "@/app/lib/prisma";
-import {validateKol} from "../validations/kolValidation";
-import {KolInput} from "@/app/types/kolTypes";
-import {Prisma, NicheType} from "@prisma/client";
-import {Pagination} from "../helpers/pagination";
+import { Context } from 'hono';
+import { prisma } from '@/lib/prisma';
+import { validateKol } from '../validations/kolValidation';
+import { Kols } from '@/types';
+import { Prisma, NicheType, AgeRangeType } from '@prisma/client';
+import { Pagination } from '../helpers/pagination';
 
 // Create KOL data
 export const createKol = async (c: Context) => {
@@ -11,25 +11,22 @@ export const createKol = async (c: Context) => {
         const body = await c.req.json();
         const dataArray = Array.isArray(body) ? body : [body];
 
-        const results: { success: boolean; message: string; data?: KolInput }[] =
-            [];
+        const results: { success: boolean; message: string; data?: Kols }[] = [];
 
         for (const [index, item] of dataArray.entries()) {
             const requiredFields = [
-                "name",
-                "niche",
-                "followers",
-                "engagement_rate",
-                "reach",
-                "rate_card",
-                "audience_male",
-                "audience_female",
-                "audience_age_range",
+                'name',
+                'niche',
+                'followers',
+                'engagement_rate',
+                'reach',
+                'rate_card',
+                'audience_male',
+                'audience_female',
+                'audience_age_range',
             ];
 
-            const missingField = requiredFields.find(
-                (field) => item[field] === undefined || item[field] === null
-            );
+            const missingField = requiredFields.find((field) => item[field] === undefined || item[field] === null);
 
             if (missingField) {
                 results.push({
@@ -49,7 +46,7 @@ export const createKol = async (c: Context) => {
             }
 
             try {
-                await prisma.kols.create({data: item});
+                await prisma.kols.create({ data: item });
                 results.push({
                     success: true,
                     message: `Item ${index + 1}: KOL data created successfully.`,
@@ -63,18 +60,20 @@ export const createKol = async (c: Context) => {
                 });
             }
         }
+        const hasError = results.some((r) => !r.success);
+
         return c.json(
             {
-                success: true,
+                success: !hasError,
                 results,
             },
-            201
+            hasError ? 400 : 201
         );
     } catch (err) {
         return c.json(
             {
                 success: false,
-                message: "An error occurred on the server.",
+                message: 'An error occurred on the server.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -85,7 +84,7 @@ export const createKol = async (c: Context) => {
 // Get KOL data
 export const getKols = async (c: Context) => {
     try {
-        const {search = "", page = "1", limit = "10", niche} = c.req.query();
+        const { search = '', page = '1', limit = '10', niche, ageRange } = c.req.query();
 
         const currentPage = parseInt(page, 10);
         const take = parseInt(limit, 10);
@@ -94,33 +93,37 @@ export const getKols = async (c: Context) => {
         const isValidNiche = (value: string): value is NicheType =>
             Object.values(NicheType).includes(value as NicheType);
 
-        const whereClause: Prisma.kolsWhereInput = {
-            ...(niche && isValidNiche(niche) ? {niche: niche as NicheType} : {}),
+        const isValidAgeRange = (value: string): value is AgeRangeType =>
+            Object.values(AgeRangeType).includes(value as AgeRangeType);
+
+        const filters: Prisma.kolsWhereInput = {
+            ...(niche && isValidNiche(niche) ? { niche: niche as NicheType } : {}),
+            ...(ageRange && isValidAgeRange(ageRange) ? { audience_age_range: ageRange as AgeRangeType } : {}),
             ...(search
                 ? {
-                    name: {
-                        contains: search,
-                        mode: "insensitive",
-                    },
-                }
+                      name: {
+                          contains: search,
+                          mode: 'insensitive',
+                      },
+                  }
                 : {}),
         };
 
         const [data, total] = await Promise.all([
             prisma.kols.findMany({
-                where: whereClause,
+                where: filters,
                 skip,
                 take,
-                orderBy: {id: "asc"},
+                orderBy: { id: 'asc' },
             }),
-            prisma.kols.count({where: whereClause}),
+            prisma.kols.count({ where: filters }),
         ]);
 
         if (data.length === 0) {
             return c.json(
                 {
                     success: true,
-                    message: "No KOL data found.",
+                    message: 'No KOL data found.',
                 },
                 200
             );
@@ -142,7 +145,7 @@ export const getKols = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "An error occurred while fetching KOLs.",
+                message: 'An error occurred while fetching KOLs.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -153,33 +156,34 @@ export const getKols = async (c: Context) => {
 // Update KOL data
 export const updateKol = async (c: Context) => {
     try {
+        const id = parseInt(c.req.param('id'));
         const body = await c.req.json();
 
-        if (!body.id) {
+        if (!id) {
             return c.json(
                 {
                     success: false,
-                    message: "KOL ID is required.",
+                    message: 'KOL ID is required.',
                 },
                 400
             );
         }
 
         const existingKol = await prisma.kols.findUnique({
-            where: {id: body.id},
+            where: { id: id },
         });
 
         if (!existingKol) {
             return c.json(
                 {
                     success: false,
-                    message: "KOL data not found.",
+                    message: 'KOL data not found.',
                 },
                 404
             );
         }
 
-        const updatedData = {...existingKol, ...body};
+        const updatedData = { ...existingKol, ...body };
         const validation = validateKol(updatedData);
 
         if (!validation.valid) {
@@ -192,17 +196,17 @@ export const updateKol = async (c: Context) => {
             );
         }
 
-        const {id, ...updateFields} = body;
+        const { ...updateFields } = body;
 
         await prisma.kols.update({
-            where: {id},
+            where: { id },
             data: updateFields,
         });
 
         return c.json(
             {
                 success: true,
-                message: "KOL updated successfully.",
+                message: 'KOL updated successfully.',
             },
             200
         );
@@ -210,7 +214,7 @@ export const updateKol = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "An error occurred on the server.",
+                message: 'An error occurred on the server.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
@@ -220,36 +224,24 @@ export const updateKol = async (c: Context) => {
 
 // Delete KOL data
 export const deleteKol = async (c: Context) => {
-    const id = parseInt(c.req.param("id"));
+    const id = parseInt(c.req.param('id'));
 
     if (!id) {
         return c.json(
             {
                 success: false,
-                message: "KOL ID is required.",
+                message: 'KOL ID is required.',
             },
             400
         );
     }
 
     try {
-        const existing = await prisma.kols.findUnique({where: {id}});
-
-        if (!existing) {
-            return c.json(
-                {
-                    success: false,
-                    message: "KOL data not found.",
-                },
-                404
-            );
-        }
-
-        await prisma.kols.delete({where: {id}});
+        await prisma.kols.delete({ where: { id } });
         return c.json(
             {
                 success: true,
-                message: "KOL data successfully deleted.",
+                message: 'KOL data successfully deleted.',
             },
             200
         );
@@ -257,7 +249,7 @@ export const deleteKol = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: "Failed to delete KOL data.",
+                message: 'Failed to delete KOL data.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500
