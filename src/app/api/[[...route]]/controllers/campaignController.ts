@@ -56,7 +56,7 @@ export const createCampaign = async (c: Context) => {
             data: {
                 user_id: user.id,
                 name: body.name,
-                campaign_type_id: body.campaign_type_id,
+                kol_type_id: body.kol_type_id,
                 target_niche: body.target_niche,
                 target_engagement: body.target_engagement,
                 target_reach: body.target_reach,
@@ -211,10 +211,10 @@ export const updateCampaign = async (c: Context) => {
 
         // Cek perubahan kol_type_id secara eksplisit
         if (typeof campaign_type_id === 'number') {
-            const existingKolTypeId = existingCampaign.campaign_type_id;
+            const existingKolTypeId = existingCampaign.kol_type_id;
             if (existingKolTypeId !== campaign_type_id) {
                 isCampaignChanged = true;
-                (dataToUpdate as CampaignUpdateData).campaign_type = {
+                (dataToUpdate as CampaignUpdateData).kol_types = {
                     connect: { id: campaign_type_id },
                 };
             }

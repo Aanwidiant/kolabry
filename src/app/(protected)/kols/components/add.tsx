@@ -14,7 +14,7 @@ interface AddKolProps {
     onAdd: () => void;
 }
 
-export function AddKol({ onClose, onAdd }: AddKolProps) {
+export default function AddKol({ onClose, onAdd }: AddKolProps) {
     const [formData, setFormData] = useState<Partial<Kols>>({});
     const [loading, setLoading] = useState(false);
 

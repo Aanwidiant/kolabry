@@ -25,10 +25,10 @@ export default function Error({
                         />
                     </div>
                     <div className='flex flex-col justify-center w-full px-4 lg:w-1/2 space-y-6'>
-                        <h1 className='text-5xl font-semibold'>Ups! Terjadi kesalahan</h1>
+                        <h1 className='text-5xl font-semibold'>Oops! Something went wrong</h1>
                         <p className='text-lg text-dark-etd dark:text-light-etd'>
-                            Kami mengalami masalah saat memuat halaman ini. Mohon coba lagi atau hubungi kami jika
-                            masalah berlanjut.
+                            We encountered an error while loading this page. Please try again or contact support if the
+                            issue persists.
                         </p>
                         <div className='flex gap-4'>
                             <Button
@@ -37,7 +37,7 @@ export default function Error({
                                     reset();
                                 }}
                             >
-                                Coba lagi
+                                Try Again
                             </Button>
                         </div>
                     </div>

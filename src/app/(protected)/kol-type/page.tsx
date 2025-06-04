@@ -1,7 +1,7 @@
 'use client';
-import { Add, CampaignType, Edit, Trash } from '@/components/icons';
+import { Add, KolTypes, Edit, Trash } from '@/components/icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { CampaignTypes } from '@/types';
+import { KolType } from '@/types';
 import Fetch from '@/utilities/fetch';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import ActionButton from '@/components/globals/action-button';
@@ -9,19 +9,19 @@ import Pagination from '@/components/globals/pagination';
 import SearchInput from '@/components/globals/search-input';
 import PaginationLimit from '@/components/globals/pagination-limit';
 import Button from '@/components/globals/button';
-import AddCampaignType from './components/add';
-import EditCampaignType from './components/edit';
-import DeleteCampaignType from './components/delete';
+import AddKolType from './components/add';
+import EditKolType from './components/edit';
+import DeleteKolType from './components/delete';
 import DataNotFound from '@/components/globals/data-not-found';
 
-export default function CampaignTypePage() {
-    const [campaignTypes, setCampaignTypes] = useState<CampaignTypes[]>([]);
+export default function KolTypePage() {
+    const [kolTypes, setKolTypes] = useState<KolType[]>([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [selectedEdit, setSelectedEdit] = useState<CampaignTypes | null>(null);
+    const [selectedEdit, setSelectedEdit] = useState<KolType | null>(null);
     const [openAdd, setOpenAdd] = useState(false);
     const [selectedDelete, setSelectedDelete] = useState<{
         id: number;
@@ -35,7 +35,7 @@ export default function CampaignTypePage() {
         setPage(1);
     };
 
-    const getCampaignTypes = useCallback(async () => {
+    const getKolTypes = useCallback(async () => {
         setLoading(true);
         try {
             const query = new URLSearchParams({
@@ -44,25 +44,25 @@ export default function CampaignTypePage() {
                 search,
             });
 
-            const response = await Fetch.GET(`/campaign-type?${query.toString()}`);
-            setCampaignTypes(response.data || []);
+            const response = await Fetch.GET(`/kol-type?${query.toString()}`);
+            setKolTypes(response.data || []);
             setTotalPages(response.pagination?.totalPages || 1);
         } catch (error) {
-            console.error('Error fetching campaign type:', error);
+            console.error('Error fetching kol type:', error);
         } finally {
             setLoading(false);
         }
     }, [page, limit, search]);
 
     useEffect(() => {
-        getCampaignTypes().then();
-    }, [getCampaignTypes]);
+        getKolTypes().then();
+    }, [getKolTypes]);
 
     return (
         <main className='pb-10'>
             <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
-                <CampaignType className='w-8 h-8 fill-dark' />
-                <span className='text-lg font-semibold'>Campaign Type</span>
+                <KolTypes className='w-8 h-8 fill-dark' />
+                <span className='text-lg font-semibold'>KOL Type</span>
             </div>
 
             <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
@@ -77,7 +77,7 @@ export default function CampaignTypePage() {
                         }}
                     >
                         <Add className='w-6 h-6' />
-                        <p>Add Campaign Type</p>
+                        <p>Add KOL Type</p>
                     </Button>
                 </div>
             </div>
@@ -101,41 +101,41 @@ export default function CampaignTypePage() {
                                         <SpinnerLoader scale='scale-80' />
                                     </td>
                                 </tr>
-                            ) : campaignTypes.length === 0 ? (
+                            ) : kolTypes.length === 0 ? (
                                 <tr>
                                     <td colSpan={5}>
                                         <DataNotFound />
                                     </td>
                                 </tr>
                             ) : (
-                                campaignTypes.map((campaignType, index) => {
-                                    const isLast = index === campaignTypes.length - 1;
+                                kolTypes.map((kolType, index) => {
+                                    const isLast = index === kolTypes.length - 1;
                                     return (
                                         <tr
-                                            key={campaignType.id}
+                                            key={kolType.id}
                                             className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
                                         >
                                             <td className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}>
                                                 {(page - 1) * limit + index + 1}
                                             </td>
-                                            <td className='px-4 py-2 text-left'>{campaignType.name}</td>
-                                            <td className='px-4 py-2 text-right'>{campaignType.min_followers}</td>
-                                            <td className='px-4 py-2 text-right'>{campaignType.max_followers}</td>
+                                            <td className='px-4 py-2 text-left'>{kolType.name}</td>
+                                            <td className='px-4 py-2 text-right'>{kolType.min_followers}</td>
+                                            <td className='px-4 py-2 text-right'>{kolType.max_followers}</td>
                                             <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
                                                 <div className='flex justify-center gap-2'>
                                                     <ActionButton
                                                         icon={
                                                             <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                         }
-                                                        onClick={() => setSelectedEdit(campaignType)}
+                                                        onClick={() => setSelectedEdit(kolType)}
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
                                                         icon={<Trash className='w-6 h-6 text-error' />}
                                                         onClick={() =>
                                                             setSelectedDelete({
-                                                                id: campaignType.id,
-                                                                name: campaignType.name,
+                                                                id: kolType.id,
+                                                                name: kolType.name,
                                                             })
                                                         }
                                                         tooltipText='Delete'
@@ -157,18 +157,14 @@ export default function CampaignTypePage() {
                     />
                 )}
             </div>
-            {openAdd && <AddCampaignType onClose={() => setOpenAdd(false)} onAdd={getCampaignTypes} />}
-            <EditCampaignType
-                campaignData={selectedEdit}
-                onClose={() => setSelectedEdit(null)}
-                onUpdate={getCampaignTypes}
-            />
+            {openAdd && <AddKolType onClose={() => setOpenAdd(false)} onAdd={getKolTypes} />}
+            <EditKolType kolData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getKolTypes} />
             {selectedDelete && (
-                <DeleteCampaignType
-                    campaignTypeId={selectedDelete.id}
+                <DeleteKolType
+                    kolTypeId={selectedDelete.id}
                     name={selectedDelete.name}
                     onClose={() => setSelectedDelete(null)}
-                    onDelete={getCampaignTypes}
+                    onDelete={getKolTypes}
                 />
             )}
         </main>

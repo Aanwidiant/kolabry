@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { User, Kol, CampaignType, Campaign, Report } from './routes';
+import { User, Kol, KolType, Campaign, Report } from './routes';
 
 const app = new Hono().basePath('/api');
 
@@ -13,7 +13,7 @@ app.get('/healthcheck', (c) => {
 
 app.route('/user', User);
 app.route('/kol', Kol);
-app.route('/campaign-type', CampaignType);
+app.route('/kol-type', KolType);
 app.route('/campaign', Campaign);
 app.route('/report', Report);
 

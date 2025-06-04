@@ -1,4 +1,4 @@
-export interface CampaignTypes {
+export interface KolType {
     id: number;
     name: string;
     min_followers: number;

@@ -1,6 +1,6 @@
-import type { CampaignTypes } from '@/types';
+import type { KolType } from '@/types';
 
-export function validateCampaignType(data: Partial<CampaignTypes>, existingMinFollowers?: number) {
+export function validateKolType(data: Partial<KolType>, existingMinFollowers?: number) {
     if ('id' in data && typeof data.id !== 'number') {
         return { valid: false, message: 'id must be a number.' };
     }

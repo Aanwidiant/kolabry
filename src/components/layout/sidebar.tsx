@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Arrow, Campaign, Dashboard, Kol, CampaignType, Logout, Report, Users } from '@/components/icons';
+import { Arrow, Campaign, Dashboard, Kol, KolTypes, Logout, Report, Users } from '@/components/icons';
 import useAuthStore from '@/store/authStore';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -27,7 +27,7 @@ const roleSidebarItems: Record<Role, SidebarItem[]> = {
     KOL_MANAGER: [
         { label: 'Dashboard', icon: Dashboard, href: '/dashboard' },
         { label: 'KOL', icon: Kol, href: '/kols' },
-        { label: 'Campaign Type', icon: CampaignType, href: '/campaign-type' },
+        { label: 'KOL Type', icon: KolTypes, href: '/kol-type' },
         { label: 'Campaign', icon: Campaign, href: '/campaigns' },
         { label: 'Report', icon: Report, href: '/reports' },
         { label: 'Log Out', icon: Logout, href: '#' },

@@ -4,15 +4,15 @@ import { Add } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
-import { CampaignTypes } from '@/types';
+import { KolType } from '@/types';
 
-interface AddCampaignTypeProps {
+interface AddKolTypeProps {
     onClose: () => void;
     onAdd: () => void;
 }
 
-export default function AddCampaignType({ onClose, onAdd }: AddCampaignTypeProps) {
-    const [formData, setFormData] = useState<Partial<CampaignTypes>>({});
+export default function AddKolType({ onClose, onAdd }: AddKolTypeProps) {
+    const [formData, setFormData] = useState<Partial<KolType>>({});
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,12 +32,12 @@ export default function AddCampaignType({ onClose, onAdd }: AddCampaignTypeProps
 
         setLoading(true);
         try {
-            const response = await Fetch.POST('/campaign-type', formData);
+            const response = await Fetch.POST('/kol-type', formData);
             onAdd();
             onClose();
-            toast.success(response.message || 'Campaign Type created successfully');
+            toast.success(response.message || 'KOL Type created successfully');
         } catch {
-            toast.error('Failed to create Campaign Type.');
+            toast.error('Failed to create KOL Type.');
         } finally {
             setLoading(false);
         }
@@ -47,7 +47,7 @@ export default function AddCampaignType({ onClose, onAdd }: AddCampaignTypeProps
         <Modal
             onClose={onClose}
             icon={<Add className='w-8 h-8 fill-dark' />}
-            title='Add New Campaign Type'
+            title='Add New KOL Type'
             footer={
                 <Button onClick={handleAdd} disabled={loading}>
                     {loading ? 'Creating...' : 'Create'}

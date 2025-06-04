@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Navbar from '@/components/layout/private-layout/navbar';
-import Sidebar from '@/components/layout/private-layout/sidebar';
-import Footer from '@/components/layout/private-layout/footer';
+import Navbar from '@/components/layout/navbar';
+import Sidebar from '@/components/layout/sidebar';
+import Footer from '@/components/layout/footer';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const [mobileVisible, setMobileVisible] = useState(false);

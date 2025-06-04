@@ -4,29 +4,25 @@ import { Edit } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
-import { CampaignTypes } from '@/types';
+import { KolType } from '@/types';
 
-interface EditCampaignTypeProps {
-    campaignData: CampaignTypes | null;
+interface EditKolTypeProps {
+    kolData: KolType | null;
     onClose: () => void;
     onUpdate: () => void;
 }
 
-export default function EditCampaignType({
-    campaignData: initialCampaignData,
-    onClose,
-    onUpdate,
-}: EditCampaignTypeProps) {
-    const [formData, setFormData] = useState<Partial<CampaignTypes>>({});
+export default function EditKolType({ kolData: initialKolData, onClose, onUpdate }: EditKolTypeProps) {
+    const [formData, setFormData] = useState<Partial<KolType>>({});
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (initialCampaignData) {
-            setFormData(initialCampaignData);
+        if (initialKolData) {
+            setFormData(initialKolData);
         }
-    }, [initialCampaignData]);
+    }, [initialKolData]);
 
-    if (!initialCampaignData) return null;
+    if (!initialKolData) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -43,12 +39,12 @@ export default function EditCampaignType({
 
         const payload = { ...formData };
         try {
-            const response = await Fetch.PATCH(`/campaign-type/${formData.id}`, payload);
+            const response = await Fetch.PATCH(`/kol-type/${formData.id}`, payload);
             onUpdate();
             onClose();
             toast.success(response.message);
         } catch {
-            toast.error('Error updating campaign type.');
+            toast.error('Error updating KOL Type.');
         } finally {
             setLoading(false);
         }
@@ -58,7 +54,7 @@ export default function EditCampaignType({
         <Modal
             onClose={onClose}
             icon={<Edit className='w-8 h-8 fill-dark' />}
-            title='Edit Campaign Type'
+            title='Edit KOL Type'
             footer={
                 <Button onClick={handleSave} disabled={loading}>
                     {loading ? 'Updating...' : 'Update'}

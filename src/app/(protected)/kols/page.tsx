@@ -10,10 +10,10 @@ import SpinnerLoader from '@/components/globals/spinner-loader';
 import ActionButton from '@/components/globals/action-button';
 import Pagination from '@/components/globals/pagination';
 import SingleSelect from '@/components/globals/single-select';
-import DeleteKol from '@/app/(private-route)/kols/components/delete';
-import { AddKol } from '@/app/(private-route)/kols/components/add';
+import DeleteKol from '@/app/(protected)/kols/components/delete';
+import AddKol from '@/app/(protected)/kols/components/add';
+import EditKol from '@/app/(protected)/kols/components/edit';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
-import EditKol from '@/app/(private-route)/kols/components/edit';
 import DataNotFound from '@/components/globals/data-not-found';
 
 export default function KolsPage() {

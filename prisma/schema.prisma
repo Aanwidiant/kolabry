@@ -73,7 +73,7 @@ enum AgeRangeType {
   AGE_55_PLUS
 }
 
-model campaign_types {
+model kol_types {
   id            Int    @id @default(autoincrement())
   name          String
   min_followers Int
@@ -86,7 +86,7 @@ model campaigns {
   id                Int          @id @default(autoincrement())
   user_id           Int
   name              String
-  campaign_type_id  Int
+  kol_type_id       Int
   target_niche      NicheType
   target_engagement Int
   target_reach      Int
@@ -99,7 +99,7 @@ model campaigns {
   updated_at        DateTime     @updatedAt
 
   user          users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  campaign_type campaign_types @relation(fields: [campaign_type_id], references: [id])
+  kol_types     kol_types      @relation(fields: [kol_type_id], references: [id])
   campaign_kols campaign_kol[]
   kol_reports   kol_reports[]
 }

@@ -6,7 +6,7 @@ const publicRoutes = new Set(['/', '/login']);
 
 const roleAccessMap: Record<string, string[]> = {
     ADMIN: ['/dashboard', '/users', '/reports'],
-    KOL_MANAGER: ['/dashboard', '/kols', '/campaign-type', '/campaigns', '/reports'],
+    KOL_MANAGER: ['/dashboard', '/kols', '/kol-type', '/campaigns', '/reports'],
     BRAND: ['/dashboard', '/reports'],
 };
 
@@ -22,11 +22,19 @@ async function verifyToken(token: string) {
 
 export async function middleware(req: NextRequest) {
     const token = req.cookies.get('auth_token')?.value;
-    const { pathname } = req.nextUrl;
+    const { pathname, searchParams } = req.nextUrl;
     const cleanPath = pathname.toLowerCase().replace(/\/$/, '') || '/';
 
     if (cleanPath.startsWith('/_next') || cleanPath.startsWith('/api') || cleanPath === '/favicon.ico') {
         return NextResponse.next();
+    }
+
+    if (cleanPath === '/unauthorized' && searchParams.get('from') !== 'middleware') {
+        return NextResponse.redirect(new URL('/login', req.url));
+    }
+
+    if (cleanPath === '/' && !token) {
+        return NextResponse.redirect(new URL('/login', req.url));
     }
 
     if (!token && !publicRoutes.has(cleanPath)) {
@@ -62,10 +70,11 @@ export const config = {
     matcher: [
         '/',
         '/login',
+        '/unauthorized',
         '/dashboard/:path*',
         '/users/:path*',
         '/kols/:path*',
-        '/campaign-type/:path*',
+        '/kol-type/:path*',
         '/campaigns/:path*',
         '/reports/:path*',
     ],
