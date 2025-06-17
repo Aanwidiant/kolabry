@@ -31,19 +31,18 @@ export default function AddUser({ onClose, onAdd }: AddUserProps) {
     };
 
     const handleAdd = async () => {
-        if (!formData.username || !formData.email || !formData.role || !formData.password) {
-            toast.error('Please fill in all fields.');
-            return;
-        }
-
         setLoading(true);
         try {
             const response = await Fetch.POST('/user', formData);
-            onAdd();
-            onClose();
-            toast.success(response.message || 'User created successfully');
+            if (response.success === true) {
+                toast.success(response.message);
+                onAdd();
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
-            toast.error('Failed to create user.');
+            toast.error('Failed to create user');
         } finally {
             setLoading(false);
         }

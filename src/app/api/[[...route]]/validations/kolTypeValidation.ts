@@ -1,8 +1,12 @@
 import type { KolType } from '@/types';
 
 export function validateKolType(data: Partial<KolType>, existingMinFollowers?: number) {
-    if ('id' in data && typeof data.id !== 'number') {
-        return { valid: false, message: 'id must be a number.' };
+    if (!data.name) {
+        return { valid: false, message: 'Name is required' };
+    }
+
+    if (data.min_followers === undefined || data.min_followers === null) {
+        return { valid: false, message: 'Min followers is required' };
     }
 
     if ('name' in data && typeof data.name !== 'string') {
@@ -10,13 +14,13 @@ export function validateKolType(data: Partial<KolType>, existingMinFollowers?: n
     }
 
     if ('min_followers' in data && typeof data.min_followers !== 'number') {
-        return { valid: false, message: 'min_followers must be a number.' };
+        return { valid: false, message: 'min followers must be a number.' };
     }
 
     if (data.max_followers !== null && typeof data.max_followers !== 'number') {
         return {
             valid: false,
-            message: 'max_followers must be a number or null.',
+            message: 'max followers must be a number or null.',
         };
     }
 
@@ -25,7 +29,7 @@ export function validateKolType(data: Partial<KolType>, existingMinFollowers?: n
     if (data.max_followers !== null && typeof min === 'number' && data.max_followers <= min) {
         return {
             valid: false,
-            message: 'max_followers must be greater than min_followers.',
+            message: 'max followers must be greater than min followers.',
         };
     }
 

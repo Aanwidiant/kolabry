@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { KolType } from '@/types';
+import { NumericFormat } from 'react-number-format';
 
 interface AddKolTypeProps {
     onClose: () => void;
@@ -12,30 +13,38 @@ interface AddKolTypeProps {
 }
 
 export default function AddKolType({ onClose, onAdd }: AddKolTypeProps) {
-    const [formData, setFormData] = useState<Partial<KolType>>({});
+    const [formData, setFormData] = useState<Partial<KolType>>({ max_followers: null });
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        const { name, value } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'number' ? Number(value) : value,
+            [name]: value,
         }));
     };
 
-    const handleAdd = async () => {
-        if (!formData.name || !formData.min_followers || !formData.max_followers) {
-            toast.error('Please fill in all fields.');
-            return;
-        }
+    const handleNumberValueChange =
+        (field: 'min_followers' | 'max_followers') =>
+        ({ value }: { value: string }) => {
+            setFormData((prev) => ({
+                ...prev,
+                [field]: value === '' ? null : parseInt(value),
+            }));
+        };
 
+    const handleAdd = async () => {
         setLoading(true);
         try {
             const response = await Fetch.POST('/kol-type', formData);
-            onAdd();
-            onClose();
-            toast.success(response.message || 'KOL Type created successfully');
+            if (response.success === true) {
+                toast.success(response.message);
+                onAdd();
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
             toast.error('Failed to create KOL Type.');
         } finally {
@@ -72,26 +81,30 @@ export default function AddKolType({ onClose, onAdd }: AddKolTypeProps) {
                     <label className='col-span-2 font-medium' htmlFor='min_followers'>
                         Min Followers
                     </label>
-                    <input
+                    <NumericFormat
                         className='col-span-3 input-style'
                         id='min_followers'
                         name='min_followers'
-                        type='number'
-                        value={formData.min_followers ?? ''}
-                        onChange={handleChange}
+                        value={formData.min_followers}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        allowNegative={false}
+                        onValueChange={handleNumberValueChange('min_followers')}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='max_followers'>
                         Max Followers
                     </label>
-                    <input
+                    <NumericFormat
                         className='col-span-3 input-style'
                         id='max_followers'
                         name='max_followers'
-                        type='number'
-                        value={formData.max_followers ?? ''}
-                        onChange={handleChange}
+                        value={formData.max_followers}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        allowNegative={false}
+                        onValueChange={handleNumberValueChange('max_followers')}
                     />
                 </div>
             </div>

@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
 import { KolType } from '@/types';
+import { NumericFormat } from 'react-number-format';
 
 interface EditKolTypeProps {
     kolData: KolType | null;
@@ -13,7 +14,7 @@ interface EditKolTypeProps {
 }
 
 export default function EditKolType({ kolData: initialKolData, onClose, onUpdate }: EditKolTypeProps) {
-    const [formData, setFormData] = useState<Partial<KolType>>({});
+    const [formData, setFormData] = useState<Partial<KolType>>({ max_followers: null });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -25,13 +26,22 @@ export default function EditKolType({ kolData: initialKolData, onClose, onUpdate
     if (!initialKolData) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        const { name, value } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'number' ? Number(value) : value,
+            [name]: value,
         }));
     };
+
+    const handleNumberValueChange =
+        (field: 'min_followers' | 'max_followers') =>
+        ({ value }: { value: string }) => {
+            setFormData((prev) => ({
+                ...prev,
+                [field]: value === '' ? null : parseInt(value),
+            }));
+        };
 
     const handleSave = async () => {
         if (!formData.id) return;
@@ -40,9 +50,16 @@ export default function EditKolType({ kolData: initialKolData, onClose, onUpdate
         const payload = { ...formData };
         try {
             const response = await Fetch.PATCH(`/kol-type/${formData.id}`, payload);
-            onUpdate();
-            onClose();
-            toast.success(response.message);
+            if (response.success === true) {
+                toast.success(response.message);
+                onUpdate();
+                onClose();
+            } else if (response.error === 'no_change') {
+                toast.info(response.message);
+                onClose();
+            } else{
+                toast.error(response.message);
+            }
         } catch {
             toast.error('Error updating KOL Type.');
         } finally {
@@ -79,26 +96,30 @@ export default function EditKolType({ kolData: initialKolData, onClose, onUpdate
                     <label className='col-span-2 font-medium' htmlFor='min_followers'>
                         Min Followers
                     </label>
-                    <input
+                    <NumericFormat
                         className='col-span-3 input-style'
                         id='min_followers'
                         name='min_followers'
-                        type='number'
-                        value={formData.min_followers ?? ''}
-                        onChange={handleChange}
+                        value={formData.min_followers}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        allowNegative={false}
+                        onValueChange={handleNumberValueChange('min_followers')}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='max_followers'>
                         Max Followers
                     </label>
-                    <input
+                    <NumericFormat
                         className='col-span-3 input-style'
                         id='max_followers'
                         name='max_followers'
-                        type='number'
-                        value={formData.max_followers ?? ''}
-                        onChange={handleChange}
+                        value={formData.max_followers}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        allowNegative={false}
+                        onValueChange={handleNumberValueChange('max_followers')}
                     />
                 </div>
             </div>

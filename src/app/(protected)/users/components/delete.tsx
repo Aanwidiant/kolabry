@@ -18,12 +18,16 @@ export default function DeleteUser({ userId, userName, onClose, onDelete }: Dele
     const handleDelete = async () => {
         setLoading(true);
         try {
-            const res = await Fetch.DELETE(`/user/${userId}`, {});
-            toast.success(res.message || 'User deleted successfully');
-            onDelete();
-            onClose();
+            const response = await Fetch.DELETE(`/user/${userId}`, {});
+            if (response.success === true) {
+                toast.success(response.message);
+                onDelete();
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
-            toast.error('Failed to delete user.');
+            toast.error('Failed to delete user');
         } finally {
             setLoading(false);
         }

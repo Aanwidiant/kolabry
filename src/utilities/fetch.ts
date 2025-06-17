@@ -13,6 +13,7 @@ const instance: AxiosInstance = axios.create({
     headers: {
         Accept: 'application/json',
     },
+    validateStatus: () => true,
 });
 
 instance.interceptors.request.use(

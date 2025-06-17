@@ -1,5 +1,5 @@
 'use client';
-import { Add, Download, Edit, Kol, Trash, Upload } from '@/components/icons';
+import { Add, Edit, Kol, Trash, Upload } from '@/components/icons';
 import { Kols } from '@/types/kol';
 import React, { useCallback, useEffect, useState } from 'react';
 import SearchInput from '@/components/globals/search-input';
@@ -15,8 +15,10 @@ import AddKol from '@/app/(protected)/kols/components/add';
 import EditKol from '@/app/(protected)/kols/components/edit';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import DataNotFound from '@/components/globals/data-not-found';
+import { useRouter } from 'next/navigation';
 
 export default function KolsPage() {
+    const router = useRouter();
     const [kols, setKols] = useState<Kols[]>([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -112,11 +114,7 @@ export default function KolsPage() {
                         <Add className='w-6 h-6' />
                         <p>Add KOL</p>
                     </Button>
-                    <Button>
-                        <Download className='w-6 h-6' />
-                        <p>Template</p>
-                    </Button>
-                    <Button>
+                    <Button onClick={() => router.push('/kols/add-bulk')}>
                         <Upload className='w-6 h-6' />
                         <p>Add Bulk</p>
                     </Button>

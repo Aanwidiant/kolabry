@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Fetch from '@/utilities/fetch';
-import { Add } from '@/components/icons';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
 import Modal from '@/components/globals/modal';
@@ -46,7 +45,6 @@ export default function AddCampaign({ onClose, onAdd }: AddCampaignProps) {
     return (
         <Modal
             onClose={onClose}
-            icon={<Add className='w-8 h-8 fill-dark' />}
             title='Add New Campaign'
             footer={
                 <Button onClick={handleAdd} disabled={loading}>

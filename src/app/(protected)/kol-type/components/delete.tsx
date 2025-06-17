@@ -18,10 +18,14 @@ export default function DeleteKolType({ kolTypeId, name, onClose, onDelete }: De
     const handleDelete = async () => {
         setLoading(true);
         try {
-            const res = await Fetch.DELETE(`/kol-type/${kolTypeId}`, {});
-            toast.success(res.message || 'KOL type deleted successfully');
-            onDelete();
-            onClose();
+            const response = await Fetch.DELETE(`/kol-type/${kolTypeId}`, {});
+            if (response.success === true) {
+                toast.success(response.message);
+                onDelete();
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
             toast.error('Failed to delete KOL Type.');
         } finally {

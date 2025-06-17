@@ -51,11 +51,18 @@ export default function EditUser({ userData: initialUserData, onClose, onUpdate 
 
         try {
             const response = await Fetch.PATCH(`/user/${formData.id}`, payload);
-            onUpdate();
-            onClose();
-            toast.success(response.message);
+            if(response.success === true) {
+                toast.success(response.message);
+                onUpdate();
+                onClose();
+            } else if (response.error === 'no_change') {
+                toast.info(response.message);
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
-            toast.error('Error updating user.');
+            toast.error('Error updating user');
         } finally {
             setLoading(false);
         }

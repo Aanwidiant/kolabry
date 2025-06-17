@@ -2,8 +2,7 @@ import { Context } from 'hono';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { Prisma, UserRole } from '@prisma/client';
-import { Pagination } from '../helpers/pagination';
-import { generateToken, validatePassword } from '../helpers';
+import { Pagination, generateToken, validatePassword, validateEmail } from '../helpers';
 
 // Create User
 export const createUser = async (c: Context) => {
@@ -19,28 +18,45 @@ export const createUser = async (c: Context) => {
         );
     }
 
+    const existingEmail = await prisma.users.findUnique({
+        where: { email },
+    });
+
+    if (existingEmail) {
+        return c.json(
+            {
+                success: false,
+                message: 'Email is already registered.',
+            },
+            400
+        );
+    }
+
+    const existingUsername = await prisma.users.findUnique({
+        where: { username },
+    });
+
+    if (existingUsername) {
+        return c.json(
+            {
+                success: false,
+                message: 'Username is already taken.',
+            },
+            400
+        );
+    }
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+        return c.json({ success: false, message: emailError }, 400);
+    }
+
     const passwordError = validatePassword(password);
     if (passwordError) {
         return c.json(
             {
                 success: false,
                 message: passwordError,
-            },
-            400
-        );
-    }
-
-    const existingUser = await prisma.users.findFirst({
-        where: {
-            OR: [{ email }, { username }],
-        },
-    });
-
-    if (existingUser) {
-        return c.json(
-            {
-                success: false,
-                message: 'Email or username is already registered.',
             },
             400
         );
@@ -184,10 +200,55 @@ export const updateUser = async (c: Context) => {
 
     const updateData: Prisma.usersUpdateInput = {};
 
-    if (username !== undefined) updateData.username = username;
-    if (email !== undefined) updateData.email = email;
+    const oldValue = await prisma.users.findUnique({
+        where: { id },
+    });
+    if (!oldValue) {
+        return c.json({ success: false, message: 'User not found.' }, 404);
+    }
 
-    if (role !== undefined) {
+    if (username !== undefined && username !== oldValue.username) {
+        const existingUsername = await prisma.users.findUnique({
+            where: { username },
+        });
+
+        if (existingUsername && existingUsername.id !== oldValue.id) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'Username is already taken.',
+                },
+                400
+            );
+        }
+
+        updateData.username = username;
+    }
+
+    if (email !== undefined && email !== oldValue.email) {
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return c.json({ success: false, message: emailError }, 400);
+        }
+
+        const existingEmail = await prisma.users.findUnique({
+            where: { email },
+        });
+
+        if (existingEmail && existingEmail.id !== oldValue.id) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'Email is already registered.',
+                },
+                400
+            );
+        }
+
+        updateData.email = email;
+    }
+
+    if (role !== undefined && role !== oldValue.role) {
         if (user.role === 'ADMIN') {
             const allowedRoles: UserRole[] = ['KOL_MANAGER', 'ADMIN', 'BRAND'];
             if (!allowedRoles.includes(role as UserRole)) {
@@ -223,24 +284,28 @@ export const updateUser = async (c: Context) => {
             );
         }
 
-        if (user.role === 'ADMIN') {
-            updateData.password = await bcrypt.hash(password, 10);
-        } else {
-            return c.json(
-                {
-                    success: false,
-                    message: 'You are not allowed to change the password',
-                },
-                403
-            );
+        const isSamePassword = await bcrypt.compare(password, oldValue.password);
+        if (!isSamePassword) {
+            if (user.role === 'ADMIN') {
+                updateData.password = await bcrypt.hash(password, 10);
+            } else {
+                return c.json(
+                    {
+                        success: false,
+                        message: 'You are not allowed to change the password',
+                    },
+                    403
+                );
+            }
         }
     }
 
     if (Object.keys(updateData).length === 0) {
         return c.json(
             {
-                success: true,
-                message: 'No data updated',
+                success: false,
+                error: 'no_change',
+                message: 'No data was changed.',
             },
             400
         );
@@ -360,74 +425,6 @@ export const loginUser = async (c: Context) => {
                     role: user.role,
                 },
             },
-        },
-        200
-    );
-};
-
-// Change Password
-export const changePassword = async (c: Context) => {
-    const { oldPassword, newPassword } = await c.req.json();
-    const user = c.get('user');
-
-    if (!oldPassword || !newPassword) {
-        return c.json(
-            {
-                success: false,
-                message: 'Old password and new password is required',
-            },
-            400
-        );
-    }
-
-    const passwordError = validatePassword(newPassword);
-    if (passwordError) {
-        return c.json(
-            {
-                success: false,
-                message: passwordError,
-            },
-            400
-        );
-    }
-
-    const existingUser = await prisma.users.findUnique({
-        where: { id: user.id },
-    });
-
-    if (!existingUser) {
-        return c.json(
-            {
-                success: false,
-                message: 'User not found',
-            },
-            404
-        );
-    }
-
-    const isPasswordValid = await bcrypt.compare(oldPassword, existingUser.password);
-
-    if (!isPasswordValid) {
-        return c.json(
-            {
-                success: false,
-                message: 'Old password is invalid',
-            },
-            400
-        );
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await prisma.users.update({
-        where: { id: user.id },
-        data: { password: hashedPassword },
-    });
-
-    return c.json(
-        {
-            success: true,
-            message: 'Password changed successfully',
         },
         200
     );

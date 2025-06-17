@@ -7,16 +7,6 @@ import { Pagination } from '../helpers/pagination';
 export const createKolType = async (c: Context) => {
     const body = await c.req.json();
 
-    if (!body.name || !body.min_followers) {
-        return c.json(
-            {
-                success: false,
-                message: 'name, min_followers is required',
-            },
-            400
-        );
-    }
-
     const existingName = await prisma.kol_types.findFirst({
         where: { name: body.name },
     });
@@ -25,7 +15,7 @@ export const createKolType = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'name KOL Type already used.',
+                message: 'KOL Type name already used.',
             },
             400
         );
@@ -134,15 +124,16 @@ export const updateKolType = async (c: Context) => {
 
     const { name, min_followers, max_followers } = body;
 
-    if (!name && min_followers === undefined && max_followers === undefined) {
+    if (!id) {
         return c.json(
             {
                 success: false,
-                message: 'No fields to update were provided.',
+                message: 'KOL Type ID is required.',
             },
             400
         );
     }
+
     const existingKolType = await prisma.kol_types.findUnique({
         where: { id },
     });
@@ -151,7 +142,22 @@ export const updateKolType = async (c: Context) => {
         return c.json({ success: false, message: 'KOL Type not found' }, 404);
     }
 
-    if (name) {
+    const isSameName = name === undefined || name === existingKolType.name;
+    const isSameMin = min_followers === undefined || min_followers === existingKolType.min_followers;
+    const isSameMax = max_followers === undefined || max_followers === existingKolType.max_followers;
+
+    if (isSameName && isSameMin && isSameMax) {
+        return c.json(
+            {
+                success: false,
+                error: 'no_change',
+                message: 'No data was changed.',
+            },
+            400
+        );
+    }
+
+    if (name && name !== existingKolType.name) {
         const nameConflict = await prisma.kol_types.findFirst({
             where: {
                 name,
@@ -185,9 +191,11 @@ export const updateKolType = async (c: Context) => {
         const updatedKolType = await prisma.kol_types.update({
             where: { id },
             data: {
-                ...(name && { name }),
-                ...(min_followers !== undefined && { min_followers }),
-                ...(max_followers !== undefined && { max_followers }),
+                ...(name !== undefined && name !== existingKolType.name && { name }),
+                ...(min_followers !== undefined &&
+                    min_followers !== existingKolType.min_followers && { min_followers }),
+                ...(max_followers !== undefined &&
+                    max_followers !== existingKolType.max_followers && { max_followers }),
             },
         });
 
