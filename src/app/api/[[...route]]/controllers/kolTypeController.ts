@@ -34,7 +34,7 @@ export const createKolType = async (c: Context) => {
 
     try {
         const { name, min_followers, max_followers } = body;
-        const newKolType = await prisma.kol_types.create({
+        await prisma.kol_types.create({
             data: {
                 name,
                 min_followers,
@@ -46,7 +46,6 @@ export const createKolType = async (c: Context) => {
             {
                 success: true,
                 message: 'KOL Type successfully created.',
-                data: newKolType,
             },
             201
         );
@@ -188,7 +187,7 @@ export const updateKolType = async (c: Context) => {
     }
 
     try {
-        const updatedKolType = await prisma.kol_types.update({
+        await prisma.kol_types.update({
             where: { id },
             data: {
                 ...(name !== undefined && name !== existingKolType.name && { name }),
@@ -202,7 +201,6 @@ export const updateKolType = async (c: Context) => {
         return c.json({
             success: true,
             message: 'KOL Type updated successfully.',
-            data: updatedKolType,
         });
     } catch (err) {
         return c.json(

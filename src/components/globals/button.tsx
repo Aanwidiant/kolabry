@@ -10,6 +10,7 @@ interface ButtonProps {
     href?: string;
     disabled?: boolean;
     variant?: 'default' | 'outline' | 'destructive';
+    className?: string;
 }
 
 export default function Button({
@@ -19,6 +20,7 @@ export default function Button({
     href,
     disabled = false,
     variant = 'default',
+    className = '',
 }: ButtonProps) {
     const router = useRouter();
 
@@ -42,7 +44,7 @@ export default function Button({
             type={type}
             onClick={handleClick}
             disabled={disabled}
-            className={clsx(baseClasses, variantClasses[variant])}
+            className={clsx(baseClasses, variantClasses[variant], className)}
         >
             {children}
         </button>

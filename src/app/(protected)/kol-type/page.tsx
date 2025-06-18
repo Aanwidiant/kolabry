@@ -120,11 +120,11 @@ export default function KolTypePage() {
                                             </td>
                                             <td className='px-4 py-2 text-left'>{kolType.name}</td>
                                             <td className='px-4 py-2 text-right'>
-                                                {kolType.min_followers.toLocaleString('id-ID')}
+                                                {Number(kolType.min_followers?.toString()).toLocaleString('id-ID')}
                                             </td>
                                             <td className='px-4 py-2 text-right'>
                                                 {kolType.max_followers !== null
-                                                    ? kolType.max_followers.toLocaleString('id-ID')
+                                                    ? Number(kolType.max_followers.toString()).toLocaleString('id-ID')
                                                     : '-'}
                                             </td>
                                             <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>

@@ -198,7 +198,6 @@ export const updateKol = async (c: Context) => {
             );
         }
 
-        // Buat list field yang boleh diupdate saja
         const updatableFields = [
             'name',
             'niche',
@@ -211,7 +210,6 @@ export const updateKol = async (c: Context) => {
             'audience_age_range',
         ];
 
-        // Ambil field yang mau diupdate
         const updateFields: Record<string, Kols> = {};
         for (const field of updatableFields) {
             if (field in body) {

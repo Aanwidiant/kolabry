@@ -12,10 +12,11 @@ import Pagination from '@/components/globals/pagination';
 import { format } from 'date-fns';
 import DataNotFound from '@/components/globals/data-not-found';
 import DeleteCampaign from './components/delete';
-import AddCampaign from './components/add';
 import EditCampaign from './components/edit';
+import { useRouter } from 'next/navigation';
 
 export default function CampaignsPage() {
+    const router = useRouter();
     const [campaigns, setCampaigns] = useState<Campaigns[]>([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -23,7 +24,6 @@ export default function CampaignsPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [selectedEdit, setSelectedEdit] = useState<Campaigns | null>(null);
-    const [openAdd, setOpenAdd] = useState(false);
     const [selectedDelete, setSelectedDelete] = useState<{
         id: number;
         name: string;
@@ -71,11 +71,7 @@ export default function CampaignsPage() {
                     <PaginationLimit value={limit} onChange={handleLimitChange} />
                 </div>
                 <div className='place-self-end'>
-                    <Button
-                        onClick={() => {
-                            setOpenAdd(true);
-                        }}
-                    >
+                    <Button onClick={() => router.push('/campaigns/add')}>
                         <Add className='w-6 h-6' />
                         <p>Add Campaign</p>
                     </Button>
@@ -180,7 +176,6 @@ export default function CampaignsPage() {
                     />
                 )}
             </div>
-            {openAdd && <AddCampaign onClose={() => setOpenAdd(false)} onAdd={getCampaigns} />}
             <EditCampaign campaignData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getCampaigns} />
             {selectedDelete && (
                 <DeleteCampaign

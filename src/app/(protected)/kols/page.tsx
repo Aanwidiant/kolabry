@@ -170,7 +170,7 @@ export default function KolsPage() {
                                             <td className='px-4 py-2 text-right'>{kol.audience_male}%</td>
                                             <td className='px-4 py-2 text-right'>{kol.audience_female}%</td>
                                             <td className='px-4 py-2 text-right'>
-                                                {kol.followers.toLocaleString('id-ID')}
+                                                {Number(kol.followers?.toString()).toLocaleString('id-ID')}
                                             </td>
                                             <td className='px-4 py-2 text-right'>{kol.engagement_rate}</td>
                                             <td className='px-4 py-2 text-right'>

@@ -11,6 +11,7 @@ export interface Campaigns {
     target_gender: GenderType;
     target_gender_min: number;
     target_age_range: AgeRangeType;
+    target_rate_card: number;
     start_date: Date;
     end_date: Date;
     created_at: Date;
