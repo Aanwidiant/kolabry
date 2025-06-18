@@ -3,72 +3,73 @@ import { prisma } from '@/lib/prisma';
 import { validateKol } from '../validations/kolValidation';
 import { Kols } from '@/types';
 import { Prisma, NicheType, AgeRangeType } from '@prisma/client';
-import { Pagination } from '../helpers/pagination';
+import { Pagination, safeJson } from '../helpers';
 
 // Create KOL data
 export const createKol = async (c: Context) => {
     try {
         const body = await c.req.json();
-        const dataArray = Array.isArray(body) ? body : [body];
+        const isArrayInput = Array.isArray(body);
+        const dataArray = isArrayInput ? body : [body];
 
-        const results: { success: boolean; message: string; data?: Kols }[] = [];
+        const requiredFields = [
+            'name',
+            'niche',
+            'followers',
+            'engagement_rate',
+            'reach',
+            'rate_card',
+            'audience_male',
+            'audience_female',
+            'audience_age_range',
+        ];
 
         for (const [index, item] of dataArray.entries()) {
-            const requiredFields = [
-                'name',
-                'niche',
-                'followers',
-                'engagement_rate',
-                'reach',
-                'rate_card',
-                'audience_male',
-                'audience_female',
-                'audience_age_range',
-            ];
-
             const missingField = requiredFields.find((field) => item[field] === undefined || item[field] === null);
 
             if (missingField) {
-                results.push({
-                    success: false,
-                    message: `Item ${index + 1}: Field '${missingField}' is required.`,
-                });
-                continue;
+                return c.json(
+                    {
+                        success: false,
+                        message: `Item ${index + 1}: Field '${missingField}' is required.`,
+                    },
+                    400
+                );
             }
 
             const validation = validateKol(item);
             if (!validation.valid) {
-                results.push({
-                    success: false,
-                    message: `Item ${index + 1}: ${validation.message}`,
-                });
-                continue;
-            }
-
-            try {
-                await prisma.kols.create({ data: item });
-                results.push({
-                    success: true,
-                    message: `Item ${index + 1}: KOL data created successfully.`,
-                });
-            } catch (error) {
-                results.push({
-                    success: false,
-                    message: `Item ${index + 1}: Failed to create KOL data. ${
-                        error instanceof Error ? error.message : String(error)
-                    }`,
-                });
+                return c.json(
+                    {
+                        success: false,
+                        message: `Item ${index + 1}: ${validation.message}`,
+                    },
+                    400
+                );
             }
         }
-        const hasError = results.some((r) => !r.success);
 
-        return c.json(
-            {
-                success: !hasError,
-                results,
-            },
-            hasError ? 400 : 201
-        );
+        if (isArrayInput && dataArray.length > 1) {
+            await prisma.kols.createMany({ data: dataArray });
+
+            return c.json(
+                {
+                    success: true,
+                    message: 'All KOL data inserted successfully.',
+                },
+                201
+            );
+        } else {
+            await prisma.kols.create({ data: dataArray[0] });
+
+            return c.json(
+                {
+                    success: true,
+                    message: 'KOL data created successfully.',
+                },
+                201
+            );
+        }
     } catch (err) {
         return c.json(
             {
@@ -132,7 +133,7 @@ export const getKols = async (c: Context) => {
         return c.json(
             {
                 success: true,
-                data,
+                data: safeJson(data),
                 pagination: Pagination({
                     page: currentPage,
                     limit: take,
@@ -154,6 +155,7 @@ export const getKols = async (c: Context) => {
 };
 
 // Update KOL data
+
 export const updateKol = async (c: Context) => {
     try {
         const id = parseInt(c.req.param('id'));
@@ -170,7 +172,7 @@ export const updateKol = async (c: Context) => {
         }
 
         const existingKol = await prisma.kols.findUnique({
-            where: { id: id },
+            where: { id },
         });
 
         if (!existingKol) {
@@ -196,7 +198,51 @@ export const updateKol = async (c: Context) => {
             );
         }
 
-        const { ...updateFields } = body;
+        // Buat list field yang boleh diupdate saja
+        const updatableFields = [
+            'name',
+            'niche',
+            'followers',
+            'engagement_rate',
+            'reach',
+            'rate_card',
+            'audience_male',
+            'audience_female',
+            'audience_age_range',
+        ];
+
+        // Ambil field yang mau diupdate
+        const updateFields: Record<string, Kols> = {};
+        for (const field of updatableFields) {
+            if (field in body) {
+                updateFields[field] = body[field];
+            }
+        }
+
+        const isBigIntField = ['followers', 'rate_card'];
+
+        const isChanged = updatableFields.some((field) => {
+            const key = field as keyof typeof existingKol;
+            const existingValue = existingKol[key];
+            const newValue = body[key];
+
+            if (isBigIntField.includes(field)) {
+                return BigInt(newValue) !== existingValue;
+            }
+
+            return newValue !== existingValue;
+        });
+
+        if (!isChanged) {
+            return c.json(
+                {
+                    success: false,
+                    error: 'no_change',
+                    message: 'No data was changed',
+                },
+                400
+            );
+        }
 
         await prisma.kols.update({
             where: { id },

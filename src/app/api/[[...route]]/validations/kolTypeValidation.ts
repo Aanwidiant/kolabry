@@ -1,6 +1,6 @@
 import type { KolType } from '@/types';
 
-export function validateKolType(data: Partial<KolType>, existingMinFollowers?: number) {
+export function validateKolType(data: Partial<KolType>, existingMinFollowers?: bigint) {
     if (!data.name) {
         return { valid: false, message: 'Name is required' };
     }

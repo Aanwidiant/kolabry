@@ -34,12 +34,12 @@ model kols {
   id                 Int            @id @default(autoincrement())
   name               String
   niche              NicheType
-  followers          Int
+  followers          BigInt         @db.BigInt
   engagement_rate    Float
   reach              Int
-  rate_card          Int
-  audience_male      Float
-  audience_female    Float
+  rate_card          BigInt         @db.BigInt
+  audience_male      Int
+  audience_female    Int
   audience_age_range AgeRangeType
   created_at         DateTime       @default(now())
   updated_at         DateTime       @updatedAt
@@ -74,10 +74,10 @@ enum AgeRangeType {
 }
 
 model kol_types {
-  id            Int    @id @default(autoincrement())
+  id            Int     @id @default(autoincrement())
   name          String
-  min_followers Int
-  max_followers Int?
+  min_followers BigInt  @db.BigInt
+  max_followers BigInt? @db.BigInt
 
   campaigns campaigns[]
 }
@@ -88,10 +88,10 @@ model campaigns {
   name              String
   kol_type_id       Int
   target_niche      NicheType
-  target_engagement Int
+  target_engagement Float
   target_reach      Int
   target_gender     GenderType
-  target_gender_min Float
+  target_gender_min Int
   target_age_range  AgeRangeType
   start_date        DateTime
   end_date          DateTime
@@ -120,11 +120,11 @@ model kol_reports {
   id            Int      @id @default(autoincrement())
   campaign_id   Int
   kol_id        Int
-  like_count    Int
-  comment_count Int
-  share_count   Int
-  save_count    Int
-  engagement    Int
+  like_count    BigInt   @db.BigInt
+  comment_count BigInt   @db.BigInt
+  share_count   BigInt   @db.BigInt
+  save_count    BigInt   @db.BigInt
+  engagement    Float
   reach         Int
   er            Float // Engagement Rate
   cpe           Float // Cost Per Engagement

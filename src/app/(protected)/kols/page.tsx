@@ -167,21 +167,17 @@ export default function KolsPage() {
                                             <td className='px-4 py-2 text-right'>
                                                 {kol.audience_age_range.replace('AGE_', '').replace('_', ' - ')}
                                             </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {(kol.audience_male * 100).toFixed(0)}%
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {(kol.audience_female * 100).toFixed(0)}%
-                                            </td>
+                                            <td className='px-4 py-2 text-right'>{kol.audience_male}%</td>
+                                            <td className='px-4 py-2 text-right'>{kol.audience_female}%</td>
                                             <td className='px-4 py-2 text-right'>
                                                 {kol.followers.toLocaleString('id-ID')}
                                             </td>
                                             <td className='px-4 py-2 text-right'>{kol.engagement_rate}</td>
                                             <td className='px-4 py-2 text-right'>
-                                                {kol.reach.toLocaleString('id-ID').replace(/\./g, ',')}
+                                                {kol.reach.toLocaleString('id-ID')}
                                             </td>
                                             <td className='px-4 py-2 text-right'>
-                                                Rp {kol.rate_card.toLocaleString('id-ID')}
+                                                Rp {Number(kol.rate_card?.toString()).toLocaleString('id-ID')}
                                             </td>
 
                                             <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>

@@ -2,7 +2,7 @@ import type { Context } from 'hono';
 import { prisma } from '@/lib/prisma';
 import { validateKolType } from '../validations/kolTypeValidation';
 import { Prisma } from '@prisma/client';
-import { Pagination } from '../helpers/pagination';
+import { Pagination, safeJson } from '../helpers';
 
 export const createKolType = async (c: Context) => {
     const body = await c.req.json();
@@ -99,7 +99,7 @@ export const getKolTypes = async (c: Context) => {
 
         return c.json({
             success: true,
-            data: kolTypes,
+            data: safeJson(kolTypes),
             pagination: Pagination({
                 page: pageNumber,
                 limit: limitNumber,

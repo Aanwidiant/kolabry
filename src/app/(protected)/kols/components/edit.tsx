@@ -8,6 +8,7 @@ import { Kols } from '@/types';
 import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import { AgeRangeType, NicheType } from '@prisma/client';
+import { NumericFormat } from 'react-number-format';
 
 interface EditKolProps {
     kolData: Kols | null;
@@ -21,19 +22,44 @@ export default function EditKol({ kolData: initialKolData, onClose, onUpdate }: 
 
     useEffect(() => {
         if (initialKolData) {
-            setFormData(initialKolData);
+            setFormData({
+                ...initialKolData,
+                followers: Number(initialKolData.followers),
+                rate_card: Number(initialKolData.rate_card),
+            });
         }
     }, [initialKolData]);
 
     if (!initialKolData) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        const { name, value } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'number' ? Number(value) : value,
+            [name]: value,
         }));
+    };
+
+    const handleNumberValueChange =
+        (field: keyof typeof formData) =>
+        ({ value }: { value: string }) => {
+            setFormData((prev) => ({
+                ...prev,
+                [field]: value === '' ? null : parseFloat(value),
+            }));
+        };
+
+    const handlePercentageChange = (
+        field: keyof Kols,
+        setFormData: React.Dispatch<React.SetStateAction<Partial<Kols>>>
+    ) => {
+        return ({ floatValue }: { floatValue?: number }) => {
+            setFormData((prev) => ({
+                ...prev,
+                [field]: floatValue ?? 0,
+            }));
+        };
     };
 
     const handleNicheChange = (value: string | number | null) => {
@@ -71,9 +97,16 @@ export default function EditKol({ kolData: initialKolData, onClose, onUpdate }: 
         const payload = { ...formData };
         try {
             const response = await Fetch.PATCH(`/kol/${formData.id}`, payload);
-            onUpdate();
-            onClose();
-            toast.success(response.message);
+            if (response.success === true) {
+                toast.success(response.message);
+                onUpdate();
+                onClose();
+            } else if (response.error === 'no_change') {
+                toast.info(response.message);
+                onClose();
+            } else {
+                toast.error(response.message);
+            }
         } catch {
             toast.error('Error updating KOL.');
         } finally {
@@ -140,78 +173,95 @@ export default function EditKol({ kolData: initialKolData, onClose, onUpdate }: 
                     <label className='col-span-2 font-medium' htmlFor='audience_male'>
                         Audience Male
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='audience_male'
                         name='audience_male'
-                        type='number'
-                        value={formData.audience_male ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.audience_male}
+                        onValueChange={handlePercentageChange('audience_male', setFormData)}
+                        suffix='%'
+                        decimalScale={0}
+                        allowNegative={false}
+                        isAllowed={({ floatValue }) => (floatValue ?? 0) <= 100}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='audience_female'>
                         Audience Female
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='audience_female'
                         name='audience_female'
-                        type='number'
-                        value={formData.audience_female ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.audience_female}
+                        onValueChange={handlePercentageChange('audience_female', setFormData)}
+                        suffix='%'
+                        decimalScale={0}
+                        allowNegative={false}
+                        isAllowed={({ floatValue }) => (floatValue ?? 0) <= 100}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='followers'>
                         Followers
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='followers'
                         name='followers'
-                        type='number'
-                        value={formData.followers ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.followers}
+                        allowNegative={false}
+                        allowLeadingZeros={false}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        onValueChange={handleNumberValueChange('followers')}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='engagement_rate'>
                         Engagement Rate
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='engagement_rate'
                         name='engagement_rate'
-                        type='number'
-                        value={formData.engagement_rate ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.engagement_rate}
+                        suffix='%'
+                        decimalScale={2}
+                        onValueChange={handlePercentageChange('engagement_rate', setFormData)}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='reach'>
                         Reach
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='reach'
                         name='reach'
-                        type='number'
-                        value={formData.reach ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.reach}
+                        allowNegative={false}
+                        allowLeadingZeros={false}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        onValueChange={handleNumberValueChange('reach')}
                     />
                 </div>
                 <div className='grid grid-cols-5 items-center gap-4'>
                     <label className='col-span-2 font-medium' htmlFor='rate_card'>
                         Rate Card
                     </label>
-                    <input
-                        className='col-span-3 input-style'
+                    <NumericFormat
                         id='rate_card'
                         name='rate_card'
-                        type='number'
-                        value={formData.rate_card ?? ''}
-                        onChange={handleChange}
+                        className='col-span-3 input-style'
+                        value={formData.rate_card}
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                        prefix='Rp '
+                        allowNegative={false}
+                        allowLeadingZeros={false}
+                        onValueChange={handleNumberValueChange('rate_card')}
                     />
                 </div>
             </div>

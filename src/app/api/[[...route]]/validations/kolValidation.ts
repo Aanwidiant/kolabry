@@ -49,6 +49,21 @@ export function validateKol(data: Partial<Kols>) {
     if ('audience_female' in data && typeof data.audience_female !== 'number')
         return { valid: false, message: 'audience_female must be a number.' };
 
+    if (
+        'audience_male' in data &&
+        'audience_female' in data &&
+        typeof data.audience_male === 'number' &&
+        typeof data.audience_female === 'number'
+    ) {
+        const total = data.audience_male + data.audience_female;
+        if (total !== 100) {
+            return {
+                valid: false,
+                message: 'Total of audience male and audience female must be exactly 100%',
+            };
+        }
+    }
+
     if (!AgeRangeTypes.includes(data.audience_age_range!))
         return {
             valid: false,
