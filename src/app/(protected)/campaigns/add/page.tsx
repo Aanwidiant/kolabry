@@ -11,13 +11,9 @@ import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, genderTypeOptions, nicheTypeOptions } from '@/constants/option';
 import { AgeRangeType, GenderType, NicheType } from '@prisma/client';
 import { NumericFormat } from 'react-number-format';
-import Calendar from 'react-calendar';
-import { format } from 'date-fns';
 
 export default function AddCampaignPage() {
     const [formData, setFormData] = useState<Partial<Campaigns>>({});
-    const [showStartCalendar, setShowStartCalendar] = useState(false);
-    const [showEndCalendar, setShowEndCalendar] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -60,7 +56,7 @@ export default function AddCampaignPage() {
             typeof value === 'string' &&
             ['AGE_13_17', 'AGE_18_24', 'AGE_25_34', 'AGE_35_44', 'AGE_45_54', 'AGE_55_PLUS'].includes(value)
         ) {
-            setFormData((prev) => ({ ...prev, audience_age_range: value as AgeRangeType }));
+            setFormData((prev) => ({ ...prev, target_age_range: value as AgeRangeType }));
         }
     };
 
@@ -83,13 +79,6 @@ export default function AddCampaignPage() {
                 [field]: floatValue ?? 0,
             }));
         };
-    };
-
-    const handleDateChange = (key: 'start_date' | 'end_date', value: Date) => {
-        setFormData((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
     };
 
     const handleAdd = async () => {
@@ -259,49 +248,11 @@ export default function AddCampaignPage() {
                     </div>
                     <div className='grid grid-cols-5 items-start gap-4 relative'>
                         <label className='col-span-2 font-medium'>Start Date</label>
-                        <div className='col-span-3 w-full'>
-                            <input
-                                type='text'
-                                readOnly
-                                onClick={() => setShowStartCalendar((prev) => !prev)}
-                                value={formData.start_date ? format(new Date(formData.start_date), 'yyyy-MM-dd') : ''}
-                                className='input-style w-full cursor-pointer'
-                            />
-                            {showStartCalendar && (
-                                <div className='absolute z-10 mt-2'>
-                                    <Calendar
-                                        onChange={(date) => {
-                                            handleDateChange('start_date', date as Date);
-                                            setShowStartCalendar(false);
-                                        }}
-                                        value={formData.start_date ? new Date(formData.start_date) : null}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                        <div className='col-span-3 w-full'></div>
                     </div>
                     <div className='grid grid-cols-5 items-start gap-4 relative mt-4'>
                         <label className='col-span-2 font-medium'>End Date</label>
-                        <div className='col-span-3 w-full'>
-                            <input
-                                type='text'
-                                readOnly
-                                onClick={() => setShowEndCalendar((prev) => !prev)}
-                                value={formData.end_date ? format(new Date(formData.end_date), 'yyyy-MM-dd') : ''}
-                                className='input-style w-full cursor-pointer'
-                            />
-                            {showEndCalendar && (
-                                <div className='absolute z-10 mt-2'>
-                                    <Calendar
-                                        onChange={(date) => {
-                                            handleDateChange('end_date', date as Date);
-                                            setShowEndCalendar(false);
-                                        }}
-                                        value={formData.end_date ? new Date(formData.end_date) : null}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                        <div className='col-span-3 w-full'></div>
                     </div>
                 </div>
                 <Button className='w-fit'>Get KOL Recommendation</Button>

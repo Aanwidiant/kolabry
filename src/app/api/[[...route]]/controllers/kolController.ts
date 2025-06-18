@@ -24,14 +24,14 @@ export const createKol = async (c: Context) => {
             'audience_age_range',
         ];
 
-        for (const [index, item] of dataArray.entries()) {
+        for (const item of dataArray) {
             const missingField = requiredFields.find((field) => item[field] === undefined || item[field] === null);
 
             if (missingField) {
                 return c.json(
                     {
                         success: false,
-                        message: `Item ${index + 1}: Field '${missingField}' is required.`,
+                        message: `Field ${missingField} is required`,
                     },
                     400
                 );
@@ -42,7 +42,7 @@ export const createKol = async (c: Context) => {
                 return c.json(
                     {
                         success: false,
-                        message: `Item ${index + 1}: ${validation.message}`,
+                        message: `${validation.message}`,
                     },
                     400
                 );
