@@ -57,7 +57,7 @@ export default function EditKolType({ kolData: initialKolData, onClose, onUpdate
             } else if (response.error === 'no_change') {
                 toast.info(response.message);
                 onClose();
-            } else{
+            } else {
                 toast.error(response.message);
             }
         } catch {

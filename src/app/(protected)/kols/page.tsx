@@ -15,10 +15,9 @@ import AddKol from '@/app/(protected)/kols/components/add';
 import EditKol from '@/app/(protected)/kols/components/edit';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import DataNotFound from '@/components/globals/data-not-found';
-import { useRouter } from 'next/navigation';
+import AddBulkKol from '@/components/globals/add-bulk-kol';
 
 export default function KolsPage() {
-    const router = useRouter();
     const [kols, setKols] = useState<Kols[]>([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -33,6 +32,7 @@ export default function KolsPage() {
         id: number;
         name: string;
     } | null>(null);
+    const [openAddBulk, setOpenAddBulk] = useState(false);
 
     const handleLimitChange = (value: string | number | null) => {
         if (value === null) return;
@@ -114,7 +114,7 @@ export default function KolsPage() {
                         <Add className='w-6 h-6' />
                         <p>Add KOL</p>
                     </Button>
-                    <Button onClick={() => router.push('/kols/add-bulk')}>
+                    <Button onClick={() => setOpenAddBulk(true)}>
                         <Upload className='w-6 h-6' />
                         <p>Add Bulk</p>
                     </Button>
@@ -190,7 +190,7 @@ export default function KolsPage() {
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
-                                                        icon={<Trash className='w-6 h-6 text-error' />}
+                                                        icon={<Trash className='w-6 h-6 fill-error' />}
                                                         onClick={() =>
                                                             setSelectedDelete({
                                                                 id: kol.id,
@@ -226,6 +226,7 @@ export default function KolsPage() {
                     onDelete={getKols}
                 />
             )}
+            {openAddBulk && <AddBulkKol onClose={() => setOpenAddBulk(false)} />}
         </main>
     );
 }

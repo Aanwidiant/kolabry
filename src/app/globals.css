@@ -4,10 +4,10 @@
 @theme {
     --font-body: 'Onest', sans-serif;
 
-    /*--color-primary: #2f80ed;*/
-    /*--color-secondary: #56ccf2;*/
-    --color-primary: #912CF6;
-    --color-secondary: #a34ff8;
+    --color-primary: #2f80ed;
+    --color-secondary: #56ccf2;
+    /*--color-primary: #912CF6;*/
+    /*--color-secondary: #a34ff8;*/
     --color-dark: #1f2937;
     --color-gray: #6b7280;
     --color-light: #f3f4f6;
@@ -33,7 +33,7 @@
     }
 
     .custom-scroll {
-        scrollbar-color: #2f80ed transparent;
+        scrollbar-color: var(--color-primary) transparent;
         scrollbar-width: thin;
     }
 
@@ -46,25 +46,16 @@
     }
 
     .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: #2f80ed;
+        background-color: var(--color-primary);
         border-radius: 8px;
     }
-
-    /*.input-style.no-arrow::-webkit-outer-spin-button,*/
-    /*.input-style.no-arrow::-webkit-inner-spin-button {*/
-    /*    -webkit-appearance: none;*/
-    /*    margin: 0;*/
-    /*}*/
-
-    /*.input-style.no-arrow[type='number'] {*/
-    /*    -moz-appearance: textfield;*/
-    /*}*/
 }
 
 @layer components {
     .input-style {
         @apply rounded-md border bg-transparent p-2 text-sm text-dark placeholder-gray border-gray outline-none focus:border-primary focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 transition-all duration-150 ease-in-out;
     }
+
     .label-style {
         @apply font-medium text-dark text-sm;
     }

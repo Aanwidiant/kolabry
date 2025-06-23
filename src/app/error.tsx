@@ -3,8 +3,6 @@ import Button from '@/components/globals/button';
 import Image from 'next/image';
 
 export default function Error({
-    // eslint-disable-next-line
-    error,
     reset,
 }: {
     error: Error & { digest?: string };

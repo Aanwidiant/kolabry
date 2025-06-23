@@ -14,10 +14,10 @@ interface ModalProps {
 
 export default function Modal({ icon, title, children, footer, onClose, className }: ModalProps) {
     return (
-        <div className='fixed inset-0 z-30 flex items-center justify-center bg-black/50'>
+        <div className='fixed inset-0 z-30 flex items-center justify-center bg-black/75'>
             <div
                 className={clsx(
-                    'relative w-full max-w-3xl max-h-[90%] overflow-auto bg-white rounded-lg shadow-lg animate-fade-in m-2',
+                    'relative w-full max-w-2xl max-h-[90%] overflow-auto bg-white rounded-lg shadow-lg animate-fade-in m-4',
                     className
                 )}
             >

@@ -150,7 +150,7 @@ export default function CampaignsPage() {
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
-                                                        icon={<Trash className='w-6 h-6 text-error' />}
+                                                        icon={<Trash className='w-6 h-6 fill-error' />}
                                                         onClick={() =>
                                                             setSelectedDelete({
                                                                 id: campaign.id,

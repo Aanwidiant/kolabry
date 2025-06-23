@@ -3,4 +3,4 @@ export * from './generateToken';
 export * from './decodeToken';
 export * from './validatePassword';
 export * from './validateEmail';
-export * from './safeJson'
+export * from './safeJson';

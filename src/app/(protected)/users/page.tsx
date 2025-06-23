@@ -148,7 +148,7 @@ export default function UsersPage() {
                                                         tooltipText='Edit'
                                                     />
                                                     <ActionButton
-                                                        icon={<Trash className='w-6 h-6 text-error' />}
+                                                        icon={<Trash className='w-6 h-6 fill-error' />}
                                                         onClick={() =>
                                                             setSelectedDelete({
                                                                 id: user.id,

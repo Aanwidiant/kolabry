@@ -51,7 +51,7 @@ export default function EditUser({ userData: initialUserData, onClose, onUpdate 
 
         try {
             const response = await Fetch.PATCH(`/user/${formData.id}`, payload);
-            if(response.success === true) {
+            if (response.success === true) {
                 toast.success(response.message);
                 onUpdate();
                 onClose();
@@ -150,7 +150,7 @@ export default function EditUser({ userData: initialUserData, onClose, onUpdate 
                             </button>
                         </div>
                         <div className='mt-1 flex gap-x-2 items-center text-xs text-error italic'>
-                            <Warning className='w-5 h-5' /> Change only if requested by the user.
+                            <Warning className='w-5 h-5 fill-error' /> Change only if requested by the user.
                         </div>
                     </div>
                 </div>
