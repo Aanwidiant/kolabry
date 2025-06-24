@@ -11,6 +11,7 @@ export interface Kols {
     audience_age_range: AgeRangeType;
     created_at: Date;
     updated_at: Date;
+    score: number;
 }
 
 export type NicheType =

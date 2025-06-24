@@ -14,6 +14,7 @@ import DataNotFound from '@/components/globals/data-not-found';
 import DeleteCampaign from './components/delete';
 import EditCampaign from './components/edit';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export default function CampaignsPage() {
     const router = useRouter();
@@ -123,18 +124,20 @@ export default function CampaignsPage() {
                                                     {(page - 1) * limit + index + 1}
                                                 </td>
                                                 <td className='px-4 py-2 text-left'>{campaign.name}</td>
-                                                <td className='px-4 py-2 text-left'>{campaign.target_niche}</td>
-                                                <td className='px-4 py-2 text-left'>{campaign.target_engagement}</td>
-                                                <td className='px-4 py-2 text-left'>{campaign.target_reach}</td>
-                                                <td className='px-4 py-2 text-left'>{campaign.target_gender}</td>
-                                                <td className='px-4 py-2 text-left'>{campaign.target_gender_min}</td>
-                                                <td className='px-4 py-2 text-left'>
+                                                <td className='px-4 py-2 text-right'>{campaign.target_niche}</td>
+                                                <td className='px-4 py-2 text-right'>{campaign.target_engagement}%</td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {campaign.target_reach.toLocaleString('id-ID')}
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>{campaign.target_gender}</td>
+                                                <td className='px-4 py-2 text-right'>{campaign.target_gender_min}%</td>
+                                                <td className='px-4 py-2 text-right'>
                                                     {campaign.target_age_range.replace('AGE_', '').replace('_', ' - ')}
                                                 </td>
-                                                <td className='px-4 py-2 text-left'>
+                                                <td className='px-4 py-2 text-right'>
                                                     {format(campaign.start_date, 'dd MMM yyyy')}
                                                 </td>
-                                                <td className='px-4 py-2 text-left'>
+                                                <td className='px-4 py-2 text-right'>
                                                     {format(campaign.end_date, 'dd MMM yyyy')}
                                                 </td>
                                                 <td
@@ -146,12 +149,18 @@ export default function CampaignsPage() {
                                                                 <Eye className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                             }
                                                             tooltipText='Detail'
+                                                            onClick={() =>
+                                                                toast.info('Sorry, this feature is under construction')
+                                                            }
                                                         />
                                                         <ActionButton
                                                             icon={
                                                                 <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                             }
-                                                            onClick={() => setSelectedEdit(campaign)}
+                                                            // onClick={() => setSelectedEdit(campaign)}
+                                                            onClick={() =>
+                                                                toast.info('Sorry, this feature is under construction')
+                                                            }
                                                             tooltipText='Edit'
                                                         />
                                                         <ActionButton

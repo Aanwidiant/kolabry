@@ -8,7 +8,9 @@ export default function ReportsPage() {
                 <Report className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>Report</span>
             </div>
-            <div className='h-[calc(100vh-10rem)] overflow-y-auto'>test</div>
+            <div className='w-full h-[calc(100vh-10rem)] overflow-y-auto flex justify-center items-center'>
+                <h1 className='text-2xl font-semibold italic'>Sorry, this page is under construction.</h1>
+            </div>
         </main>
     );
 }

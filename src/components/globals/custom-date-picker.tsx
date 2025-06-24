@@ -54,7 +54,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
             disabled={disabled}
             minDate={minDate}
             maxDate={maxDate}
-            dateFormat="dd MMMM yyyy"
+            dateFormat='dd MMMM yyyy'
             renderCustomHeader={({
                 date,
                 changeYear,
@@ -120,6 +120,9 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
             className='w-full input-style'
             wrapperClassName='w-full'
             calendarClassName='shadow-lg rounded-lg border border-dark'
+            onKeyDown={(e) => {
+                e.preventDefault();
+            }}
         />
     );
 };

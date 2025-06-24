@@ -16,6 +16,7 @@ export interface Campaigns {
     end_date: Date;
     created_at: Date;
     updated_at: Date;
+    kol_ids: number[];
 }
 
 export type GenderType = 'MALE' | 'FEMALE';

@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import Fetch from '@/utilities/fetch';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
-import { Campaigns, KolType } from '@/types';
+import { Campaigns, Kols, KolType } from '@/types';
 import { Campaign } from '@/components/icons';
 import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, genderTypeOptions, nicheTypeOptions } from '@/constants/option';
 import { AgeRangeType, GenderType, NicheType } from '@prisma/client';
 import { NumericFormat } from 'react-number-format';
 import CustomDatePicker from '@/components/globals/custom-date-picker';
+import Recommendation from '@/app/(protected)/campaigns/components/recommendation';
 
 export default function AddCampaignPage() {
     const [kolTypes, setKolTypes] = useState<{ label: string; value: string }[]>([]);
@@ -19,6 +20,8 @@ export default function AddCampaignPage() {
     const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const [recommendedKols, setRecommendedKols] = useState<Kols[]>([]);
+    const [fetchingRecommendations, setFetchingRecommendations] = useState(false);
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,42 +88,74 @@ export default function AddCampaignPage() {
         };
     };
 
-    // if (startDate && endDate && endDate < startDate) {
-    //     toast.error('End date cannot be before start date.');
-    //     return;
-    // }
+    const handleSelectKol = (kolId: number, checked: boolean) => {
+        setFormData((prev) => ({
+            ...prev,
+            kol_ids: checked ? [...(prev.kol_ids || []), kolId] : (prev.kol_ids || []).filter((id) => id !== kolId),
+        }));
+    };
 
     useEffect(() => {
-        const fetchKolTypes = async () => {
-            try {
-                const res = await Fetch.GET('/kol-type?npPagination=true');
-                if (res.success) {
-                    const options = res.data.map((item: KolType) => {
-                        const followersRange = item.max_followers
-                            ? `${item.min_followers} - ${item.max_followers}`
-                            : `${item.min_followers}+`;
-
-                        return {
-                            label: `${item.name} (${followersRange})`,
-                            value: item.id,
-                        };
-                    });
-                    setKolTypes(options);
-                }
-            } catch (error) {
-                console.error('Failed to fetch KOL types:', error);
-            }
-        };
-
         fetchKolTypes().then();
     }, []);
 
-    const handleAdd = async () => {
-        if (!formData.name) {
-            toast.error('Please fill in all fields.');
-            return;
-        }
+    useEffect(() => {
+        console.log('Current Kol Type ID:', formData.kol_type_id);
+    }, [formData.kol_type_id]);
 
+    const fetchKolTypes = async () => {
+        try {
+            const res = await Fetch.GET('/kol-type?npPagination=true');
+            if (res.success) {
+                const options = res.data.map((item: KolType) => {
+                    const followersRange = item.max_followers
+                        ? `${item.min_followers} - ${item.max_followers}`
+                        : `${item.min_followers}+`;
+
+                    return {
+                        label: `${item.name} (${followersRange})`,
+                        value: item.id.toString(),
+                    };
+                });
+                setKolTypes(options);
+            }
+        } catch (error) {
+            console.error('Failed to fetch KOL types:', error);
+        }
+    };
+
+    const fetchRecommendations = async () => {
+        setFetchingRecommendations(true);
+        try {
+            const requestBody = {
+                kol_type_id: formData.kol_type_id,
+                target_ratecard: formData.target_rate_card,
+                target_niche: formData.target_niche,
+                target_engagement: formData.target_engagement,
+                target_reach: formData.target_reach,
+                target_gender: formData.target_gender,
+                target_gender_min: formData.target_gender_min,
+                target_age_range: formData.target_age_range,
+            };
+
+            const res = await Fetch.POST('/kol/recommendation', requestBody);
+
+            if (res.success) {
+                setRecommendedKols(res.data || []);
+                if (!res.data || res.data.length === 0) {
+                    toast.info('No KOLs match your criteria');
+                }
+            } else {
+                toast.error(res.message || 'Failed to get recommendations');
+            }
+        } catch (error) {
+            console.error('Error fetching recommendations:', error);
+        } finally {
+            setFetchingRecommendations(false);
+        }
+    };
+
+    const handleAdd = async () => {
         setLoading(true);
 
         const payload = {
@@ -131,14 +166,14 @@ export default function AddCampaignPage() {
 
         try {
             const response = await Fetch.POST('/campaign', payload);
-            if (response.success === true) {
+            if (response.success) {
                 toast.success(response.message);
                 router.push('/campaigns');
             } else {
                 toast.error(response.message);
             }
         } catch {
-            toast.error('Failed to create Campaign');
+            toast.error('Failed to create campaign');
         } finally {
             setLoading(false);
         }
@@ -175,12 +210,13 @@ export default function AddCampaignPage() {
                                 <SingleSelect
                                     id='kol_type'
                                     options={kolTypes}
-                                    value={formData.kol_type_id ?? null}
+                                    value={formData.kol_type_id?.toString() ?? null}
                                     onChange={(value) => {
-                                        if (typeof value === 'number') {
+                                        const numValue = typeof value === 'string' ? parseInt(value) : value;
+                                        if (!isNaN(numValue as number)) {
                                             setFormData((prev) => ({
                                                 ...prev,
-                                                kol_type_id: value,
+                                                kol_type_id: numValue as number,
                                             }));
                                         }
                                     }}
@@ -328,14 +364,29 @@ export default function AddCampaignPage() {
                             </div>
                         </div>
                     </div>
-                    <Button className='w-fit'>Get KOL Recommendation</Button>
+                    <Button
+                        onClick={fetchRecommendations}
+                        disabled={fetchingRecommendations || !formData.kol_type_id || !formData.target_niche}
+                    >
+                        {fetchingRecommendations ? 'Fetching...' : 'Get KOL Recommendation'}
+                    </Button>
+
+                    <Recommendation
+                        recommendedKols={recommendedKols}
+                        selectedKols={formData.kol_ids || []}
+                        onChange={handleSelectKol}
+                        loading={fetchingRecommendations}
+                    />
+
                     <div className='mt-6 flex justify-end gap-2'>
                         <Button variant='outline' onClick={() => router.back()}>
                             Cancel
                         </Button>
-                        <Button onClick={handleAdd} disabled={loading}>
-                            {loading ? 'Creating...' : 'Create'}
-                        </Button>
+                        {formData.kol_ids && formData.kol_ids.length > 0 && (
+                            <Button onClick={handleAdd} disabled={loading}>
+                                {loading ? 'Creating...' : 'Create'}
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>

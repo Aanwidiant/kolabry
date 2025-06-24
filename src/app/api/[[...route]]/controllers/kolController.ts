@@ -126,22 +126,19 @@ export const getKols = async (c: Context) => {
                     success: true,
                     message: 'No KOL data found.',
                 },
-                200
+                400
             );
         }
 
-        return c.json(
-            {
-                success: true,
-                data: safeJson(data),
-                pagination: Pagination({
-                    page: currentPage,
-                    limit: take,
-                    total,
-                }),
-            },
-            200
-        );
+        return c.json({
+            success: true,
+            data: safeJson(data),
+            pagination: Pagination({
+                page: currentPage,
+                limit: take,
+                total,
+            }),
+        });
     } catch (err) {
         return c.json(
             {
@@ -301,154 +298,138 @@ export const deleteKol = async (c: Context) => {
     }
 };
 
-export const getRecommendedKOLs = async (c: Context) => {
-    const body = await c.req.json();
-
-    // Validasi manual minimal
-    if (
-        !body.kol_type_id ||
-        !body.target_niche ||
-        !body.target_gender ||
-        !body.target_age_range
-    ) {
-        return c.json({ error: 'Missing required fields' }, 400);
-    }
-
-    const {
-        kol_type_id,
-        target_ratecare,
-        target_niche,
-        target_engagement,
-        target_reach,
-        target_gender,
-        target_gender_min,
-        target_age_range,
-    } = body;
-
-    // Ambil semua KOL yang sesuai filter awal (PENDEKATAN 1)
-    const baseFilter = {
-        kol_type_id,
-        niche: target_niche,
-        audience_age_range: target_age_range,
-    };
-
-    const genderFilter =
-        target_gender === 'FEMALE'
-            ? { audience_female: { gte: target_gender_min } }
-            : { audience_male: { gte: target_gender_min } };
-
-    const kols = await prisma.kols.findMany({
-        where: {
-            ...baseFilter,
-            ...genderFilter,
-        },
-        select: {
-            id: true,
-            name: true,
-            engagement_rate: true,
-            reach: true,
-            audience_female: true,
-            audience_male: true,
-            rate_card: true,
-        },
-    });
-
-    // Nilai minimal untuk profile matching
-    const minValues = {
-        er: target_engagement,
-        reach: target_reach,
-        audience_gender: target_gender_min,
-        ratecard: target_ratecare,
-    };
-
-    // Fungsi konversi GAP → skor
-    const getERScore = (gap: number) => {
-        if (gap <= -8.1) return -5;
-        if (gap <= -6.1) return -4;
-        if (gap <= -4.1) return -3;
-        if (gap <= -2.1) return -2;
-        if (gap <= -0.1) return -1;
-        if (gap === 0) return 0;
-        if (gap <= 2) return 1;
-        if (gap <= 4) return 2;
-        if (gap <= 6) return 3;
-        if (gap <= 8) return 4;
-        return 5;
-    };
-
-    const getReachScore = (gap: number) => {
-        if (gap <= -800) return -5;
-        if (gap <= -600) return -4;
-        if (gap <= -400) return -3;
-        if (gap <= -200) return -2;
-        if (gap <= -1) return -1;
-        if (gap === 0) return 0;
-        if (gap <= 199) return 1;
-        if (gap <= 399) return 2;
-        if (gap <= 599) return 3;
-        if (gap <= 799) return 4;
-        return 5;
-    };
-
-    const getAudienceScore = (gap: number) => {
-        if (gap <= -80) return -5;
-        if (gap <= -60) return -4;
-        if (gap <= -40) return -3;
-        if (gap <= -20) return -2;
-        if (gap <= -1) return -1;
-        if (gap === 0) return 0;
-        if (gap <= 19) return 1;
-        if (gap <= 39) return 2;
-        if (gap <= 59) return 3;
-        if (gap <= 79) return 4;
-        return 5;
-    };
-
-    const getRatecardScore = (gap: bigint) => {
-        if (gap > 4000000) return -5;
-        if (gap > 3000000) return -4;
-        if (gap > 2000000) return -3;
-        if (gap > 1000000) return -2;
-        if (gap > 200000) return -1;
-        if (gap > 100000) return 0;
-        if (gap <= 100000) return 1;
-        return 0;
-    };
-
-    const weighted = {
-        er: 0.2,
-        reach: 0.4,
-        audience: 0.25,
-        ratecard: 0.15,
-    };
-
-    const results = kols.map((kol) => {
-        const audience = target_gender === 'FEMALE' ? kol.audience_female : kol.audience_male;
-
-        const gapER = kol.engagement_rate - minValues.er;
-        const gapReach = kol.reach - minValues.reach;
-        const gapAudience = audience - minValues.audience_gender;
-        const gapRatecard = minValues.ratecard - kol.rate_card;
-
-        const scoreER = getERScore(gapER);
-        const scoreReach = getReachScore(gapReach);
-        const scoreAudience = getAudienceScore(gapAudience);
-        const scoreRatecard = getRatecardScore(gapRatecard);
-
-        const totalScore =
-            scoreER * weighted.er +
-            scoreReach * weighted.reach +
-            scoreAudience * weighted.audience +
-            scoreRatecard * weighted.ratecard;
-
-        return {
-            ...kol,
-            score: totalScore,
-        };
-    });
-
-    const sorted = results.sort((a, b) => b.score - a.score);
-
-    return c.json({ result: sorted });
+const WEIGHTS = {
+    er: 0.2,
+    reach: 0.4,
+    audience: 0.25,
+    ratecard: 0.15,
 };
 
+const getScore = (gap: number, thresholds: number[], scores: number[]) => {
+    for (let i = 0; i < thresholds.length; i++) {
+        if (gap <= thresholds[i]) return scores[i];
+    }
+    return scores[scores.length - 1];
+};
+
+export const getRecommendedKOLs = async (c: Context) => {
+    try {
+        const body = await c.req.json();
+
+        const {
+            kol_type_id,
+            target_ratecard,
+            target_niche,
+            target_engagement,
+            target_reach,
+            target_gender,
+            target_gender_min,
+            target_age_range,
+        } = body;
+
+        if (
+            !kol_type_id ||
+            !target_niche ||
+            !target_gender ||
+            !target_age_range ||
+            typeof target_engagement !== 'number' ||
+            typeof target_reach !== 'number' ||
+            typeof target_ratecard !== 'number' ||
+            typeof target_gender_min !== 'number'
+        ) {
+            return c.json({ error: 'Missing or invalid required fields' }, 400);
+        }
+
+        const kolType = await prisma.kol_types.findUnique({
+            where: { id: kol_type_id },
+        });
+
+        if (!kolType) {
+            return c.json({ error: 'Invalid kol_type_id' }, 404);
+        }
+
+        const genderFilter =
+            target_gender === 'FEMALE'
+                ? { audience_female: { gte: target_gender_min } }
+                : { audience_male: { gte: target_gender_min } };
+
+        const kols = await prisma.kols.findMany({
+            where: {
+                followers: {
+                    gte: kolType.min_followers,
+                    ...(kolType.max_followers ? { lte: kolType.max_followers } : {}),
+                },
+                niche: target_niche,
+                audience_age_range: target_age_range,
+                ...genderFilter,
+            },
+            select: {
+                id: true,
+                name: true,
+                engagement_rate: true,
+                reach: true,
+                audience_female: true,
+                audience_male: true,
+                rate_card: true,
+                followers: true,
+            },
+        });
+
+        const results = kols.map((kol) => {
+            const audience = target_gender === 'FEMALE' ? kol.audience_female : kol.audience_male;
+
+            const gapER = kol.engagement_rate - target_engagement;
+            const gapReach = kol.reach - target_reach;
+            const gapAudience = audience - target_gender_min;
+            const gapRatecard = target_ratecard - Number(kol.rate_card);
+
+            const scoreER = getScore(
+                gapER,
+                [-8.1, -6.1, -4.1, -2.1, -0.1, 0, 2, 4, 6, 8],
+                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
+            );
+            const scoreReach = getScore(
+                gapReach,
+                [-800, -600, -400, -200, -1, 0, 199, 399, 599, 799],
+                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
+            );
+            const scoreAudience = getScore(
+                gapAudience,
+                [-80, -60, -40, -20, -1, 0, 19, 39, 59, 79],
+                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
+            );
+            const scoreRatecard = getScore(
+                gapRatecard,
+                [4000000, 3000000, 2000000, 1000000, 200000, 100000],
+                [-5, -4, -3, -2, -1, 0, 1]
+            );
+
+            const totalScore =
+                scoreER * WEIGHTS.er +
+                scoreReach * WEIGHTS.reach +
+                scoreAudience * WEIGHTS.audience +
+                scoreRatecard * WEIGHTS.ratecard;
+
+            return {
+                ...kol,
+                score: totalScore,
+            };
+        });
+
+        const sorted = results.sort((a, b) => b.score - a.score).slice(0, 10);
+
+        return c.json({
+            success: true,
+            data: safeJson(sorted),
+        });
+    } catch (err) {
+        return c.json(
+            {
+                success: false,
+                message: 'An error occurred on the server.',
+                error: err instanceof Error ? err.message : String(err),
+            },
+            500
+        );
+    }
+};
