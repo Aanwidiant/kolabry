@@ -77,144 +77,152 @@ export default function KolsPage() {
     }, [getKols]);
 
     return (
-        <main className='pb-10'>
+        <main className='pb-10 h-full flex flex-col'>
             <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
                 <Kol className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>Key Opinion Leader</span>
             </div>
-            <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
-                <div className='flex flex-wrap gap-3'>
-                    <SearchInput onSearch={setSearch} search={'name'} />
-                    <SingleSelect
-                        id='niche_type'
-                        label='Niche'
-                        options={nicheTypeOptions}
-                        value={selectedNiche ?? null}
-                        onChange={handleNicheChange}
-                        width='w-32'
-                        placeholder='Select niche'
-                    />
-                    <SingleSelect
-                        id='age_range'
-                        label='Age Range'
-                        options={ageRangeOptions}
-                        value={selectedAgeRange ?? null}
-                        onChange={handleAgeRangeChange}
-                        width='w-40'
-                        placeholder='Select age range'
-                    />
-                    <PaginationLimit value={limit} onChange={handleLimitChange} />
+            <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
+                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
+                    <div className='flex flex-wrap gap-3'>
+                        <SearchInput onSearch={setSearch} search={'name'} />
+                        <SingleSelect
+                            id='niche_type'
+                            label='Niche'
+                            options={nicheTypeOptions}
+                            value={selectedNiche ?? null}
+                            onChange={handleNicheChange}
+                            width='w-32'
+                            placeholder='Select niche'
+                        />
+                        <SingleSelect
+                            id='age_range'
+                            label='Age Range'
+                            options={ageRangeOptions}
+                            value={selectedAgeRange ?? null}
+                            onChange={handleAgeRangeChange}
+                            width='w-40'
+                            placeholder='Select age range'
+                        />
+                        <PaginationLimit value={limit} onChange={handleLimitChange} />
+                    </div>
+                    <div className='place-self-end flex flex-wrap gap-3'>
+                        <Button
+                            onClick={() => {
+                                setOpenAdd(true);
+                            }}
+                        >
+                            <Add className='w-6 h-6' />
+                            <p>Add KOL</p>
+                        </Button>
+                        <Button onClick={() => setOpenAddBulk(true)}>
+                            <Upload className='w-6 h-6' />
+                            <p>Add Bulk</p>
+                        </Button>
+                    </div>
                 </div>
-                <div className='place-self-end flex flex-wrap gap-3'>
-                    <Button
-                        onClick={() => {
-                            setOpenAdd(true);
-                        }}
-                    >
-                        <Add className='w-6 h-6' />
-                        <p>Add KOL</p>
-                    </Button>
-                    <Button onClick={() => setOpenAddBulk(true)}>
-                        <Upload className='w-6 h-6' />
-                        <p>Add Bulk</p>
-                    </Button>
-                </div>
-            </div>
-            <div className='py-3 px-6'>
-                <div className='overflow-x-auto rounded-lg border border-gray'>
-                    <table className='min-w-full text-sm'>
-                        <thead className='border-b border-gray'>
-                            <tr className='bg-primary/50'>
-                                <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
-                                <th className='text-center min-w-32 p-4'>Name</th>
-                                <th className='text-center p-4'>Niche</th>
-                                <th className='text-center p-4'>Audience Age Range</th>
-                                <th className='text-center p-4'>Audience Male</th>
-                                <th className='text-center p-4'>Audience Female</th>
-                                <th className='text-center p-4'>Followers</th>
-                                <th className='text-center p-4'>Engagement Rate</th>
-                                <th className='text-center p-4'>Reach</th>
-                                <th className='text-center min-w-32 p-4'>Rate Card</th>
-                                <th className='text-center p-4 rounded-tr-lg'>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={11} className='py-4 text-center'>
-                                        <SpinnerLoader scale='scale-80' />
-                                    </td>
+                <div className='py-3 px-6'>
+                    <div className='overflow-x-auto rounded-lg border border-gray'>
+                        <table className='min-w-full text-sm'>
+                            <thead className='border-b border-gray'>
+                                <tr className='bg-primary/50'>
+                                    <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
+                                    <th className='text-center min-w-32 p-4'>Name</th>
+                                    <th className='text-center p-4'>Niche</th>
+                                    <th className='text-center p-4'>Audience Age Range</th>
+                                    <th className='text-center p-4'>Audience Male</th>
+                                    <th className='text-center p-4'>Audience Female</th>
+                                    <th className='text-center p-4'>Followers</th>
+                                    <th className='text-center p-4'>Engagement Rate</th>
+                                    <th className='text-center p-4'>Reach</th>
+                                    <th className='text-center min-w-32 p-4'>Rate Card</th>
+                                    <th className='text-center p-4 rounded-tr-lg'>Action</th>
                                 </tr>
-                            ) : kols.length === 0 ? (
-                                <tr>
-                                    <td colSpan={11}>
-                                        <DataNotFound />
-                                    </td>
-                                </tr>
-                            ) : (
-                                kols.map((kol, index) => {
-                                    const isLast = index === kols.length - 1;
-                                    return (
-                                        <tr
-                                            key={kol.id}
-                                            className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
-                                        >
-                                            <td className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}>
-                                                {(page - 1) * limit + index + 1}
-                                            </td>
-                                            <td className='px-4 py-2 text-left'>{kol.name}</td>
-                                            <td className='px-4 py-2 text-right'>{kol.niche}</td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {kol.audience_age_range.replace('AGE_', '').replace('_', ' - ')}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>{kol.audience_male}%</td>
-                                            <td className='px-4 py-2 text-right'>{kol.audience_female}%</td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {Number(kol.followers?.toString()).toLocaleString('id-ID')}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>{kol.engagement_rate}</td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {kol.reach.toLocaleString('id-ID')}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                Rp {Number(kol.rate_card?.toString()).toLocaleString('id-ID')}
-                                            </td>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={11} className='py-4 text-center'>
+                                            <SpinnerLoader scale='scale-80' />
+                                        </td>
+                                    </tr>
+                                ) : kols.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={11}>
+                                            <DataNotFound />
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    kols.map((kol, index) => {
+                                        const isLast = index === kols.length - 1;
+                                        return (
+                                            <tr
+                                                key={kol.id}
+                                                className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
+                                            >
+                                                <td
+                                                    className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}
+                                                >
+                                                    {(page - 1) * limit + index + 1}
+                                                </td>
+                                                <td className='px-4 py-2 text-left'>{kol.name}</td>
+                                                <td className='px-4 py-2 text-right'>{kol.niche}</td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {kol.audience_age_range.replace('AGE_', '').replace('_', ' - ')}
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>{kol.audience_male}%</td>
+                                                <td className='px-4 py-2 text-right'>{kol.audience_female}%</td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {Number(kol.followers?.toString()).toLocaleString('id-ID')}
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {kol.engagement_rate.toFixed(2)}%
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {kol.reach.toLocaleString('id-ID')}
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    Rp {Number(kol.rate_card?.toString()).toLocaleString('id-ID')}
+                                                </td>
 
-                                            <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
-                                                <div className='flex justify-center gap-2'>
-                                                    <ActionButton
-                                                        icon={
-                                                            <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
-                                                        }
-                                                        onClick={() => setSelectedEdit(kol)}
-                                                        tooltipText='Edit'
-                                                    />
-                                                    <ActionButton
-                                                        icon={<Trash className='w-6 h-6 fill-error' />}
-                                                        onClick={() =>
-                                                            setSelectedDelete({
-                                                                id: kol.id,
-                                                                name: kol.name,
-                                                            })
-                                                        }
-                                                        tooltipText='Delete'
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
+                                                <td
+                                                    className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
+                                                >
+                                                    <div className='flex justify-center gap-2'>
+                                                        <ActionButton
+                                                            icon={
+                                                                <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                                            }
+                                                            onClick={() => setSelectedEdit(kol)}
+                                                            tooltipText='Edit'
+                                                        />
+                                                        <ActionButton
+                                                            icon={<Trash className='w-6 h-6 fill-error' />}
+                                                            onClick={() =>
+                                                                setSelectedDelete({
+                                                                    id: kol.id,
+                                                                    name: kol.name,
+                                                                })
+                                                            }
+                                                            tooltipText='Delete'
+                                                        />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    {totalPages > 1 && (
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={page}
+                            onPageChange={(newPage) => setPage(newPage)}
+                        />
+                    )}
                 </div>
-                {totalPages > 1 && (
-                    <Pagination
-                        totalPages={totalPages}
-                        currentPage={page}
-                        onPageChange={(newPage) => setPage(newPage)}
-                    />
-                )}
             </div>
             {openAdd && <AddKol onClose={() => setOpenAdd(false)} onAdd={getKols} />}
             <EditKol kolData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getKols} />

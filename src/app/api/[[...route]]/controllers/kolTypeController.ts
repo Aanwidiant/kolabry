@@ -62,8 +62,9 @@ export const createKolType = async (c: Context) => {
 };
 
 export const getKolTypes = async (c: Context) => {
-    const { search = '', page = '1', limit = '10' } = c.req.query();
+    const { search = '', page = '1', limit = '10', noPagination = 'false' } = c.req.query();
 
+    const noPaginationFlag = noPagination === 'true';
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
     const offset = (pageNumber - 1) * limitNumber;
@@ -80,8 +81,7 @@ export const getKolTypes = async (c: Context) => {
     try {
         const kolTypes = await prisma.kol_types.findMany({
             where: whereClause,
-            skip: offset,
-            take: limitNumber,
+            ...(noPaginationFlag ? {} : { skip: offset, take: limitNumber }),
         });
 
         const total = await prisma.kol_types.count({ where: whereClause });
@@ -99,11 +99,15 @@ export const getKolTypes = async (c: Context) => {
         return c.json({
             success: true,
             data: safeJson(kolTypes),
-            pagination: Pagination({
-                page: pageNumber,
-                limit: limitNumber,
-                total: total,
-            }),
+            ...(noPaginationFlag
+                ? {}
+                : {
+                      pagination: Pagination({
+                          page: pageNumber,
+                          limit: limitNumber,
+                          total: total,
+                      }),
+                  }),
         });
     } catch (err) {
         return c.json(

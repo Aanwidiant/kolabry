@@ -4,7 +4,7 @@ export interface Campaigns {
     id: number;
     user_id: number;
     name: string;
-    kol_type_id: number;
+    kol_type_id: number | undefined;
     target_niche: NicheType;
     target_engagement: number;
     target_reach: number;

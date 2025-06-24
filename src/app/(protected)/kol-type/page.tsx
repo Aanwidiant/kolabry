@@ -59,109 +59,116 @@ export default function KolTypePage() {
     }, [getKolTypes]);
 
     return (
-        <main className='pb-10'>
+        <main className='pb-10 h-full flex flex-col'>
             <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
                 <KolTypes className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>KOL Type</span>
             </div>
+            <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
+                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
+                    <div className='flex flex-wrap gap-3'>
+                        <SearchInput onSearch={setSearch} search={'name'} />
+                        <PaginationLimit value={limit} onChange={handleLimitChange} />
+                    </div>
+                    <div className='place-self-end'>
+                        <Button
+                            onClick={() => {
+                                setOpenAdd(true);
+                            }}
+                        >
+                            <Add className='w-6 h-6' />
+                            <p>Add KOL Type</p>
+                        </Button>
+                    </div>
+                </div>
 
-            <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
-                <div className='flex flex-wrap gap-3'>
-                    <SearchInput onSearch={setSearch} search={'name'} />
-                    <PaginationLimit value={limit} onChange={handleLimitChange} />
-                </div>
-                <div className='place-self-end'>
-                    <Button
-                        onClick={() => {
-                            setOpenAdd(true);
-                        }}
-                    >
-                        <Add className='w-6 h-6' />
-                        <p>Add KOL Type</p>
-                    </Button>
-                </div>
-            </div>
-
-            <div className='py-3 px-6'>
-                <div className='overflow-x-auto rounded-lg border border-gray'>
-                    <table className='min-w-full text-sm'>
-                        <thead className='border-b border-gray'>
-                            <tr className='bg-primary/50'>
-                                <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
-                                <th className='text-center p-4'>Name</th>
-                                <th className='text-center p-4'>Min Followers</th>
-                                <th className='text-center p-4'>Max Followers</th>
-                                <th className='text-center p-4 rounded-tr-lg'>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={5} className='py-4 text-center'>
-                                        <SpinnerLoader scale='scale-80' />
-                                    </td>
+                <div className='py-3 px-6'>
+                    <div className='overflow-x-auto rounded-lg border border-gray'>
+                        <table className='min-w-full text-sm'>
+                            <thead className='border-b border-gray'>
+                                <tr className='bg-primary/50'>
+                                    <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
+                                    <th className='text-center p-4'>Name</th>
+                                    <th className='text-center p-4'>Min Followers</th>
+                                    <th className='text-center p-4'>Max Followers</th>
+                                    <th className='text-center p-4 rounded-tr-lg'>Action</th>
                                 </tr>
-                            ) : kolTypes.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5}>
-                                        <DataNotFound />
-                                    </td>
-                                </tr>
-                            ) : (
-                                kolTypes.map((kolType, index) => {
-                                    const isLast = index === kolTypes.length - 1;
-                                    return (
-                                        <tr
-                                            key={kolType.id}
-                                            className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
-                                        >
-                                            <td className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}>
-                                                {(page - 1) * limit + index + 1}
-                                            </td>
-                                            <td className='px-4 py-2 text-left'>{kolType.name}</td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {Number(kolType.min_followers?.toString()).toLocaleString('id-ID')}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {kolType.max_followers !== null
-                                                    ? Number(kolType.max_followers.toString()).toLocaleString('id-ID')
-                                                    : '-'}
-                                            </td>
-                                            <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
-                                                <div className='flex justify-center gap-2'>
-                                                    <ActionButton
-                                                        icon={
-                                                            <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
-                                                        }
-                                                        onClick={() => setSelectedEdit(kolType)}
-                                                        tooltipText='Edit'
-                                                    />
-                                                    <ActionButton
-                                                        icon={<Trash className='w-6 h-6 fill-error' />}
-                                                        onClick={() =>
-                                                            setSelectedDelete({
-                                                                id: kolType.id,
-                                                                name: kolType.name,
-                                                            })
-                                                        }
-                                                        tooltipText='Delete'
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={5} className='py-4 text-center'>
+                                            <SpinnerLoader scale='scale-80' />
+                                        </td>
+                                    </tr>
+                                ) : kolTypes.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5}>
+                                            <DataNotFound />
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    kolTypes.map((kolType, index) => {
+                                        const isLast = index === kolTypes.length - 1;
+                                        return (
+                                            <tr
+                                                key={kolType.id}
+                                                className={`bg-light ${isLast ? '' : 'border-b border-gray'} `}
+                                            >
+                                                <td
+                                                    className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}
+                                                >
+                                                    {(page - 1) * limit + index + 1}
+                                                </td>
+                                                <td className='px-4 py-2 text-left'>{kolType.name}</td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {Number(kolType.min_followers?.toString()).toLocaleString('id-ID')}
+                                                </td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {kolType.max_followers !== null
+                                                        ? Number(kolType.max_followers.toString()).toLocaleString(
+                                                              'id-ID'
+                                                          )
+                                                        : '-'}
+                                                </td>
+                                                <td
+                                                    className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
+                                                >
+                                                    <div className='flex justify-center gap-2'>
+                                                        <ActionButton
+                                                            icon={
+                                                                <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                                            }
+                                                            onClick={() => setSelectedEdit(kolType)}
+                                                            tooltipText='Edit'
+                                                        />
+                                                        <ActionButton
+                                                            icon={<Trash className='w-6 h-6 fill-error' />}
+                                                            onClick={() =>
+                                                                setSelectedDelete({
+                                                                    id: kolType.id,
+                                                                    name: kolType.name,
+                                                                })
+                                                            }
+                                                            tooltipText='Delete'
+                                                        />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    {totalPages > 1 && (
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={page}
+                            onPageChange={(newPage) => setPage(newPage)}
+                        />
+                    )}
                 </div>
-                {totalPages > 1 && (
-                    <Pagination
-                        totalPages={totalPages}
-                        currentPage={page}
-                        onPageChange={(newPage) => setPage(newPage)}
-                    />
-                )}
             </div>
             {openAdd && <AddKolType onClose={() => setOpenAdd(false)} onAdd={getKolTypes} />}
             <EditKolType kolData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getKolTypes} />

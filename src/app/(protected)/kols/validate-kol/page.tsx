@@ -194,12 +194,12 @@ export default function ValidateKOL() {
     };
 
     return (
-        <main className='pb-10'>
+        <main className='pb-10 h-full flex flex-col'>
             <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6 '>
                 <Kol className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>KOLs Bulk Validation Input</span>
             </div>
-            <div className='py-3 px-6'>
+            <div className='h-[calc(100vh-10rem)] overflow-y-auto py-3 px-6'>
                 <div className='overflow-x-auto rounded-lg border border-gray'>
                     <table className='min-w-full text-sm'>
                         <thead className='border-b border-gray'>

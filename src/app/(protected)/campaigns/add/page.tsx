@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Fetch from '@/utilities/fetch';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
-import { Campaigns } from '@/types';
+import { Campaigns, KolType } from '@/types';
 import { Campaign } from '@/components/icons';
 import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, genderTypeOptions, nicheTypeOptions } from '@/constants/option';
 import { AgeRangeType, GenderType, NicheType } from '@prisma/client';
 import { NumericFormat } from 'react-number-format';
+import CustomDatePicker from '@/components/globals/custom-date-picker';
 
 export default function AddCampaignPage() {
+    const [kolTypes, setKolTypes] = useState<{ label: string; value: string }[]>([]);
     const [formData, setFormData] = useState<Partial<Campaigns>>({});
     const [loading, setLoading] = useState(false);
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,6 +85,36 @@ export default function AddCampaignPage() {
         };
     };
 
+    // if (startDate && endDate && endDate < startDate) {
+    //     toast.error('End date cannot be before start date.');
+    //     return;
+    // }
+
+    useEffect(() => {
+        const fetchKolTypes = async () => {
+            try {
+                const res = await Fetch.GET('/kol-type?npPagination=true');
+                if (res.success) {
+                    const options = res.data.map((item: KolType) => {
+                        const followersRange = item.max_followers
+                            ? `${item.min_followers} - ${item.max_followers}`
+                            : `${item.min_followers}+`;
+
+                        return {
+                            label: `${item.name} (${followersRange})`,
+                            value: item.id,
+                        };
+                    });
+                    setKolTypes(options);
+                }
+            } catch (error) {
+                console.error('Failed to fetch KOL types:', error);
+            }
+        };
+
+        fetchKolTypes().then();
+    }, []);
+
     const handleAdd = async () => {
         if (!formData.name) {
             toast.error('Please fill in all fields.');
@@ -88,8 +122,15 @@ export default function AddCampaignPage() {
         }
 
         setLoading(true);
+
+        const payload = {
+            ...formData,
+            start_date: startDate?.toISOString(),
+            end_date: endDate?.toISOString(),
+        };
+
         try {
-            const response = await Fetch.POST('/campaign', formData);
+            const response = await Fetch.POST('/campaign', payload);
             if (response.success === true) {
                 toast.success(response.message);
                 router.push('/campaigns');
@@ -104,165 +145,198 @@ export default function AddCampaignPage() {
     };
 
     return (
-        <main className='pb-10'>
+        <main className='pb-10 h-full flex flex-col'>
             <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
                 <Campaign className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>Create New Campaign</span>
             </div>
 
-            <div className='py-3 px-6 space-y-4'>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='name'>
-                            Name
-                        </label>
-                        <input
-                            className='col-span-3 input-style'
-                            id='name'
-                            name='name'
-                            type='text'
-                            value={formData.name ?? ''}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='kol_type'>
-                            Kol Type
-                        </label>
-                        <input
-                            className='col-span-3 input-style'
-                            id='kol_type'
-                            name='kol_type'
-                            type='text'
-                            value={formData.name ?? ''}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_niche'>
-                            Target Niche
-                        </label>
-                        <div className='col-span-3'>
-                            <SingleSelect
-                                id='target_niche'
-                                options={nicheTypeOptions}
-                                value={formData.target_niche ?? null}
-                                onChange={handleNicheChange}
-                                width='w-full'
-                                allowClear={false}
+            <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
+                <div className='py-3 px-6 space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='name'>
+                                Name
+                            </label>
+                            <input
+                                className='col-span-3 input-style'
+                                id='name'
+                                name='name'
+                                type='text'
+                                value={formData.name ?? ''}
+                                onChange={handleChange}
                             />
                         </div>
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='rate_card'>
-                            Target Rate Card
-                        </label>
-                        <NumericFormat
-                            id='rate_card'
-                            name='rate_card'
-                            className='col-span-3 input-style'
-                            value={formData.target_rate_card ?? ''}
-                            thousandSeparator='.'
-                            decimalSeparator=','
-                            prefix='Rp '
-                            allowNegative={false}
-                            allowLeadingZeros={false}
-                            onValueChange={handleNumberValueChange('target_rate_card')}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_engagement'>
-                            Target Engagement
-                        </label>
-                        <NumericFormat
-                            id='target_engagement'
-                            name='target_engagement'
-                            className='col-span-3 input-style'
-                            value={formData.target_engagement}
-                            suffix='%'
-                            decimalScale={2}
-                            onValueChange={handlePercentageChange('target_engagement', setFormData)}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_reach'>
-                            Target Reach
-                        </label>
-                        <NumericFormat
-                            id='target_reach'
-                            name='target_reach'
-                            className='col-span-3 input-style'
-                            value={formData.target_reach}
-                            allowNegative={false}
-                            allowLeadingZeros={false}
-                            thousandSeparator='.'
-                            decimalSeparator=','
-                            onValueChange={handleNumberValueChange('target_reach')}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_gender'>
-                            Target Gender
-                        </label>
-                        <div className='col-span-3'>
-                            <SingleSelect
-                                id='target_gender'
-                                options={genderTypeOptions}
-                                value={formData.target_gender ?? null}
-                                onChange={handleGenderChange}
-                                width='w-full'
-                                allowClear={false}
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='kol_type'>
+                                Kol Type
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='kol_type'
+                                    options={kolTypes}
+                                    value={formData.kol_type_id ?? null}
+                                    onChange={(value) => {
+                                        if (typeof value === 'number') {
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                kol_type_id: value,
+                                            }));
+                                        }
+                                    }}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_niche'>
+                                Target Niche
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='target_niche'
+                                    options={nicheTypeOptions}
+                                    value={formData.target_niche ?? null}
+                                    onChange={handleNicheChange}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='rate_card'>
+                                Target Rate Card
+                            </label>
+                            <NumericFormat
+                                id='rate_card'
+                                name='rate_card'
+                                className='col-span-3 input-style'
+                                value={formData.target_rate_card ?? ''}
+                                thousandSeparator='.'
+                                decimalSeparator=','
+                                prefix='Rp '
+                                allowNegative={false}
+                                allowLeadingZeros={false}
+                                onValueChange={handleNumberValueChange('target_rate_card')}
                             />
                         </div>
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_gender_min'>
-                            Target Gender Percentage
-                        </label>
-                        <NumericFormat
-                            id='target_gender_min'
-                            name='target_gender_min'
-                            className='col-span-3 input-style'
-                            value={formData.target_gender_min}
-                            onValueChange={handlePercentageChange('target_gender_min', setFormData)}
-                            suffix='%'
-                            decimalScale={0}
-                            allowNegative={false}
-                            isAllowed={({ floatValue }) => (floatValue ?? 0) <= 100}
-                        />
-                    </div>
-                    <div className='grid grid-cols-5 items-center gap-4'>
-                        <label className='col-span-2 font-medium' htmlFor='target_age_range'>
-                            Target Age Range
-                        </label>
-                        <div className='col-span-3'>
-                            <SingleSelect
-                                id='target_age_range'
-                                options={ageRangeOptions}
-                                value={formData.target_age_range ?? null}
-                                onChange={handleAgeRangeChange}
-                                width='w-full'
-                                allowClear={false}
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_engagement'>
+                                Target Engagement
+                            </label>
+                            <NumericFormat
+                                id='target_engagement'
+                                name='target_engagement'
+                                className='col-span-3 input-style'
+                                value={formData.target_engagement}
+                                suffix='%'
+                                decimalScale={2}
+                                onValueChange={handlePercentageChange('target_engagement', setFormData)}
                             />
                         </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_reach'>
+                                Target Reach
+                            </label>
+                            <NumericFormat
+                                id='target_reach'
+                                name='target_reach'
+                                className='col-span-3 input-style'
+                                value={formData.target_reach}
+                                allowNegative={false}
+                                allowLeadingZeros={false}
+                                thousandSeparator='.'
+                                decimalSeparator=','
+                                onValueChange={handleNumberValueChange('target_reach')}
+                            />
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_gender'>
+                                Target Gender
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='target_gender'
+                                    options={genderTypeOptions}
+                                    value={formData.target_gender ?? null}
+                                    onChange={handleGenderChange}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_gender_min'>
+                                Target Gender Percentage
+                            </label>
+                            <NumericFormat
+                                id='target_gender_min'
+                                name='target_gender_min'
+                                className='col-span-3 input-style'
+                                value={formData.target_gender_min}
+                                onValueChange={handlePercentageChange('target_gender_min', setFormData)}
+                                suffix='%'
+                                decimalScale={0}
+                                allowNegative={false}
+                                isAllowed={({ floatValue }) => (floatValue ?? 0) <= 100}
+                            />
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_age_range'>
+                                Target Age Range
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='target_age_range'
+                                    options={ageRangeOptions}
+                                    value={formData.target_age_range ?? null}
+                                    onChange={handleAgeRangeChange}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='start-date'>
+                                Start Date
+                            </label>
+                            <div className='col-span-3 w-full'>
+                                <CustomDatePicker
+                                    selectedDate={startDate}
+                                    onChange={(date) => {
+                                        setStartDate(date ?? null);
+                                    }}
+                                    placeholder='Select start date'
+                                    id='start-date'
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='end-date'>
+                                End Date
+                            </label>
+                            <div className='col-span-3 w-full'>
+                                <CustomDatePicker
+                                    selectedDate={endDate}
+                                    onChange={(date) => {
+                                        setEndDate(date ?? null);
+                                    }}
+                                    placeholder='Select end date'
+                                    id='end-date'
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <div className='grid grid-cols-5 items-start gap-4 relative'>
-                        <label className='col-span-2 font-medium'>Start Date</label>
-                        <div className='col-span-3 w-full'></div>
+                    <Button className='w-fit'>Get KOL Recommendation</Button>
+                    <div className='mt-6 flex justify-end gap-2'>
+                        <Button variant='outline' onClick={() => router.back()}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleAdd} disabled={loading}>
+                            {loading ? 'Creating...' : 'Create'}
+                        </Button>
                     </div>
-                    <div className='grid grid-cols-5 items-start gap-4 relative mt-4'>
-                        <label className='col-span-2 font-medium'>End Date</label>
-                        <div className='col-span-3 w-full'></div>
-                    </div>
-                </div>
-                <Button className='w-fit'>Get KOL Recommendation</Button>
-                <div className='mt-6 flex justify-end gap-2'>
-                    <Button variant='outline' onClick={() => router.back()}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleAdd} disabled={loading}>
-                        {loading ? 'Creating...' : 'Create'}
-                    </Button>
                 </div>
             </div>
         </main>
