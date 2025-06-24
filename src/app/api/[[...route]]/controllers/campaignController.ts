@@ -11,7 +11,7 @@ export const createCampaign = async (c: Context) => {
 
         const requiredFields = [
             'name',
-            'campaign_type_id',
+            'kol_type_id',
             'target_niche',
             'target_engagement',
             'target_reach',
@@ -201,7 +201,6 @@ export const updateCampaign = async (c: Context) => {
             }
         }
 
-        // Konversi tanggal jika string
         if (dataToUpdate.start_date && typeof dataToUpdate.start_date === 'string') {
             dataToUpdate.start_date = new Date(dataToUpdate.start_date);
         }
@@ -209,7 +208,6 @@ export const updateCampaign = async (c: Context) => {
             dataToUpdate.end_date = new Date(dataToUpdate.end_date);
         }
 
-        // Cek perubahan kol_type_id secara eksplisit
         if (typeof campaign_type_id === 'number') {
             const existingKolTypeId = existingCampaign.kol_type_id;
             if (existingKolTypeId !== campaign_type_id) {
@@ -219,8 +217,6 @@ export const updateCampaign = async (c: Context) => {
                 };
             }
         }
-
-        // Cek apakah ada perubahan pada data campaign
 
         for (const key of allowedFields) {
             if (!(key in dataToUpdate)) continue;
@@ -241,7 +237,6 @@ export const updateCampaign = async (c: Context) => {
             }
         }
 
-        // Cek perubahan kol_ids
         let isKolIdsChanged = false;
         if (Array.isArray(kol_ids)) {
             const existingKolIds = existingCampaign.campaign_kols.map((k) => k.kol_id).sort();
@@ -254,12 +249,10 @@ export const updateCampaign = async (c: Context) => {
             }
         }
 
-        // Early return jika tidak ada perubahan
         if (!isCampaignChanged && !isKolIdsChanged) {
             return c.json({ success: true, message: 'No changes made.' });
         }
 
-        // Update campaign jika ada perubahan
         if (isCampaignChanged) {
             await prisma.campaigns.update({
                 where: { id: campaign_id },
@@ -267,7 +260,6 @@ export const updateCampaign = async (c: Context) => {
             });
         }
 
-        // Update kol_ids jika berubah
         if (isKolIdsChanged) {
             await prisma.campaign_kol.deleteMany({ where: { campaign_id } });
             const campaignKolsData = kol_ids.map((kolId: number) => ({

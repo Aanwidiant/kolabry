@@ -5,6 +5,7 @@ import { kol } from '../controllers';
 const kols = new Hono();
 
 kols.post('/', protect, isKOLManager, (c) => kol.createKol(c));
+kols.post('/recomendation', protect, isKOLManager, (c) => kol.getRecommendedKOLs(c));
 kols.get('/', protect, isKOLManager, (c) => kol.getKols(c));
 kols.patch('/:id', protect, isKOLManager, (c) => kol.updateKol(c));
 kols.delete('/:id', protect, isKOLManager, (c) => kol.deleteKol(c));

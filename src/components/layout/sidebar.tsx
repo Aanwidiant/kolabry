@@ -90,65 +90,67 @@ export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) 
             />
 
             <aside
-                className={`min-h-screen md:h-screen overflow-y-auto fixed top-0 left-0 z-20 pt-19 transition-all bg-light border-r border-gray
-                    md:translate-x-0 md:relative md:pt-19
-                    ${mobileVisible ? 'w-56 translate-x-0' : '-translate-x-full w-56'} 
-                    ${isMdScreen && collapsed ? 'md:w-16' : 'md:w-56'} px-3`}
+                className={`h-screen fixed top-0 left-0 z-20 pt-19 transition-all bg-light border-r border-gray
+                 md:translate-x-0 md:relative md:pt-19 ${mobileVisible ? 'w-56 translate-x-0' : '-translate-x-full w-56'}
+                ${isMdScreen && collapsed ? 'md:w-16' : 'md:w-56'}`}
             >
-                <ul className='space-y-2 font-medium'>
-                    {sidebarItems.map(({ label, icon: Icon, href }: SidebarItem) => {
-                        if (label === 'Log Out') {
+                <div className='h-full md:h-[calc(100%-54px)] overflow-y-auto custom-scroll px-2'>
+                    <ul className='space-y-2 font-medium'>
+                        {sidebarItems.map(({ label, icon: Icon, href }: SidebarItem) => {
+                            if (label === 'Log Out') {
+                                return (
+                                    <li key={label}>
+                                        <button
+                                            onClick={handleLogout}
+                                            className={`flex items-center p-2 w-full text-dark rounded-lg hover:bg-primary hover:text-dark group ${
+                                                collapsed ? 'md:justify-center' : 'space-x-3'
+                                            }`}
+                                        >
+                                            <Icon className='w-6 h-6 fill-error group-hover:fill-light' />
+                                            {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
+                                                <span className='whitespace-nowrap text-error group-hover:text-white'>
+                                                    {label}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </li>
+                                );
+                            }
+
                             return (
                                 <li key={label}>
-                                    <button
-                                        onClick={handleLogout}
-                                        className={`flex items-center p-2 w-full text-dark rounded-lg hover:bg-primary hover:text-dark group ${
-                                            collapsed ? 'md:justify-center' : 'space-x-3'
-                                        }`}
+                                    <Link
+                                        href={href}
+                                        onClick={onMobileClose}
+                                        className={`flex items-center p-2 rounded-lg ${
+                                            pathname === href
+                                                ? 'bg-primary text-white'
+                                                : 'text-dark hover:bg-primary hover:text-dark'
+                                        } group ${collapsed ? 'md:justify-center' : 'space-x-3'}`}
                                     >
-                                        <Icon className='w-6 h-6 fill-error group-hover:fill-light' />
+                                        <Icon className={`w-6 h-6 fill-current group-hover:fill-light`} />
                                         {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
-                                            <span className='whitespace-nowrap text-error group-hover:text-white'>
-                                                {label}
-                                            </span>
+                                            <span className='whitespace-nowrap group-hover:text-white'>{label}</span>
                                         )}
-                                    </button>
+                                    </Link>
                                 </li>
                             );
-                        }
-
-                        return (
-                            <li key={label}>
-                                <Link
-                                    href={href}
-                                    onClick={onMobileClose}
-                                    className={`flex items-center p-2 rounded-lg ${
-                                        pathname === href
-                                            ? 'bg-primary text-white'
-                                            : 'text-dark hover:bg-primary hover:text-dark'
-                                    } group ${collapsed ? 'md:justify-center' : 'space-x-3'}`}
-                                >
-                                    <Icon className={`w-6 h-6 fill-current group-hover:fill-light`} />
-                                    {((isMdScreen && !collapsed) || !isMdScreen) && isClient && (
-                                        <span className='whitespace-nowrap group-hover:text-white'>{label}</span>
-                                    )}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                    className='hidden md:block absolute bottom-3 right-3 p-2 rounded-md hover:bg-primary transition-transform group'
-                >
-                    <Arrow
-                        className={`w-6 h-6 fill-dark transition-transform duration-300 group-hover:fill-light ${
-                            collapsed ? 'rotate-0' : 'rotate-180'
-                        }`}
-                    />
-                </button>
+                        })}
+                    </ul>
+                </div>
+                <div className='h-13.5 flex justify-end items-center px-2'>
+                    <button
+                        onClick={() => setCollapsed(!collapsed)}
+                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        className='hidden md:block p-2 rounded-md hover:bg-primary transition-transform group'
+                    >
+                        <Arrow
+                            className={`w-6 h-6 fill-black transition-transform duration-300 group-hover:fill-white ${
+                                collapsed ? 'rotate-0' : 'rotate-180'
+                            }`}
+                        />
+                    </button>
+                </div>
             </aside>
         </>
     );

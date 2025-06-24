@@ -300,3 +300,155 @@ export const deleteKol = async (c: Context) => {
         );
     }
 };
+
+export const getRecommendedKOLs = async (c: Context) => {
+    const body = await c.req.json();
+
+    // Validasi manual minimal
+    if (
+        !body.kol_type_id ||
+        !body.target_niche ||
+        !body.target_gender ||
+        !body.target_age_range
+    ) {
+        return c.json({ error: 'Missing required fields' }, 400);
+    }
+
+    const {
+        kol_type_id,
+        target_ratecare,
+        target_niche,
+        target_engagement,
+        target_reach,
+        target_gender,
+        target_gender_min,
+        target_age_range,
+    } = body;
+
+    // Ambil semua KOL yang sesuai filter awal (PENDEKATAN 1)
+    const baseFilter = {
+        kol_type_id,
+        niche: target_niche,
+        audience_age_range: target_age_range,
+    };
+
+    const genderFilter =
+        target_gender === 'FEMALE'
+            ? { audience_female: { gte: target_gender_min } }
+            : { audience_male: { gte: target_gender_min } };
+
+    const kols = await prisma.kols.findMany({
+        where: {
+            ...baseFilter,
+            ...genderFilter,
+        },
+        select: {
+            id: true,
+            name: true,
+            engagement_rate: true,
+            reach: true,
+            audience_female: true,
+            audience_male: true,
+            rate_card: true,
+        },
+    });
+
+    // Nilai minimal untuk profile matching
+    const minValues = {
+        er: target_engagement,
+        reach: target_reach,
+        audience_gender: target_gender_min,
+        ratecard: target_ratecare,
+    };
+
+    // Fungsi konversi GAP → skor
+    const getERScore = (gap: number) => {
+        if (gap <= -8.1) return -5;
+        if (gap <= -6.1) return -4;
+        if (gap <= -4.1) return -3;
+        if (gap <= -2.1) return -2;
+        if (gap <= -0.1) return -1;
+        if (gap === 0) return 0;
+        if (gap <= 2) return 1;
+        if (gap <= 4) return 2;
+        if (gap <= 6) return 3;
+        if (gap <= 8) return 4;
+        return 5;
+    };
+
+    const getReachScore = (gap: number) => {
+        if (gap <= -800) return -5;
+        if (gap <= -600) return -4;
+        if (gap <= -400) return -3;
+        if (gap <= -200) return -2;
+        if (gap <= -1) return -1;
+        if (gap === 0) return 0;
+        if (gap <= 199) return 1;
+        if (gap <= 399) return 2;
+        if (gap <= 599) return 3;
+        if (gap <= 799) return 4;
+        return 5;
+    };
+
+    const getAudienceScore = (gap: number) => {
+        if (gap <= -80) return -5;
+        if (gap <= -60) return -4;
+        if (gap <= -40) return -3;
+        if (gap <= -20) return -2;
+        if (gap <= -1) return -1;
+        if (gap === 0) return 0;
+        if (gap <= 19) return 1;
+        if (gap <= 39) return 2;
+        if (gap <= 59) return 3;
+        if (gap <= 79) return 4;
+        return 5;
+    };
+
+    const getRatecardScore = (gap: bigint) => {
+        if (gap > 4000000) return -5;
+        if (gap > 3000000) return -4;
+        if (gap > 2000000) return -3;
+        if (gap > 1000000) return -2;
+        if (gap > 200000) return -1;
+        if (gap > 100000) return 0;
+        if (gap <= 100000) return 1;
+        return 0;
+    };
+
+    const weighted = {
+        er: 0.2,
+        reach: 0.4,
+        audience: 0.25,
+        ratecard: 0.15,
+    };
+
+    const results = kols.map((kol) => {
+        const audience = target_gender === 'FEMALE' ? kol.audience_female : kol.audience_male;
+
+        const gapER = kol.engagement_rate - minValues.er;
+        const gapReach = kol.reach - minValues.reach;
+        const gapAudience = audience - minValues.audience_gender;
+        const gapRatecard = minValues.ratecard - kol.rate_card;
+
+        const scoreER = getERScore(gapER);
+        const scoreReach = getReachScore(gapReach);
+        const scoreAudience = getAudienceScore(gapAudience);
+        const scoreRatecard = getRatecardScore(gapRatecard);
+
+        const totalScore =
+            scoreER * weighted.er +
+            scoreReach * weighted.reach +
+            scoreAudience * weighted.audience +
+            scoreRatecard * weighted.ratecard;
+
+        return {
+            ...kol,
+            score: totalScore,
+        };
+    });
+
+    const sorted = results.sort((a, b) => b.score - a.score);
+
+    return c.json({ result: sorted });
+};
+
