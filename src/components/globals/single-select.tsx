@@ -52,7 +52,7 @@ export default function SingleSelect({
 
     return (
         <div className={`flex flex-col gap-2 ${width}`} ref={containerRef}>
-            <label className='label-style'>{label}</label>
+            {label && (<label className='label-style'>{label}</label>)}
             <div className='relative'>
                 <button
                     id={id}
@@ -80,7 +80,7 @@ export default function SingleSelect({
                 </button>
 
                 {isOpen && (
-                    <div className='absolute mt-1 w-full bg-white border border-gray rounded-md z-20 max-h-60 overflow-auto'>
+                    <div className='absolute mt-1 w-full bg-light border border-gray rounded-md z-20 max-h-60 overflow-auto'>
                         {searchable && (
                             <input
                                 type='text'
@@ -96,7 +96,7 @@ export default function SingleSelect({
                                     key={option.value}
                                     onClick={() => handleSelect(option.value)}
                                     className={`cursor-pointer text-end p-2 text-sm hover:bg-primary/50 hover:text-dark ${
-                                        option.value === value ? 'bg-primary text-white' : ''
+                                        option.value === value ? 'bg-primary text-light' : ''
                                     }`}
                                 >
                                     {option.label}

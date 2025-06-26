@@ -17,7 +17,7 @@ export default function Modal({ icon, title, children, footer, onClose, classNam
         <div className='fixed inset-0 z-30 flex items-center justify-center bg-black/75'>
             <div
                 className={clsx(
-                    'relative w-full max-w-2xl max-h-[90%] overflow-auto bg-white rounded-lg shadow-lg animate-fade-in m-4',
+                    'relative w-full max-w-2xl max-h-[90%] overflow-auto bg-light rounded-lg shadow-lg animate-fade-in m-4',
                     className
                 )}
             >

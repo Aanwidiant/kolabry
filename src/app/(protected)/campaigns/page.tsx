@@ -9,7 +9,6 @@ import Fetch from '@/utilities/fetch';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import ActionButton from '@/components/globals/action-button';
 import Pagination from '@/components/globals/pagination';
-import { format } from 'date-fns';
 import DataNotFound from '@/components/globals/data-not-found';
 import DeleteCampaign from './components/delete';
 import EditCampaign from './components/edit';
@@ -29,6 +28,14 @@ export default function CampaignsPage() {
         id: number;
         name: string;
     } | null>(null);
+
+    const handleViewDetail = (slug_id: string) => {
+        router.push(`/campaigns/${slug_id}`);
+    };
+
+    const generateSlugId = (campaign: Campaigns) => {
+        return `${campaign.name.toLowerCase().replace(/\s+/g, '-')}-${campaign.id}`;
+    };
 
     const handleLimitChange = (value: string | number | null) => {
         if (value === null) return;
@@ -92,8 +99,7 @@ export default function CampaignsPage() {
                                     <th className='text-center p-4'>Target Gender</th>
                                     <th className='text-center p-4'>Target Gender Percentage</th>
                                     <th className='text-center p-4'>Target Age Range</th>
-                                    <th className='text-center p-4'>Start Date</th>
-                                    <th className='text-center p-4'>End Date</th>
+                                    <th className='text-center p-4'>Budget per KOL</th>
                                     <th className='text-center p-4 rounded-tr-lg'>Action</th>
                                 </tr>
                             </thead>
@@ -125,7 +131,9 @@ export default function CampaignsPage() {
                                                 </td>
                                                 <td className='px-4 py-2 text-left'>{campaign.name}</td>
                                                 <td className='px-4 py-2 text-right'>{campaign.target_niche}</td>
-                                                <td className='px-4 py-2 text-right'>{campaign.target_engagement}%</td>
+                                                <td className='px-4 py-2 text-right'>
+                                                    {campaign.target_engagement.toFixed(2)}%
+                                                </td>
                                                 <td className='px-4 py-2 text-right'>
                                                     {campaign.target_reach.toLocaleString('id-ID')}
                                                 </td>
@@ -135,10 +143,7 @@ export default function CampaignsPage() {
                                                     {campaign.target_age_range.replace('AGE_', '').replace('_', ' - ')}
                                                 </td>
                                                 <td className='px-4 py-2 text-right'>
-                                                    {format(campaign.start_date, 'dd MMM yyyy')}
-                                                </td>
-                                                <td className='px-4 py-2 text-right'>
-                                                    {format(campaign.end_date, 'dd MMM yyyy')}
+                                                    Rp {Number(campaign.budget.toString()).toLocaleString('id-ID')}
                                                 </td>
                                                 <td
                                                     className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
@@ -149,9 +154,7 @@ export default function CampaignsPage() {
                                                                 <Eye className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                             }
                                                             tooltipText='Detail'
-                                                            onClick={() =>
-                                                                toast.info('Sorry, this feature is under construction')
-                                                            }
+                                                            onClick={() => handleViewDetail(generateSlugId(campaign))}
                                                         />
                                                         <ActionButton
                                                             icon={

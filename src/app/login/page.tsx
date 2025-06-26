@@ -50,7 +50,7 @@ export default function LoginPage() {
     return (
         <main className='w-full min-h-screen grid grid-cols-2 bg-light'>
             <div className='hidden md:col-span-1 m-2 p-12 rounded-xl bg-primary md:flex flex-col justify-center gap-4'>
-                <h1 className='text-3xl font-bold tracking-widest text-white'>KOLABRY</h1>
+                <h1 className='text-3xl font-bold tracking-widest text-light'>KOLABRY</h1>
                 <h2 className='text-xl text-light font-medium tracking-wide'>
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, quae.
                 </h2>

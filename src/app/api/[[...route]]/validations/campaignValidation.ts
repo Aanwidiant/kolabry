@@ -49,6 +49,10 @@ export function validateCampaign(data: Partial<Campaigns> & { kol_ids?: number[]
         };
     }
 
+    if ('budget' in data && typeof data.budget !== 'number') {
+        return { valid: false, message: 'budget must be a number.' };
+    }
+
     if ('target_engagement' in data && typeof data.target_engagement !== 'number') {
         return { valid: false, message: 'target_engagement must be a number.' };
     }

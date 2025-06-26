@@ -124,7 +124,7 @@ export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) 
                                         onClick={onMobileClose}
                                         className={`flex items-center p-2 rounded-lg ${
                                             pathname === href
-                                                ? 'bg-primary text-white'
+                                                ? 'bg-primary text-light'
                                                 : 'text-dark hover:bg-primary hover:text-dark'
                                         } group ${collapsed ? 'md:justify-center' : 'space-x-3'}`}
                                     >
@@ -145,7 +145,7 @@ export default function Sidebar({ mobileVisible, onMobileClose }: SidebarProps) 
                         className='hidden md:block p-2 rounded-md hover:bg-primary transition-transform group'
                     >
                         <Arrow
-                            className={`w-6 h-6 fill-black transition-transform duration-300 group-hover:fill-white ${
+                            className={`w-6 h-6 fill-black transition-transform duration-300 group-hover:fill-light ${
                                 collapsed ? 'rotate-0' : 'rotate-180'
                             }`}
                         />

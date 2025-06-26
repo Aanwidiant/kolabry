@@ -173,7 +173,7 @@ export default function KolsPage() {
                                                 <td className='px-4 py-2 text-right'>{kol.audience_male}%</td>
                                                 <td className='px-4 py-2 text-right'>{kol.audience_female}%</td>
                                                 <td className='px-4 py-2 text-right'>
-                                                    {Number(kol.followers?.toString()).toLocaleString('id-ID')}
+                                                    {Number(kol.followers).toLocaleString('id-ID')}
                                                 </td>
                                                 <td className='px-4 py-2 text-right'>
                                                     {kol.engagement_rate.toFixed(2)}%
@@ -182,7 +182,7 @@ export default function KolsPage() {
                                                     {kol.reach.toLocaleString('id-ID')}
                                                 </td>
                                                 <td className='px-4 py-2 text-right'>
-                                                    Rp {Number(kol.rate_card?.toString()).toLocaleString('id-ID')}
+                                                    Rp {Number(kol.rate_card).toLocaleString('id-ID')}
                                                 </td>
 
                                                 <td

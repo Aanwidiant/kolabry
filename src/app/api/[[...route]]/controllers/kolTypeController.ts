@@ -81,6 +81,7 @@ export const getKolTypes = async (c: Context) => {
     try {
         const kolTypes = await prisma.kol_types.findMany({
             where: whereClause,
+            orderBy: { id: 'asc' },
             ...(noPaginationFlag ? {} : { skip: offset, take: limitNumber }),
         });
 

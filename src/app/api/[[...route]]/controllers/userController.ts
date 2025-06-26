@@ -95,13 +95,21 @@ export const createUser = async (c: Context) => {
 
 // Get User List
 export const getUsers = async (c: Context) => {
-    const { search = '', page = '1', limit = '10', role } = c.req.query();
+    const {
+        search = '',
+        page = '1',
+        limit = '10',
+        role,
+        noPagination = 'false',
+    } = c.req.query();
 
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = Math.max(parseInt(limit, 10), 1);
-    const offset = (pageNumber - 1) * limitNumber;
+    const usePagination = noPagination !== 'true';
 
-    if (isNaN(pageNumber) || isNaN(limitNumber)) {
+    const pageNumber = usePagination ? parseInt(page, 10) : 1;
+    const limitNumber = usePagination ? Math.max(parseInt(limit, 10), 1) : undefined;
+    const offset = usePagination ? (pageNumber - 1) * limitNumber! : undefined;
+
+    if (usePagination && (isNaN(pageNumber) || isNaN(limitNumber!))) {
         return c.json(
             {
                 success: false,
@@ -111,29 +119,21 @@ export const getUsers = async (c: Context) => {
         );
     }
 
-    const isValidRole = (value: string): value is UserRole => Object.values(UserRole).includes(value as UserRole);
+    const isValidRole = (value: string): value is UserRole =>
+        Object.values(UserRole).includes(value as UserRole);
 
     const filters: Prisma.usersWhereInput = {
         ...(role && isValidRole(role) ? { role: role as UserRole } : {}),
         ...(search
             ? {
-                  OR: [
-                      {
-                          username: {
-                              contains: search,
-                              mode: 'insensitive',
-                          },
-                      },
-                      {
-                          email: {
-                              contains: search,
-                              mode: 'insensitive',
-                          },
-                      },
-                  ],
-              }
+                OR: [
+                    { username: { contains: search, mode: 'insensitive' } },
+                    { email: { contains: search, mode: 'insensitive' } },
+                ],
+            }
             : {}),
     };
+
     try {
         const [users, totalUsers] = await Promise.all([
             prisma.users.findMany({
@@ -145,8 +145,10 @@ export const getUsers = async (c: Context) => {
                     role: true,
                     created_at: true,
                 },
-                skip: offset,
-                take: limitNumber,
+                ...(usePagination
+                    ? { skip: offset, take: limitNumber }
+                    : {}),
+                orderBy: { created_at: 'desc' },
             }),
             prisma.users.count({ where: filters }),
         ]);
@@ -154,11 +156,15 @@ export const getUsers = async (c: Context) => {
         return c.json({
             success: true,
             data: users,
-            pagination: Pagination({
-                page: pageNumber,
-                limit: limitNumber,
-                total: totalUsers,
-            }),
+            ...(usePagination
+                ? {
+                    pagination: Pagination({
+                        page: pageNumber,
+                        limit: limitNumber!,
+                        total: totalUsers,
+                    }),
+                }
+                : { total: totalUsers }),
         });
     } catch (err) {
         return c.json(

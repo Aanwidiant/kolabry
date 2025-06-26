@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Fetch from '@/utilities/fetch';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
-import { Campaigns, Kols, KolType } from '@/types';
+import { Campaigns, Kols, KolType, User } from '@/types';
 import { Campaign } from '@/components/icons';
 import SingleSelect from '@/components/globals/single-select';
 import { ageRangeOptions, genderTypeOptions, nicheTypeOptions } from '@/constants/option';
@@ -16,6 +16,7 @@ import Recommendation from '@/app/(protected)/campaigns/components/recommendatio
 
 export default function AddCampaignPage() {
     const [kolTypes, setKolTypes] = useState<{ label: string; value: string }[]>([]);
+    const [brand, setBrand] = useState<{ label: string; value: string }[]>([]);
     const [formData, setFormData] = useState<Partial<Campaigns>>({});
     const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -97,6 +98,7 @@ export default function AddCampaignPage() {
 
     useEffect(() => {
         fetchKolTypes().then();
+        fetchBrand().then();
     }, []);
 
     useEffect(() => {
@@ -105,12 +107,13 @@ export default function AddCampaignPage() {
 
     const fetchKolTypes = async () => {
         try {
-            const res = await Fetch.GET('/kol-type?npPagination=true');
+            const res = await Fetch.GET('/kol-type?noPagination=true');
             if (res.success) {
+                const formatNumber = (value: number) => new Intl.NumberFormat('id-ID').format(value);
                 const options = res.data.map((item: KolType) => {
                     const followersRange = item.max_followers
-                        ? `${item.min_followers} - ${item.max_followers}`
-                        : `${item.min_followers}+`;
+                        ? `${formatNumber(item.min_followers)} - ${formatNumber(item.max_followers)}`
+                        : `${formatNumber(item.min_followers)}+`;
 
                     return {
                         label: `${item.name} (${followersRange})`,
@@ -124,12 +127,29 @@ export default function AddCampaignPage() {
         }
     };
 
+    const fetchBrand = async () => {
+        try {
+            const res = await Fetch.GET('/user?role=BRAND&noPagination=true');
+            if (res.success) {
+                const options = res.data.map((item: User) => {
+                    return {
+                        label: `${item.username}`,
+                        value: item.id.toString(),
+                    };
+                });
+                setBrand(options);
+            }
+        } catch (error) {
+            console.error('Failed to fetch user brand:', error);
+        }
+    };
+
     const fetchRecommendations = async () => {
         setFetchingRecommendations(true);
         try {
             const requestBody = {
                 kol_type_id: formData.kol_type_id,
-                target_ratecard: formData.target_rate_card,
+                budget: formData.budget,
                 target_niche: formData.target_niche,
                 target_engagement: formData.target_engagement,
                 target_reach: formData.target_reach,
@@ -203,6 +223,29 @@ export default function AddCampaignPage() {
                             />
                         </div>
                         <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='brand'>
+                                Brand
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='brand'
+                                    options={brand}
+                                    value={formData.brand_id?.toString() ?? null}
+                                    onChange={(value) => {
+                                        const numValue = typeof value === 'string' ? parseInt(value) : value;
+                                        if (!isNaN(numValue as number)) {
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                brand_id: numValue as number,
+                                            }));
+                                        }
+                                    }}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
                             <label className='col-span-2 font-medium' htmlFor='kol_type'>
                                 Kol Type
                             </label>
@@ -241,21 +284,36 @@ export default function AddCampaignPage() {
                             </div>
                         </div>
                         <div className='grid grid-cols-5 items-center gap-4'>
-                            <label className='col-span-2 font-medium' htmlFor='rate_card'>
-                                Target Rate Card
+                            <label className='col-span-2 font-medium' htmlFor='budget'>
+                                Budget per KOL
                             </label>
                             <NumericFormat
-                                id='rate_card'
-                                name='rate_card'
+                                id='budget'
+                                name='budget'
                                 className='col-span-3 input-style'
-                                value={formData.target_rate_card ?? ''}
+                                value={formData.budget ?? ''}
                                 thousandSeparator='.'
                                 decimalSeparator=','
                                 prefix='Rp '
                                 allowNegative={false}
                                 allowLeadingZeros={false}
-                                onValueChange={handleNumberValueChange('target_rate_card')}
+                                onValueChange={handleNumberValueChange('budget')}
                             />
+                        </div>
+                        <div className='grid grid-cols-5 items-center gap-4'>
+                            <label className='col-span-2 font-medium' htmlFor='target_age_range'>
+                                Target Age Range
+                            </label>
+                            <div className='col-span-3'>
+                                <SingleSelect
+                                    id='target_age_range'
+                                    options={ageRangeOptions}
+                                    value={formData.target_age_range ?? null}
+                                    onChange={handleAgeRangeChange}
+                                    width='w-full'
+                                    allowClear={false}
+                                />
+                            </div>
                         </div>
                         <div className='grid grid-cols-5 items-center gap-4'>
                             <label className='col-span-2 font-medium' htmlFor='target_engagement'>
@@ -291,7 +349,7 @@ export default function AddCampaignPage() {
                             <label className='col-span-2 font-medium' htmlFor='target_gender'>
                                 Target Gender
                             </label>
-                            <div className='col-span-3'>
+                            <div className='col-span-3 relative'>
                                 <SingleSelect
                                     id='target_gender'
                                     options={genderTypeOptions}
@@ -317,21 +375,6 @@ export default function AddCampaignPage() {
                                 allowNegative={false}
                                 isAllowed={({ floatValue }) => (floatValue ?? 0) <= 100}
                             />
-                        </div>
-                        <div className='grid grid-cols-5 items-center gap-4'>
-                            <label className='col-span-2 font-medium' htmlFor='target_age_range'>
-                                Target Age Range
-                            </label>
-                            <div className='col-span-3'>
-                                <SingleSelect
-                                    id='target_age_range'
-                                    options={ageRangeOptions}
-                                    value={formData.target_age_range ?? null}
-                                    onChange={handleAgeRangeChange}
-                                    width='w-full'
-                                    allowClear={false}
-                                />
-                            </div>
                         </div>
                         <div className='grid grid-cols-5 items-center gap-4'>
                             <label className='col-span-2 font-medium' htmlFor='start-date'>

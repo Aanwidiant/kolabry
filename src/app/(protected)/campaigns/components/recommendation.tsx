@@ -50,11 +50,11 @@ export default function Recommendation({ recommendedKols, selectedKols, onChange
                                             {index + 1}
                                         </td>
                                         <td className='px-4 py-2 text-left'>{kol.name}</td>
-                                        <td className='px-4 py-2 text-left'>{kol.followers.toLocaleString()}</td>
-                                        <td className='px-4 py-2 text-left'>{kol.engagement_rate}%</td>
-                                        <td className='px-4 py-2 text-left'>{kol.reach.toLocaleString()}</td>
-                                        <td className='px-4 py-2 text-left'>Rp {kol.rate_card.toLocaleString()}</td>
-                                        <td className='px-4 py-2 text-left'>{kol.score}</td>
+                                        <td className='px-4 py-2 text-right'>{kol.followers.toLocaleString()}</td>
+                                        <td className='px-4 py-2 text-right'>{kol.engagement_rate.toFixed(2)}%</td>
+                                        <td className='px-4 py-2 text-right'>{kol.reach.toLocaleString()}</td>
+                                        <td className='px-4 py-2 text-right'>Rp {kol.rate_card.toLocaleString()}</td>
+                                        <td className='px-4 py-2 text-right'>{kol.score}</td>
                                         <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
                                             <input
                                                 type='checkbox'

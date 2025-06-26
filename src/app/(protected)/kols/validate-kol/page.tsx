@@ -75,7 +75,11 @@ export default function ValidateKOL() {
     };
 
     useEffect(() => {
-        if (!file) return;
+        if (!file) {
+            toast.error('Please upload a file first.');
+            router.replace('/kols');
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -165,7 +169,7 @@ export default function ValidateKOL() {
         };
 
         reader.readAsArrayBuffer(file);
-    }, [file]);
+    }, [file, router]);
 
     const handleConfirmSave = async () => {
         if (allRowsHaveErrors) {
@@ -199,7 +203,25 @@ export default function ValidateKOL() {
                 <Kol className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>KOLs Bulk Validation Input</span>
             </div>
-            <div className='h-[calc(100vh-10rem)] overflow-y-auto py-3 px-6'>
+            <div className='h-[calc(100vh-10rem)] overflow-y-auto py-3 px-6 space-y-3'>
+                <div className='space-y-1 rounded-md border border-warning bg-warning/30 p-4'>
+                    <span className='font-semibold'>Note:</span>
+                    <ul className='list-disc list-inside space-y-1 pl-2'>
+                        <li>
+                            Please <strong>do not reload</strong> the page during the validation and review process —
+                            any uploaded file will be lost if the page is refreshed.
+                        </li>
+                        <li>
+                            You can choose to save only the valid data — any rows with errors will be skipped and not
+                            saved.
+                        </li>
+                        <li>
+                            Alternatively, you can cancel and fix the errors first to ensure all data is valid before
+                            saving.
+                        </li>
+                    </ul>
+                </div>
+
                 <div className='overflow-x-auto rounded-lg border border-gray'>
                     <table className='min-w-full text-sm'>
                         <thead className='border-b border-gray'>
@@ -283,12 +305,12 @@ export default function ValidateKOL() {
                     <div className='mt-3 flex justify-end gap-2'>
                         {allRowsHaveErrors ? (
                             <Button variant='outline' onClick={handleCancel}>
-                                Go Back
+                                Cancel
                             </Button>
                         ) : (
                             <>
                                 <Button variant='outline' onClick={handleCancel}>
-                                    Go Back
+                                    Cancel
                                 </Button>
                                 <Button onClick={handleOpenConfirmation}>Save</Button>
                             </>

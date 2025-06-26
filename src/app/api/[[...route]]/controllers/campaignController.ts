@@ -3,16 +3,18 @@ import { prisma } from '@/lib/prisma';
 import { Pagination } from '../helpers/pagination';
 import { Prisma } from '@prisma/client';
 import { validateCampaign } from '@/app/api/[[...route]]/validations/campaignValidation';
+import { safeJson } from '@/app/api/[[...route]]/helpers';
 
 export const createCampaign = async (c: Context) => {
     try {
         const body = await c.req.json();
-        const user = c.get('user');
 
         const requiredFields = [
             'name',
+            'brand_id',
             'kol_type_id',
             'target_niche',
+            'budget',
             'target_engagement',
             'target_reach',
             'target_gender',
@@ -54,10 +56,11 @@ export const createCampaign = async (c: Context) => {
 
         const campaign = await prisma.campaigns.create({
             data: {
-                user_id: user.id,
+                user_id: body.brand_id,
                 name: body.name,
                 kol_type_id: body.kol_type_id,
                 target_niche: body.target_niche,
+                budget: body.budget,
                 target_engagement: body.target_engagement,
                 target_reach: body.target_reach,
                 target_gender: body.target_gender,
@@ -144,7 +147,7 @@ export const getCampaigns = async (c: Context) => {
 
         return c.json({
             success: true,
-            data: campaignsWithKols,
+            data: safeJson(campaignsWithKols),
             pagination: Pagination({ page, limit, total }),
         });
     } catch (err) {
@@ -159,6 +162,71 @@ export const getCampaigns = async (c: Context) => {
     }
 };
 
+export const getCampaignsById = async (c: Context) => {
+    const id = c.req.param('id');
+
+    try {
+        const campaign = await prisma.campaigns.findFirst({
+            where: { id: Number(id) },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                    },
+                },
+                kol_types:{
+                    select: {
+                        name: true,
+                        min_followers: true,
+                        max_followers: true
+                    }
+                },
+                campaign_kols: {
+                    select: {
+                        kol: {
+                            select: {
+                                id: true,
+                                name: true,
+                                niche: true,
+                                followers: true,
+                                engagement_rate: true,
+                                reach: true,
+                                rate_card: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!campaign) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'Campaign not found.',
+                },
+                404
+            );
+        }
+
+        return c.json({
+            success: true,
+            data: safeJson(campaign),
+        });
+    } catch (err) {
+        return c.json(
+            {
+                success: false,
+                message: 'Failed to fetch campaign.',
+                error: err instanceof Error ? err.message : String(err),
+            },
+            500
+        );
+    }
+};
+
+
 type CampaignUpdateData = Prisma.campaignsUpdateInput;
 
 export const updateCampaign = async (c: Context) => {
@@ -169,11 +237,12 @@ export const updateCampaign = async (c: Context) => {
             return c.json({ success: false, message: 'Campaign id is required.' }, 400);
         }
 
-        const { kol_ids, campaign_type_id, ...campaignData } = body;
+        const { kol_ids, campaign_type_id, user_id, ...campaignData } = body;
 
         const allowedFields: (keyof CampaignUpdateData)[] = [
             'name',
             'target_niche',
+            'budget',
             'target_engagement',
             'target_reach',
             'target_gender',
@@ -214,6 +283,16 @@ export const updateCampaign = async (c: Context) => {
                 isCampaignChanged = true;
                 (dataToUpdate as CampaignUpdateData).kol_types = {
                     connect: { id: campaign_type_id },
+                };
+            }
+        }
+
+        if (typeof user_id === 'number') {
+            const existingUserId = existingCampaign.user_id;
+            if (existingUserId !== user_id) {
+                isCampaignChanged = true;
+                (dataToUpdate as CampaignUpdateData).user = {
+                    connect: { id: user_id },
                 };
             }
         }

@@ -84,7 +84,7 @@
     @apply font-body;
 }
 .react-datepicker__day--selected {
-    @apply bg-primary text-white hover:bg-secondary;
+    @apply bg-primary text-light hover:bg-secondary;
 }
 .react-datepicker-popper {
     z-index: 9999 !important;

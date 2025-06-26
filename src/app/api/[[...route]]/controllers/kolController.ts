@@ -318,7 +318,7 @@ export const getRecommendedKOLs = async (c: Context) => {
 
         const {
             kol_type_id,
-            target_ratecard,
+            budget,
             target_niche,
             target_engagement,
             target_reach,
@@ -334,7 +334,7 @@ export const getRecommendedKOLs = async (c: Context) => {
             !target_age_range ||
             typeof target_engagement !== 'number' ||
             typeof target_reach !== 'number' ||
-            typeof target_ratecard !== 'number' ||
+            typeof budget !== 'number' ||
             typeof target_gender_min !== 'number'
         ) {
             return c.json({ error: 'Missing or invalid required fields' }, 400);
@@ -381,7 +381,7 @@ export const getRecommendedKOLs = async (c: Context) => {
             const gapER = kol.engagement_rate - target_engagement;
             const gapReach = kol.reach - target_reach;
             const gapAudience = audience - target_gender_min;
-            const gapRatecard = target_ratecard - Number(kol.rate_card);
+            const gapRatecard = budget - Number(kol.rate_card);
 
             const scoreER = getScore(
                 gapER,
