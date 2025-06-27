@@ -298,18 +298,30 @@ export const deleteKol = async (c: Context) => {
     }
 };
 
-const WEIGHTS = {
-    er: 0.2,
-    reach: 0.4,
-    audience: 0.25,
-    ratecard: 0.15,
+const maxValues = {
+    er: 10,
+    reach: 100000,
+    audience: 100,
+    rateCard: 10000000,
 };
 
-const getScore = (gap: number, thresholds: number[], scores: number[]) => {
-    for (let i = 0; i < thresholds.length; i++) {
-        if (gap <= thresholds[i]) return scores[i];
-    }
-    return scores[scores.length - 1];
+const scoreTable = [
+    { min: -Infinity, max: -0.5, score: -5 },
+    { min: -0.4999999, max: -0.3, score: -4 },
+    { min: -0.2999999, max: -0.1, score: -3 },
+    { min: -0.0999999, max: -0.05, score: -2 },
+    { min: -0.0499999, max: -0.0000001, score: -1 },
+    { min: 0, max: 0, score: 1 },
+    { min: 0.0000001, max: 0.0499999, score: 1 },
+    { min: 0.05, max: 0.0999999, score: 2 },
+    { min: 0.1, max: 0.2999999, score: 3 },
+    { min: 0.3, max: 0.4999999, score: 4 },
+    { min: 0.5, max: Infinity, score: 5 },
+];
+
+const factorWeights = {
+    core: 0.6,
+    secondary: 0.4,
 };
 
 export const getRecommendedKOLs = async (c: Context) => {
@@ -375,59 +387,84 @@ export const getRecommendedKOLs = async (c: Context) => {
             },
         });
 
+        function normalize(value: number, max: number, inverse = false): number {
+            const ratio = Math.min(value / max, 1);
+            return inverse ? 1 - ratio : ratio;
+        }
+
+        function roundTo(value: number, decimals: number): number {
+            const factor = 10 ** decimals;
+            return Math.round(value * factor) / factor;
+        }
+
+        const targetNormalization = {
+            er: roundTo(normalize(target_engagement, maxValues.er), 3),
+            reach: roundTo(normalize(target_reach, maxValues.reach), 5),
+            audience: roundTo(normalize(target_gender_min, maxValues.audience), 2),
+            rateCard: roundTo(normalize(budget, maxValues.rateCard, true), 7),
+        };
+
         const results = kols.map((kol) => {
-            const audience = target_gender === 'FEMALE' ? kol.audience_female : kol.audience_male;
+            const normalizedValues = {
+                er: roundTo(normalize(kol.engagement_rate, maxValues.er), 3),
+                reach: roundTo(normalize(kol.reach, maxValues.reach), 5),
+                audience: roundTo(
+                    normalize(target_gender === 'FEMALE' ? kol.audience_female : kol.audience_male, maxValues.audience),
+                    2
+                ),
+                rateCard: roundTo(normalize(Number(kol.rate_card), maxValues.rateCard, true), 7),
+            };
 
-            const gapER = kol.engagement_rate - target_engagement;
-            const gapReach = kol.reach - target_reach;
-            const gapAudience = audience - target_gender_min;
-            const gapRatecard = budget - Number(kol.rate_card);
+            const gaps = {
+                er: roundTo(normalizedValues.er - targetNormalization.er, 3),
+                reach: roundTo(normalizedValues.reach - targetNormalization.reach, 5),
+                audience: roundTo(normalizedValues.audience - targetNormalization.audience, 2),
+                rateCard: roundTo(normalizedValues.rateCard - targetNormalization.rateCard, 7),
+            };
 
-            const scoreER = getScore(
-                gapER,
-                [-8.1, -6.1, -4.1, -2.1, -0.1, 0, 2, 4, 6, 8],
-                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-            );
-            const scoreReach = getScore(
-                gapReach,
-                [-800, -600, -400, -200, -1, 0, 199, 399, 599, 799],
-                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-            );
-            const scoreAudience = getScore(
-                gapAudience,
-                [-80, -60, -40, -20, -1, 0, 19, 39, 59, 79],
-                [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-            );
-            const scoreRatecard = getScore(
-                gapRatecard,
-                [4000000, 3000000, 2000000, 1000000, 200000, 100000],
-                [-5, -4, -3, -2, -1, 0, 1]
-            );
+            function getScoreFromGap(gap: number): number {
+                const match = scoreTable.find((rule) => gap > rule.min && gap <= rule.max);
+                return match ? match.score : 0;
+            }
 
-            const totalScore =
-                scoreER * WEIGHTS.er +
-                scoreReach * WEIGHTS.reach +
-                scoreAudience * WEIGHTS.audience +
-                scoreRatecard * WEIGHTS.ratecard;
+            const scores = {
+                er: getScoreFromGap(gaps.er),
+                reach: getScoreFromGap(gaps.reach),
+                audience: getScoreFromGap(gaps.audience),
+                rateCard: getScoreFromGap(gaps.rateCard),
+            };
+
+            const coreFactor = (scores.rateCard + scores.reach) / 2;
+            const secondaryFactor = (scores.er + scores.audience) / 2;
+
+            const totalScore = factorWeights.core * coreFactor + factorWeights.secondary * secondaryFactor;
 
             return {
                 ...kol,
-                score: totalScore,
+                score: parseFloat(totalScore.toFixed(2)),
+                details: {
+                    normalizedValues,
+                    gaps,
+                    scores,
+                    coreFactor,
+                    secondaryFactor,
+                },
             };
         });
 
-        const sorted = results.sort((a, b) => b.score - a.score).slice(0, 10);
+        const top10 = results.sort((a, b) => b.score - a.score).slice(0, 10);
 
         return c.json({
             success: true,
-            data: safeJson(sorted),
+            data: safeJson(top10),
         });
-    } catch (err) {
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return c.json(
             {
                 success: false,
                 message: 'An error occurred on the server.',
-                error: err instanceof Error ? err.message : String(err),
+                error: errorMessage,
             },
             500
         );
