@@ -3,13 +3,15 @@
 import Fetch from '@/utilities/fetch';
 import { Campaigns } from '@/types';
 import React, { useCallback, useEffect, useState } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import { Campaign } from '@/components/icons';
 import { format } from 'date-fns';
 import InvolvedKOLs from '@/app/(protected)/campaigns/components/involved-kols';
+import Button from '@/components/globals/button';
 
 export default function CampaignDetailPage() {
+    const router = useRouter();
     const params = useParams();
     const slug_id = params?.slug_id as string;
     const id = parseInt(slug_id.split('-').pop() || '', 10);
@@ -79,9 +81,14 @@ export default function CampaignDetailPage() {
 
     return (
         <main className='pb-10 h-full flex flex-col'>
-            <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
-                <Campaign className='w-8 h-8 fill-dark' />
-                <h1 className='text-lg font-semibold'>Detail Campaign {campaign.name}</h1>
+            <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
+                <div className='flex items-center gap-3'>
+                    <Campaign className='w-8 h-8 fill-dark' />
+                    <h1 className='text-lg font-semibold'>Detail Campaign {campaign.name}</h1>
+                </div>
+                <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
+                    Go Back
+                </Button>
             </div>
 
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>

@@ -299,10 +299,10 @@ export const deleteKol = async (c: Context) => {
 };
 
 const maxValues = {
-    er: 10,
-    reach: 100000,
-    audience: 100,
-    rateCard: 10000000,
+    er: parseFloat(process.env.MAX_ER ?? '10'),
+    reach: parseFloat(process.env.MAX_REACH ?? '100000'),
+    audience: parseFloat(process.env.MAX_AUDIENCE ?? '100'),
+    rateCard: parseFloat(process.env.MAX_RATE_CARD ?? '10000000'),
 };
 
 const scoreTable = [
@@ -360,11 +360,6 @@ export const getRecommendedKOLs = async (c: Context) => {
             return c.json({ error: 'Invalid kol_type_id' }, 404);
         }
 
-        const genderFilter =
-            target_gender === 'FEMALE'
-                ? { audience_female: { gte: target_gender_min } }
-                : { audience_male: { gte: target_gender_min } };
-
         const kols = await prisma.kols.findMany({
             where: {
                 followers: {
@@ -373,7 +368,6 @@ export const getRecommendedKOLs = async (c: Context) => {
                 },
                 niche: target_niche,
                 audience_age_range: target_age_range,
-                ...genderFilter,
             },
             select: {
                 id: true,

@@ -199,9 +199,14 @@ export default function ValidateKOL() {
 
     return (
         <main className='pb-10 h-full flex flex-col'>
-            <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6 '>
-                <Kol className='w-8 h-8 fill-dark' />
-                <span className='text-lg font-semibold'>KOLs Bulk Validation Input</span>
+            <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
+                <div className='flex items-center gap-3'>
+                    <Kol className='w-8 h-8 fill-dark' />
+                    <span className='text-lg font-semibold'>KOLs Bulk Validation Input</span>
+                </div>
+                <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
+                    Go Back
+                </Button>
             </div>
             <div className='h-[calc(100vh-10rem)] overflow-y-auto py-3 px-6 space-y-3'>
                 <div className='space-y-1 rounded-md border border-warning bg-warning/30 p-4'>

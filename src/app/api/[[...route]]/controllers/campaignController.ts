@@ -123,7 +123,7 @@ export const getCampaigns = async (c: Context) => {
             skip: offset,
             take: limit,
             orderBy: {
-                created_at: 'desc',
+                id: 'desc',
             },
             include: {
                 campaign_kols: {

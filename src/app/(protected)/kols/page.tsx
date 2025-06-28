@@ -78,7 +78,7 @@ export default function KolsPage() {
 
     return (
         <main className='pb-10 h-full flex flex-col'>
-            <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
+            <div className='w-full py-4 border-b border-gray flex items-center gap-3 px-6'>
                 <Kol className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>Key Opinion Leader</span>
             </div>

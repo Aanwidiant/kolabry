@@ -1,11 +1,13 @@
 'use client';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAuthToken } from '@/utilities/auth';
 import useAuthStore from '@/store/authStore';
 import { decodeToken } from '@/utilities/decode';
 import AdminDashboard from '@/components/dashboard/admin-dashboard';
 import KolManagerDashboard from '@/components/dashboard/kol-manager-dashboard';
 import BrandDashboard from '@/components/dashboard/brand-dashboard';
+import Unauthorized from '@/app/unauthorized/page';
+import SpinnerLoader from '@/components/globals/spinner-loader';
 
 export default function DashboardPage() {
     const { user, token, login } = useAuthStore();
@@ -28,10 +30,15 @@ export default function DashboardPage() {
         setLoading(false);
     }, [login, token]);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading)
+        return (
+            <main className='pb-10 h-full flex items-center justify-center'>
+                <SpinnerLoader />
+            </main>
+        );
 
     if (!token || !user) {
-        return <p>Please login first.</p>;
+        return <Unauthorized />;
     }
 
     switch (user.role) {
@@ -42,6 +49,6 @@ export default function DashboardPage() {
         case 'BRAND':
             return <BrandDashboard />;
         default:
-            return <p>Role not recognized.</p>;
+            return <Unauthorized />;
     }
 }

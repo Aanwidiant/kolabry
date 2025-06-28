@@ -20,7 +20,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     onChange,
     placeholder = 'Select a date',
     id,
-    minDate = new Date(),
+    minDate = new Date(new Date().setDate(new Date().getDate() + 1)),
     maxDate,
     disabled = false,
     yearRange,

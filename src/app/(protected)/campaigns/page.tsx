@@ -14,6 +14,7 @@ import DeleteCampaign from './components/delete';
 import EditCampaign from './components/edit';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import StatusBadge from '@/components/globals/status-badge';
 
 export default function CampaignsPage() {
     const router = useRouter();
@@ -44,6 +45,17 @@ export default function CampaignsPage() {
         setPage(1);
     };
 
+    function getCampaignStatus(startDate: string | Date, endDate: string | Date): 'upcoming' | 'ongoing' | 'finished' {
+        const today = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (today < start) return 'upcoming';
+        if (today > end) return 'finished';
+        return 'ongoing';
+    }
+
+
     const getCampaigns = useCallback(async () => {
         setLoading(true);
         try {
@@ -69,7 +81,7 @@ export default function CampaignsPage() {
 
     return (
         <main className='pb-10 h-full flex flex-col'>
-            <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
+            <div className='w-full py-4 border-b border-gray flex items-center gap-3 px-6'>
                 <Campaign className='w-8 h-8 fill-dark' />
                 <span className='text-lg font-semibold'>Campaign</span>
             </div>
@@ -100,6 +112,7 @@ export default function CampaignsPage() {
                                     <th className='text-center p-4'>Target Gender Percentage</th>
                                     <th className='text-center p-4'>Target Age Range</th>
                                     <th className='text-center p-4'>Budget per KOL</th>
+                                    <th className='text-center p-4'>Status</th>
                                     <th className='text-center p-4 rounded-tr-lg'>Action</th>
                                 </tr>
                             </thead>
@@ -145,10 +158,13 @@ export default function CampaignsPage() {
                                                 <td className='px-4 py-2 text-right'>
                                                     Rp {Number(campaign.budget.toString()).toLocaleString('id-ID')}
                                                 </td>
+                                                <td className='px-4 py-2 text-center'>
+                                                    {StatusBadge(getCampaignStatus(campaign.start_date, campaign.end_date))}
+                                                </td>
                                                 <td
                                                     className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
                                                 >
-                                                    <div className='flex justify-center gap-2'>
+                                                    <div className='flex justify-end gap-2'>
                                                         <ActionButton
                                                             icon={
                                                                 <Eye className='w-6 h-6 fill-dark group-hover:fill-light' />
@@ -156,16 +172,18 @@ export default function CampaignsPage() {
                                                             tooltipText='Detail'
                                                             onClick={() => handleViewDetail(generateSlugId(campaign))}
                                                         />
-                                                        <ActionButton
-                                                            icon={
-                                                                <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
-                                                            }
-                                                            // onClick={() => setSelectedEdit(campaign)}
-                                                            onClick={() =>
-                                                                toast.info('Sorry, this feature is under construction')
-                                                            }
-                                                            tooltipText='Edit'
-                                                        />
+                                                        {getCampaignStatus(campaign.start_date, campaign.end_date) === 'upcoming' && (
+                                                            <ActionButton
+                                                                icon={
+                                                                    <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                                                }
+                                                                onClick={() =>
+                                                                    toast.info('Sorry, this feature is under construction')
+                                                                }
+                                                                tooltipText='Edit'
+                                                            />
+                                                        )}
+
                                                         <ActionButton
                                                             icon={<Trash className='w-6 h-6 fill-error' />}
                                                             onClick={() =>

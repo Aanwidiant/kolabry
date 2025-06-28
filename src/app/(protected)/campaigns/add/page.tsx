@@ -201,9 +201,14 @@ export default function AddCampaignPage() {
 
     return (
         <main className='pb-10 h-full flex flex-col'>
-            <div className='w-full h-16 border-b border-gray flex gap-3 items-center px-6'>
-                <Campaign className='w-8 h-8 fill-dark' />
-                <span className='text-lg font-semibold'>Create New Campaign</span>
+            <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
+                <div className='flex items-center gap-3'>
+                    <Campaign className='w-8 h-8 fill-dark' />
+                    <span className='text-lg font-semibold'>Create New Campaign</span>
+                </div>
+                <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
+                    Go Back
+                </Button>
             </div>
 
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
@@ -409,7 +414,17 @@ export default function AddCampaignPage() {
                     </div>
                     <Button
                         onClick={fetchRecommendations}
-                        disabled={fetchingRecommendations || !formData.kol_type_id || !formData.target_niche}
+                        disabled={
+                            fetchingRecommendations ||
+                            !formData.kol_type_id ||
+                            !formData.target_niche ||
+                            !formData.budget ||
+                            !formData.target_engagement ||
+                            !formData.target_age_range ||
+                            !formData.target_reach ||
+                            !formData.target_gender ||
+                            !formData.target_gender_min
+                        }
                     >
                         {fetchingRecommendations ? 'Fetching...' : 'Get KOL Recommendation'}
                     </Button>
