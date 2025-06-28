@@ -86,9 +86,11 @@ export default function CampaignDetailPage() {
                     <Campaign className='w-8 h-8 fill-dark' />
                     <h1 className='text-lg font-semibold'>Detail Campaign {campaign.name}</h1>
                 </div>
-                <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
-                    Go Back
-                </Button>
+                <div className='hidden md:block'>
+                    <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
+                        Go Back
+                    </Button>
+                </div>
             </div>
 
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>

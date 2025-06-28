@@ -11,9 +11,7 @@ import ActionButton from '@/components/globals/action-button';
 import Pagination from '@/components/globals/pagination';
 import DataNotFound from '@/components/globals/data-not-found';
 import DeleteCampaign from './components/delete';
-import EditCampaign from './components/edit';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
 import StatusBadge from '@/components/globals/status-badge';
 
 export default function CampaignsPage() {
@@ -24,7 +22,6 @@ export default function CampaignsPage() {
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [selectedEdit, setSelectedEdit] = useState<Campaigns | null>(null);
     const [selectedDelete, setSelectedDelete] = useState<{
         id: number;
         name: string;
@@ -32,6 +29,10 @@ export default function CampaignsPage() {
 
     const handleViewDetail = (slug_id: string) => {
         router.push(`/campaigns/${slug_id}`);
+    };
+
+    const handleEdit = (slug_id: string) => {
+        router.push(`/campaigns/${slug_id}/edit`);
     };
 
     const generateSlugId = (campaign: Campaigns) => {
@@ -156,7 +157,7 @@ export default function CampaignsPage() {
                                                     {campaign.target_age_range.replace('AGE_', '').replace('_', ' - ')}
                                                 </td>
                                                 <td className='px-4 py-2 text-right'>
-                                                    Rp {Number(campaign.budget.toString()).toLocaleString('id-ID')}
+                                                    Rp {Number(campaign.budget).toLocaleString('id-ID')}
                                                 </td>
                                                 <td className='px-4 py-2 text-center'>
                                                     {StatusBadge(getCampaignStatus(campaign.start_date, campaign.end_date))}
@@ -177,9 +178,7 @@ export default function CampaignsPage() {
                                                                 icon={
                                                                     <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                                 }
-                                                                onClick={() =>
-                                                                    toast.info('Sorry, this feature is under construction')
-                                                                }
+                                                                onClick={() => handleEdit(generateSlugId(campaign))}
                                                                 tooltipText='Edit'
                                                             />
                                                         )}
@@ -212,7 +211,6 @@ export default function CampaignsPage() {
                     )}
                 </div>
             </div>
-            <EditCampaign campaignData={selectedEdit} onClose={() => setSelectedEdit(null)} onUpdate={getCampaigns} />
             {selectedDelete && (
                 <DeleteCampaign
                     campaignId={selectedDelete.id}

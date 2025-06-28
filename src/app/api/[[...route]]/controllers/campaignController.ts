@@ -310,7 +310,7 @@ export const updateCampaign = async (c: Context) => {
                     isCampaignChanged = true;
                     break;
                 }
-            } else if (valueInDb !== valueInUpdate) {
+            } else if (valueInDb != valueInUpdate) {
                 isCampaignChanged = true;
                 break;
             }
@@ -329,7 +329,14 @@ export const updateCampaign = async (c: Context) => {
         }
 
         if (!isCampaignChanged && !isKolIdsChanged) {
-            return c.json({ success: true, message: 'No changes made.' });
+            return c.json(
+                {
+                    success: false,
+                    error: 'no_change',
+                    message: 'No data was changed',
+                },
+                400
+            );
         }
 
         if (isCampaignChanged) {

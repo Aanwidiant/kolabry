@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Fetch from '@/utilities/fetch';
 import { toast } from 'react-toastify';
 import Button from '@/components/globals/button';
@@ -13,8 +13,13 @@ import { AgeRangeType, GenderType, NicheType } from '@prisma/client';
 import { NumericFormat } from 'react-number-format';
 import CustomDatePicker from '@/components/globals/custom-date-picker';
 import Recommendation from '@/app/(protected)/campaigns/components/recommendation';
+import InvolvedKolsEdit from '@/app/(protected)/campaigns/components/involved-kols-edit';
+import SpinnerLoader from '@/components/globals/spinner-loader';
 
-export default function AddCampaignPage() {
+export default function EditCampaignPage() {
+    const params = useParams();
+    const slug_id = params?.slug_id as string;
+    const id = parseInt(slug_id.split('-').pop() || '', 10);
     const [kolTypes, setKolTypes] = useState<{ label: string; value: string }[]>([]);
     const [brand, setBrand] = useState<{ label: string; value: string }[]>([]);
     const [formData, setFormData] = useState<Partial<Campaigns>>({});
@@ -22,6 +27,7 @@ export default function AddCampaignPage() {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [recommendedKols, setRecommendedKols] = useState<Kols[]>([]);
+    const [involvedKols, setInvolvedKols] = useState<Kols[]>([]);
     const [fetchingRecommendations, setFetchingRecommendations] = useState(false);
     const router = useRouter();
 
@@ -33,6 +39,52 @@ export default function AddCampaignPage() {
             [name]: value,
         }));
     };
+
+    const fetchCampaign = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await Fetch.GET(`/campaign/${id}`);
+            const data = response.data as Campaigns;
+            const campaignKols = data.campaign_kols.map((item) => item.kol);
+            const kolIds = campaignKols.map((kol) => kol.id);
+            setInvolvedKols(campaignKols);
+            setFormData({
+                name: data.name,
+                target_niche: data.target_niche,
+                budget: Number(data.budget),
+                target_engagement: data.target_engagement,
+                target_reach: data.target_reach,
+                target_gender: data.target_gender,
+                target_gender_min: data.target_gender_min,
+                target_age_range: data.target_age_range,
+                brand_id: data.user_id,
+                kol_type_id: data.kol_type_id,
+                kol_ids: kolIds,
+            });
+            if (data.start_date) setStartDate(new Date(data.start_date));
+            if (data.end_date) setEndDate(new Date(data.end_date));
+        } catch (error) {
+            console.error('Failed to fetch campaign:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        fetchCampaign().then();
+    }, [fetchCampaign]);
+
+    useEffect(() => {
+        fetchKolTypes().then();
+        fetchBrand().then();
+    }, []);
+
+    if (loading)
+        return (
+            <main className='pb-10 h-full flex items-center justify-center'>
+                <SpinnerLoader />
+            </main>
+        );
 
     const handleNicheChange = (value: string | number | null) => {
         if (
@@ -95,11 +147,6 @@ export default function AddCampaignPage() {
             kol_ids: checked ? [...(prev.kol_ids || []), kolId] : (prev.kol_ids || []).filter((id) => id !== kolId),
         }));
     };
-
-    useEffect(() => {
-        fetchKolTypes().then();
-        fetchBrand().then();
-    }, []);
 
     const fetchKolTypes = async () => {
         try {
@@ -171,25 +218,29 @@ export default function AddCampaignPage() {
         }
     };
 
-    const handleAdd = async () => {
+    const handleUpdate = async () => {
         setLoading(true);
 
         const payload = {
             ...formData,
+            id: id,
             start_date: startDate?.toISOString(),
             end_date: endDate?.toISOString(),
         };
 
         try {
-            const response = await Fetch.POST('/campaign', payload);
+            const response = await Fetch.PATCH('/campaign', payload);
             if (response.success) {
                 toast.success(response.message);
+                router.push('/campaigns');
+            } else if (response.error === 'no_change') {
+                toast.info(response.message);
                 router.push('/campaigns');
             } else {
                 toast.error(response.message);
             }
         } catch {
-            toast.error('Failed to create campaign');
+            toast.error('Failed to update campaign');
         } finally {
             setLoading(false);
         }
@@ -200,7 +251,7 @@ export default function AddCampaignPage() {
             <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
                 <div className='flex items-center gap-3'>
                     <Campaign className='w-8 h-8 fill-dark' />
-                    <span className='text-lg font-semibold'>Create New Campaign</span>
+                    <span className='text-lg font-semibold'>Edit Campaign {formData.name}</span>
                 </div>
                 <div className='hidden md:block'>
                     <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
@@ -233,7 +284,7 @@ export default function AddCampaignPage() {
                                 <SingleSelect
                                     id='brand'
                                     options={brand}
-                                    value={formData.brand_id?.toString() ?? null}
+                                    value={formData.brand_id?.toString() || null}
                                     onChange={(value) => {
                                         const numValue = typeof value === 'string' ? parseInt(value) : value;
                                         if (!isNaN(numValue as number)) {
@@ -410,6 +461,14 @@ export default function AddCampaignPage() {
                             </div>
                         </div>
                     </div>
+
+                    <InvolvedKolsEdit
+                        involvedKols={involvedKols}
+                        selectedKols={formData.kol_ids || []}
+                        onChange={handleSelectKol}
+                        loading={loading}
+                    />
+
                     <Button
                         onClick={fetchRecommendations}
                         disabled={
@@ -439,8 +498,8 @@ export default function AddCampaignPage() {
                             Cancel
                         </Button>
                         {formData.kol_ids && formData.kol_ids.length > 0 && (
-                            <Button onClick={handleAdd} disabled={loading}>
-                                {loading ? 'Creating...' : 'Create'}
+                            <Button onClick={handleUpdate} disabled={loading}>
+                                {loading ? 'Updating...' : 'Update'}
                             </Button>
                         )}
                     </div>
