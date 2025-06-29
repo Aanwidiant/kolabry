@@ -56,7 +56,6 @@ export default function CampaignsPage() {
         return 'ongoing';
     }
 
-
     const getCampaigns = useCallback(async () => {
         setLoading(true);
         try {
@@ -87,8 +86,8 @@ export default function CampaignsPage() {
                 <span className='text-lg font-semibold'>Campaign</span>
             </div>
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
-                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
-                    <div className='flex flex-wrap gap-3'>
+                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between items-center'>
+                    <div className='flex flex-wrap gap-3 items-center'>
                         <SearchInput onSearch={setSearch} search={'name'} />
                         <PaginationLimit value={limit} onChange={handleLimitChange} />
                     </div>
@@ -160,7 +159,9 @@ export default function CampaignsPage() {
                                                     Rp {Number(campaign.budget).toLocaleString('id-ID')}
                                                 </td>
                                                 <td className='px-4 py-2 text-center'>
-                                                    {StatusBadge(getCampaignStatus(campaign.start_date, campaign.end_date))}
+                                                    {StatusBadge(
+                                                        getCampaignStatus(campaign.start_date, campaign.end_date)
+                                                    )}
                                                 </td>
                                                 <td
                                                     className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}
@@ -173,7 +174,8 @@ export default function CampaignsPage() {
                                                             tooltipText='Detail'
                                                             onClick={() => handleViewDetail(generateSlugId(campaign))}
                                                         />
-                                                        {getCampaignStatus(campaign.start_date, campaign.end_date) === 'upcoming' && (
+                                                        {getCampaignStatus(campaign.start_date, campaign.end_date) ===
+                                                            'upcoming' && (
                                                             <ActionButton
                                                                 icon={
                                                                     <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />

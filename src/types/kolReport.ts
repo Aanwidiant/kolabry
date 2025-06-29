@@ -8,10 +8,18 @@ export interface KolReport {
     save_count: number;
     engagement: number;
     reach: number;
+    cost: number;
     er: number;
     cpe: number;
     final_score?: number;
     ranking?: number;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface KolReportItem {
+    id: number | undefined;
+    kol_id: number;
+    kol_name: string;
+    report: Partial<KolReport>;
 }

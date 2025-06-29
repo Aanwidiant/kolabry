@@ -99,7 +99,7 @@ export default function CampaignDetailPage() {
                         {campaignDetails.map((item, index) => (
                             <div key={index} className='grid grid-cols-5 items-center gap-4'>
                                 <span className='col-span-2 font-medium'>{item.label}</span>
-                                <p className='col-span-3 input-style'>{item.value}</p>
+                                <p className='col-span-3 input-style bg-primary/15'>{item.value}</p>
                             </div>
                         ))}
                     </div>

@@ -127,6 +127,7 @@ model kol_reports {
   save_count    BigInt   @db.BigInt
   engagement    Float
   reach         Int
+  cost          BigInt
   er            Float // Engagement Rate
   cpe           Float // Cost Per Engagement
   final_score   Float?

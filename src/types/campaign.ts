@@ -4,6 +4,7 @@ export interface Campaigns {
     id: number;
     user_id: number;
     brand_id: number;
+    brand_name: string;
     name: string;
     kol_type_id: number | undefined;
     budget: number;
@@ -19,19 +20,19 @@ export interface Campaigns {
     created_at: Date;
     updated_at: Date;
     kol_ids: number[];
+    count_kols: number;
     campaign_kols: {
         kol: Kols;
     }[];
-
     kol_types: {
         name: string;
         min_followers: number;
         max_followers: number;
-    }
+    };
     user: {
         id: number;
         username: string;
-    }
+    };
 }
 
 export type GenderType = 'MALE' | 'FEMALE';

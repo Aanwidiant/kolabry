@@ -50,10 +50,14 @@ export default function Recommendation({ recommendedKols, selectedKols, onChange
                                             {index + 1}
                                         </td>
                                         <td className='px-4 py-2 text-left'>{kol.name}</td>
-                                        <td className='px-4 py-2 text-right'>{Number(kol.followers).toLocaleString('id-ID')}</td>
+                                        <td className='px-4 py-2 text-right'>
+                                            {Number(kol.followers).toLocaleString('id-ID')}
+                                        </td>
                                         <td className='px-4 py-2 text-right'>{kol.engagement_rate.toFixed(2)}%</td>
                                         <td className='px-4 py-2 text-right'>{kol.reach.toLocaleString('id-ID')}</td>
-                                        <td className='px-4 py-2 text-right'>Rp {Number(kol.rate_card).toLocaleString('id-ID')}</td>
+                                        <td className='px-4 py-2 text-right'>
+                                            Rp {Number(kol.rate_card).toLocaleString('id-ID')}
+                                        </td>
                                         <td className='px-4 py-2 text-right'>{kol.score}</td>
                                         <td className={`px-4 py-2 text-center ${isLast ? 'rounded-br-lg' : ''}`}>
                                             <input

@@ -27,3 +27,4 @@ export { default as Upload } from './upload';
 export { default as User } from './user';
 export { default as Users } from './users';
 export { default as Warning } from './warning';
+export { default as ReportAdd } from './report-add';

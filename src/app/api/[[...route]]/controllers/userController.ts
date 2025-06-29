@@ -95,13 +95,7 @@ export const createUser = async (c: Context) => {
 
 // Get User List
 export const getUsers = async (c: Context) => {
-    const {
-        search = '',
-        page = '1',
-        limit = '10',
-        role,
-        noPagination = 'false',
-    } = c.req.query();
+    const { search = '', page = '1', limit = '10', role, noPagination = 'false' } = c.req.query();
 
     const usePagination = noPagination !== 'true';
 
@@ -119,18 +113,17 @@ export const getUsers = async (c: Context) => {
         );
     }
 
-    const isValidRole = (value: string): value is UserRole =>
-        Object.values(UserRole).includes(value as UserRole);
+    const isValidRole = (value: string): value is UserRole => Object.values(UserRole).includes(value as UserRole);
 
     const filters: Prisma.usersWhereInput = {
         ...(role && isValidRole(role) ? { role: role as UserRole } : {}),
         ...(search
             ? {
-                OR: [
-                    { username: { contains: search, mode: 'insensitive' } },
-                    { email: { contains: search, mode: 'insensitive' } },
-                ],
-            }
+                  OR: [
+                      { username: { contains: search, mode: 'insensitive' } },
+                      { email: { contains: search, mode: 'insensitive' } },
+                  ],
+              }
             : {}),
     };
 
@@ -145,9 +138,7 @@ export const getUsers = async (c: Context) => {
                     role: true,
                     created_at: true,
                 },
-                ...(usePagination
-                    ? { skip: offset, take: limitNumber }
-                    : {}),
+                ...(usePagination ? { skip: offset, take: limitNumber } : {}),
                 orderBy: { created_at: 'desc' },
             }),
             prisma.users.count({ where: filters }),
@@ -158,12 +149,12 @@ export const getUsers = async (c: Context) => {
             data: users,
             ...(usePagination
                 ? {
-                    pagination: Pagination({
-                        page: pageNumber,
-                        limit: limitNumber!,
-                        total: totalUsers,
-                    }),
-                }
+                      pagination: Pagination({
+                          page: pageNumber,
+                          limit: limitNumber!,
+                          total: totalUsers,
+                      }),
+                  }
                 : { total: totalUsers }),
         });
     } catch (err) {
@@ -357,12 +348,24 @@ export const deleteUser = async (c: Context) => {
     }
 
     try {
+        const existing = await prisma.users.findUnique({ where: { id } });
+
+        if (!existing) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'User not found.',
+                },
+                404
+            );
+        }
+
         await prisma.users.delete({ where: { id } });
 
         return c.json(
             {
                 success: true,
-                message: 'User data successfully deleted.',
+                message: 'User successfully deleted.',
             },
             200
         );
@@ -370,7 +373,7 @@ export const deleteUser = async (c: Context) => {
         return c.json(
             {
                 success: false,
-                message: 'Failed to delete User data.',
+                message: 'Failed to delete User.',
                 error: err instanceof Error ? err.message : String(err),
             },
             500

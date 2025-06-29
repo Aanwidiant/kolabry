@@ -1,5 +1,5 @@
 export default function StatusBadge(status: string) {
-    const base = "px-2 py-1 rounded-md text-xs font-semibold";
+    const base = 'px-2 py-1 rounded-md text-xs font-semibold';
     switch (status) {
         case 'ongoing':
             return <span className={`${base} bg-info text-light`}>Ongoing</span>;

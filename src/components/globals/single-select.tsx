@@ -52,7 +52,7 @@ export default function SingleSelect({
 
     return (
         <div className={`flex flex-col gap-2 ${width}`} ref={containerRef}>
-            {label && (<label className='label-style'>{label}</label>)}
+            {label && <label className='label-style'>{label}</label>}
             <div className='relative'>
                 <button
                     id={id}

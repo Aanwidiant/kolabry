@@ -139,10 +139,9 @@ export const getCampaigns = async (c: Context) => {
             },
         });
 
-        const campaignsWithKols = campaigns.map((campaign) => ({
-            ...campaign,
-            kols: campaign.campaign_kols.map((ck) => ck.kol),
-            campaign_kols: undefined,
+        const campaignsWithKols = campaigns.map(({ campaign_kols, ...rest }) => ({
+            ...rest,
+            kols: campaign_kols.map((ck) => ck.kol),
         }));
 
         return c.json({
@@ -175,12 +174,12 @@ export const getCampaignsById = async (c: Context) => {
                         username: true,
                     },
                 },
-                kol_types:{
+                kol_types: {
                     select: {
                         name: true,
                         min_followers: true,
-                        max_followers: true
-                    }
+                        max_followers: true,
+                    },
                 },
                 campaign_kols: {
                     select: {
@@ -225,7 +224,6 @@ export const getCampaignsById = async (c: Context) => {
         );
     }
 };
-
 
 type CampaignUpdateData = Prisma.campaignsUpdateInput;
 

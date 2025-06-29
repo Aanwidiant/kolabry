@@ -278,6 +278,18 @@ export const deleteKol = async (c: Context) => {
     }
 
     try {
+        const existing = await prisma.kols.findUnique({ where: { id } });
+
+        if (!existing) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'KOL data not found.',
+                },
+                404
+            );
+        }
+
         await prisma.kols.delete({ where: { id } });
         return c.json(
             {

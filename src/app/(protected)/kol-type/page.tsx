@@ -65,8 +65,8 @@ export default function KolTypePage() {
                 <span className='text-lg font-semibold'>KOL Type</span>
             </div>
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
-                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between'>
-                    <div className='flex flex-wrap gap-3'>
+                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between items-center'>
+                    <div className='flex flex-wrap gap-3 items-center'>
                         <SearchInput onSearch={setSearch} search={'name'} />
                         <PaginationLimit value={limit} onChange={handleLimitChange} />
                     </div>
