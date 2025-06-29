@@ -14,6 +14,7 @@ import AddReportKol from '@/app/(protected)/reports/components/add';
 import EditReportKOL from '@/app/(protected)/reports/components/edit';
 import useAuthStore from '@/store/authStore';
 import { format } from 'date-fns';
+import { startOfDay, isAfter } from 'date-fns';
 
 export default function KolReportPage() {
     const role = useAuthStore((state) => state.user?.role);
@@ -30,6 +31,9 @@ export default function KolReportPage() {
         id: number | undefined;
         name: string;
     } | null>(null);
+    const today = startOfDay(new Date());
+    const endDate = startOfDay(new Date(campaign?.end_date || ''));
+    const isAfterEnd = isAfter(today, endDate);
 
     const getReportCampaign = useCallback(async () => {
         setLoading(true);
@@ -125,14 +129,14 @@ export default function KolReportPage() {
                                     <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
                                     <th className='text-center min-w-32 p-4'>Name</th>
                                     <th className='text-center p-4'>Like</th>
-                                    <th className='text-center p-4'>comment</th>
-                                    <th className='text-center p-4'>share</th>
-                                    <th className='text-center p-4'>save</th>
-                                    <th className='text-center p-4'>reach</th>
-                                    <th className='text-center p-4'>cost</th>
-                                    <th className='text-center p-4'>er</th>
-                                    <th className='text-center p-4'>cpe</th>
-                                    <th className='text-center p-4'>ranking</th>
+                                    <th className='text-center p-4'>Comment</th>
+                                    <th className='text-center p-4'>Share</th>
+                                    <th className='text-center p-4'>Save</th>
+                                    <th className='text-center p-4'>Reach</th>
+                                    <th className='text-center p-4'>Cost</th>
+                                    <th className='text-center p-4'>ER</th>
+                                    <th className='text-center p-4'>CPE</th>
+                                    <th className='text-center p-4'>Ranking</th>
                                     {role === 'KOL_MANAGER' && (
                                         <th className='text-center p-4 rounded-tr-lg'>Action</th>
                                     )}
@@ -196,43 +200,51 @@ export default function KolReportPage() {
                                                 </td>
                                                 {role === 'KOL_MANAGER' && (
                                                     <td className={`px-4 py-2 text-center`}>
-                                                        <div className='flex justify-center gap-2'>
-                                                            {!report.report && (
-                                                                <ActionButton
-                                                                    icon={
-                                                                        <ReportAdd className='w-6 h-6 fill-dark group-hover:fill-light' />
-                                                                    }
-                                                                    onClick={() =>
-                                                                        setSelectedAdd({
-                                                                            id: report.kol_id,
-                                                                            name: report.kol_name,
-                                                                        })
-                                                                    }
-                                                                    tooltipText='Add'
-                                                                />
-                                                            )}
-                                                            {report.report && (
-                                                                <>
+                                                        {isAfterEnd ? (
+                                                            <div className='flex justify-center gap-2'>
+                                                                {!report.report && (
                                                                     <ActionButton
                                                                         icon={
-                                                                            <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                                                            <ReportAdd className='w-6 h-6 fill-dark group-hover:fill-light' />
                                                                         }
-                                                                        onClick={() => setSelectedEdit(report)}
-                                                                        tooltipText='Edit'
-                                                                    />
-                                                                    <ActionButton
-                                                                        icon={<Trash className='w-6 h-6 fill-error' />}
                                                                         onClick={() =>
-                                                                            setSelectedDelete({
-                                                                                id: report.report.id,
+                                                                            setSelectedAdd({
+                                                                                id: report.kol_id,
                                                                                 name: report.kol_name,
                                                                             })
                                                                         }
-                                                                        tooltipText='Delete'
+                                                                        tooltipText='Add'
                                                                     />
-                                                                </>
-                                                            )}
-                                                        </div>
+                                                                )}
+                                                                {report.report && (
+                                                                    <>
+                                                                        <ActionButton
+                                                                            icon={
+                                                                                <Edit className='w-6 h-6 fill-dark group-hover:fill-light' />
+                                                                            }
+                                                                            onClick={() => setSelectedEdit(report)}
+                                                                            tooltipText='Edit'
+                                                                        />
+                                                                        <ActionButton
+                                                                            icon={
+                                                                                <Trash className='w-6 h-6 fill-error' />
+                                                                            }
+                                                                            onClick={() =>
+                                                                                setSelectedDelete({
+                                                                                    id: report.report.id,
+                                                                                    name: report.kol_name,
+                                                                                })
+                                                                            }
+                                                                            tooltipText='Delete'
+                                                                        />
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className='px-2 py-1 rounded-md text-xs font-semibold bg-warning text-dark'>
+                                                                Not done yet
+                                                            </span>
+                                                        )}
                                                     </td>
                                                 )}
                                             </tr>
