@@ -206,7 +206,7 @@ export default function KolReportPage() {
                                                     {formatNumber(report.report?.ranking)}
                                                 </td>
                                                 {role === 'KOL_MANAGER' && (
-                                                    <td className={`px-4 py-2 text-center`}>
+                                                    <td className={`px-4 py-2 text-center w-fit`}>
                                                         {isAfterEnd ? (
                                                             <div className='flex justify-center gap-2'>
                                                                 {!report.report && (
@@ -248,7 +248,7 @@ export default function KolReportPage() {
                                                                 )}
                                                             </div>
                                                         ) : (
-                                                            <span className='px-2 py-1 rounded-md text-xs font-semibold bg-warning text-dark'>
+                                                            <span className='whitespace-nowrap px-2 py-1 rounded-md text-xs font-semibold bg-warning text-dark'>
                                                                 Not done yet
                                                             </span>
                                                         )}
