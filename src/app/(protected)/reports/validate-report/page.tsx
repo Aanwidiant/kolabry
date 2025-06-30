@@ -198,7 +198,7 @@ export default function ValidateReportPerformance() {
             <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
                 <div className='flex items-center gap-3'>
                     <Report className='w-8 h-8 fill-dark' />
-                    <span className='text-lg font-semibold'>Campaign Performance Bulk Validation Input</span>
+                    <span className='text-lg font-semibold'>Report Bulk Validation Input</span>
                 </div>
                 <div className='hidden md:block'>
                     <Button variant='outline' className='ml-auto' onClick={() => router.back()}>

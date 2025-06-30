@@ -114,7 +114,7 @@ export default function AddBulkReport({ onClose, campaign_id, campaign_name }: P
                 onClick={handleGenerateTemplate}
                 className='text-primary underline text-sm block mt-2'
             >
-                Download example file
+                Download template file
             </button>
         </Modal>
     );

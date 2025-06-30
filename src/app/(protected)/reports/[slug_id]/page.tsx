@@ -122,7 +122,7 @@ export default function KolReportPage() {
                     <h2 className='text-xl font-semibold'>Campaign Overview</h2>
                     {isAfterEnd && (
                         <div className='flex items-center gap-3 place-self-end'>
-                            {role === 'KOL_MANAGER' && (
+                            {role === 'KOL_MANAGER' && reports.some(r => r.report === null) && (
                                 <Button onClick={() => setOpenAddBulk(true)}>
                                     <Upload className='w-6 h-6' />
                                     <p>Add Bulk</p>
