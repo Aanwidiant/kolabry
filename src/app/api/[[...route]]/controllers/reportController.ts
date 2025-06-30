@@ -454,7 +454,12 @@ export const deleteReport = async (c: Context) => {
             );
         }
 
+        const campaignId = existingReport.campaign_id;
+
         await prisma.kol_reports.delete({ where: { id } });
+
+        await calculateWPScores(campaignId);
+
         return c.json(
             {
                 success: true,
