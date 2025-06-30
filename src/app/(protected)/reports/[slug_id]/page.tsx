@@ -9,7 +9,6 @@ import DataNotFound from '@/components/globals/data-not-found';
 import { useParams, useRouter } from 'next/navigation';
 import { Campaigns, KolReportItem } from '@/types';
 import DeleteReportKol from '@/app/(protected)/reports/components/delete';
-import { toast } from 'react-toastify';
 import AddReportKol from '@/app/(protected)/reports/components/add';
 import EditReportKOL from '@/app/(protected)/reports/components/edit';
 import useAuthStore from '@/store/authStore';
@@ -47,6 +46,11 @@ export default function KolReportPage() {
             setLoading(false);
         }
     }, [id]);
+
+    const handleExportExcel = async () => {
+        if (!id) return;
+        await Fetch.DOWNLOAD(`/report/export/${id}`, `${campaign?.name}_report.xlsx`);
+    };
 
     useEffect(() => {
         getReportCampaign().then();
@@ -102,7 +106,10 @@ export default function KolReportPage() {
                     <h1 className='text-lg font-semibold'>Report Campaign {campaign?.name}</h1>
                 </div>
                 <div className='flex items-center gap-3'>
-                    <Button onClick={() => toast.info('Sorry, this feature under construction')}>
+                    <Button
+                        // onClick={() => toast.info('Sorry, this feature under construction')}
+                            onClick={() => handleExportExcel()}
+                    >
                         <Download className='w-6 h-6' />
                         <p>Report</p>
                     </Button>

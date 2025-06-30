@@ -72,6 +72,28 @@ const DELETE = async (url: string, config?: object) => {
     return responseBody(response);
 };
 
-const Fetch = { GET, POST, PUT, PATCH, DELETE };
+const DOWNLOAD = async (url: string, filename: string) => {
+    try {
+        const response = await instance.get(url, {
+            responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+        console.error('Failed to download file:', err);
+    }
+};
+
+const Fetch = { GET, POST, PUT, PATCH, DELETE, DOWNLOAD };
 
 export default Fetch;

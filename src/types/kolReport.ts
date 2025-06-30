@@ -1,3 +1,5 @@
+import { Campaigns } from '@/types/campaign';
+
 export interface KolReport {
     id: number;
     campaign_id: number;
@@ -22,4 +24,10 @@ export interface KolReportItem {
     kol_id: number;
     kol_name: string;
     report: Partial<KolReport>;
+}
+
+export interface KolReportGenerate {
+    success: string;
+    campaign: Campaigns;
+    data: KolReportItem[];
 }

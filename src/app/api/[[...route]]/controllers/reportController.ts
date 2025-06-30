@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { Pagination, safeJson } from '@/app/api/[[...route]]/helpers';
 import { validateKolReport } from '@/app/api/[[...route]]/validations/reportValidation';
+import ExcelJS from 'exceljs';
+import { KolReportGenerate } from '@/types';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export const createReports = async (c: Context) => {
     try {
@@ -530,7 +534,6 @@ export async function calculateWPScores(campaignId: number) {
             ranking: i + 1,
         }));
 
-    // Update DB
     await Promise.all(
         ranked.map((r) =>
             prisma.kol_reports.update({
@@ -550,3 +553,173 @@ export async function calculateWPScores(campaignId: number) {
 
     return ranked;
 }
+
+export const exportCampaignReport = async (c: Context) => {
+    try {
+        const campaignId = Number(c.req.param('id'));
+
+        if (!campaignId || isNaN(campaignId)) {
+            return c.text('Invalid campaign ID', 400);
+        }
+
+        const response = await getReportById(c);
+        const json: KolReportGenerate = await response.json();
+
+        if (!json.success) {
+            return new Response(JSON.stringify(json), {
+                status: response.status,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const { campaign, data } = json;
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Campaign Report');
+        worksheet.addRow(['KOLABRY']);
+        worksheet.getCell(`A1`).font = {
+            bold: true,
+            italic: true,
+            size: 18,
+            color: { argb: 'FF2F80ED' },
+        };
+        worksheet.mergeCells(`A1:B1`);
+        worksheet.addRow(['Campaign Overview']);
+        worksheet.getCell(`A2`).font = { bold: true, size: 12 };
+        worksheet.mergeCells(`A2:B2`);
+        worksheet.addRow([]);
+
+        const formatNumber = (num: number) => num.toLocaleString('id-ID');
+
+        const kolTypeName = campaign.kol_types.name;
+        const min = campaign.kol_types.min_followers;
+        const max = campaign.kol_types.max_followers;
+
+        const followersRange = max ? `${formatNumber(min)} - ${formatNumber(max)}` : `${formatNumber(min)}+`;
+
+        const kolTypeValue = `${kolTypeName} (${followersRange})`;
+
+        const overviewPairs = [
+            ['Campaign Name', campaign.name],
+            ['Brand', campaign.user.username],
+            ['KOL Type', kolTypeValue],
+            ['Target Gender', campaign.target_gender],
+            ['Target Age', campaign.target_age_range.replace('AGE_', '').replace('_', ' - ')],
+            ['Target Age Percentage (%)', Number(campaign.target_gender_min)],
+            ['Target ER (%)', Math.round(Number(campaign.target_engagement) * 100) / 100],
+            ['Target Reach', Number(campaign.target_reach)],
+            ['Start Date', format(new Date(campaign.start_date), 'dd MMMM yyyy', { locale: id })],
+            ['End Date', format(new Date(campaign.end_date), 'dd MMMM yyyy', { locale: id })],
+        ];
+
+        let rowIndex = 3;
+        for (const [label, value] of overviewPairs) {
+            worksheet.getCell(`B${rowIndex}`).value = label;
+            worksheet.getCell(`C${rowIndex}`).value = typeof value === 'number' ? value : String(value);
+            worksheet.getCell(`C${rowIndex}`).alignment = { horizontal: 'left', vertical: 'middle' };
+            worksheet.mergeCells(`C${rowIndex}:E${rowIndex}`);
+            worksheet.getCell(`B${rowIndex}`).font = { bold: true };
+            worksheet.getColumn(2).width = 30;
+            rowIndex++;
+        }
+
+        worksheet.addRow([]);
+
+        const titleRow = worksheet.addRow(['KOL Report Performance']);
+        titleRow.font = { bold: true, size: 12 };
+        worksheet.mergeCells(`A${titleRow.number}:B${titleRow.number}`);
+
+        for (let i = 3; i <= 12; i++) {
+            worksheet.getColumn(i).width = 15;
+        }
+
+        const headerRow = worksheet.addRow([
+            'No',
+            'KOL Name',
+            'Like',
+            'Comment',
+            'Share',
+            'Save',
+            'Engagement',
+            'Reach',
+            'ER (%)',
+            'CPE (Rp)',
+            'Score',
+            'Ranking',
+        ]);
+
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' },
+            };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFDCE6F1' },
+            };
+        });
+
+        data.forEach((item, i) => {
+            const r = item.report;
+
+            const dataRow = worksheet.addRow([
+                i + 1,
+                item.kol_name,
+                r?.like_count ? Number(r.like_count) : '-',
+                r?.comment_count ? Number(r.comment_count) : '-',
+                r?.share_count ? Number(r.share_count) : '-',
+                r?.save_count ? Number(r.save_count) : '-',
+                r?.engagement ? Number(r.engagement) : '-',
+                r?.reach ?? '-',
+                r?.er !== undefined ? Math.round(Number(r.er) * 100) / 100 : '-',
+                r?.cpe !== undefined ? Number(r.cpe) : '-',
+                r?.save_count && r?.final_score !== undefined ? Number(r.final_score.toFixed(4)) : '-',
+                r?.ranking ?? '-',
+            ]);
+
+            dataRow.eachCell((cell, colNumber) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' },
+                };
+
+                if (colNumber === 1 || colNumber === 12) {
+                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                }
+            });
+        });
+
+        worksheet.eachRow((row) => {
+            row.eachCell((cell) => {
+                cell.font = {
+                    ...cell.font,
+                    name: 'Arial',
+                };
+                row.height = 20;
+                cell.alignment = {
+                    ...cell.alignment,
+                    vertical: 'middle',
+                };
+            });
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        return new Response(buffer, {
+            status: 200,
+            headers: {
+                'Content-Disposition': `attachment; filename="campaign_${campaignId}_report.xlsx"`,
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+        });
+    } finally {
+        await prisma.$disconnect();
+    }
+};
