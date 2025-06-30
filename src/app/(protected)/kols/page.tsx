@@ -15,7 +15,7 @@ import AddKol from '@/app/(protected)/kols/components/add';
 import EditKol from '@/app/(protected)/kols/components/edit';
 import { ageRangeOptions, nicheTypeOptions } from '@/constants/option';
 import DataNotFound from '@/components/globals/data-not-found';
-import AddBulkKol from '@/components/globals/add-bulk-kol';
+import AddBulkKol from '@/app/(protected)/kols/components/add-bulk-kol';
 
 export default function KolsPage() {
     const [kols, setKols] = useState<Kols[]>([]);

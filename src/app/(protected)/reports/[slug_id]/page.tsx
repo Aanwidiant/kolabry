@@ -1,5 +1,5 @@
 'use client';
-import { Report, Edit, Trash, Download, ReportAdd } from '@/components/icons';
+import { Report, Edit, Trash, Download, ReportAdd, Upload } from '@/components/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import Button from '@/components/globals/button';
 import Fetch from '@/utilities/fetch';
@@ -14,6 +14,8 @@ import EditReportKOL from '@/app/(protected)/reports/components/edit';
 import useAuthStore from '@/store/authStore';
 import { format } from 'date-fns';
 import { startOfDay, isAfter } from 'date-fns';
+import AddBulkReport from '@/app/(protected)/reports/components/add-bulk';
+import { toast } from 'react-toastify';
 
 export default function KolReportPage() {
     const role = useAuthStore((state) => state.user?.role);
@@ -33,6 +35,7 @@ export default function KolReportPage() {
     const today = startOfDay(new Date());
     const endDate = startOfDay(new Date(campaign?.end_date || ''));
     const isAfterEnd = isAfter(today, endDate);
+    const [openAddBulk, setOpenAddBulk] = useState(false);
 
     const getReportCampaign = useCallback(async () => {
         setLoading(true);
@@ -49,7 +52,10 @@ export default function KolReportPage() {
 
     const handleExportExcel = async () => {
         if (!id) return;
-        await Fetch.DOWNLOAD(`/report/export/${id}`, `${campaign?.name}_report.xlsx`);
+        const res = await Fetch.DOWNLOAD(`/report/export/${id}`, `${campaign?.name}_report.xlsx`);
+        if (!res.success) {
+            toast.error(res.message);
+        }
     };
 
     useEffect(() => {
@@ -105,20 +111,30 @@ export default function KolReportPage() {
                     <Report className='w-8 h-8 fill-dark' />
                     <h1 className='text-lg font-semibold'>Report Campaign {campaign?.name}</h1>
                 </div>
-                <div className='flex items-center gap-3'>
-                    <Button
-                        // onClick={() => toast.info('Sorry, this feature under construction')}
-                            onClick={() => handleExportExcel()}
-                    >
-                        <Download className='w-6 h-6' />
-                        <p>Report</p>
-                    </Button>
-                    <Button variant='outline' className='ml-auto hidden md:block' onClick={() => router.back()}>
+                <div className='hidden md:block'>
+                    <Button variant='outline' className='ml-auto ' onClick={() => router.back()}>
                         Go Back
                     </Button>
                 </div>
             </div>
             <div className='h-[calc(100vh-10rem)] overflow-y-auto'>
+                <div className='py-3 px-6 flex gap-3 flex-wrap justify-between items-center'>
+                    <h2 className='text-xl font-semibold'>Campaign Overview</h2>
+                    {isAfterEnd && (
+                        <div className='flex items-center gap-3 place-self-end'>
+                            {role === 'KOL_MANAGER' && (
+                                <Button onClick={() => setOpenAddBulk(true)}>
+                                    <Upload className='w-6 h-6' />
+                                    <p>Add Bulk</p>
+                                </Button>
+                            )}
+                            <Button onClick={() => handleExportExcel()}>
+                                <Download className='w-6 h-6' />
+                                <p>Report</p>
+                            </Button>
+                        </div>
+                    )}
+                </div>
                 <div className='py-3 px-6 space-y-4'>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pb-4'>
                         {campaignDetails.map((item, index) => (
@@ -283,6 +299,13 @@ export default function KolReportPage() {
                     name={selectedDelete.name}
                     onClose={() => setSelectedDelete(null)}
                     onDelete={getReportCampaign}
+                />
+            )}
+            {openAddBulk && (
+                <AddBulkReport
+                    onClose={() => setOpenAddBulk(false)}
+                    campaign_id={campaign?.id}
+                    campaign_name={campaign?.name}
                 />
             )}
         </main>

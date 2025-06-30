@@ -6,54 +6,43 @@ import Button from '@/components/globals/button';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Fetch from '@/utilities/fetch';
-import { Kol, Warning } from '@/components/icons';
+import { Report, Warning } from '@/components/icons';
 import SpinnerLoader from '@/components/globals/spinner-loader';
 import DataNotFound from '@/components/globals/data-not-found';
 import Modal from '@/components/globals/modal';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import slugify from 'slugify';
 
-type KOLRawRow = {
-    Name: string;
-    Niche: string;
-    'Audience Age Range': string;
-    'Audience Male (%)': string;
-    'Audience Female (%)': string;
-    Followers: string;
-    'Engagement Rate': string;
+type ReportRawRow = {
+    No: string;
+    'KOL Code': string;
+    'KOL Name': string;
+    Like: string;
+    Comment: string;
+    Share: string;
+    Save: string;
+    Cost: string;
     Reach: string;
-    'Rate Card': string;
 };
 
-type KOLParsedRow = {
-    name: string;
-    niche: string;
-    followers: number;
-    engagement_rate: number;
+type ReportParsedRow = {
+    campaign_id: number;
+    kol_id: number;
+    kol_name: string;
+    like_count: number;
+    comment_count: number;
+    share_count: number;
+    save_count: number;
     reach: number;
-    rate_card: number;
-    audience_male: number;
-    audience_female: number;
-    audience_age_range: string;
+    cost: number;
 };
 
-const VALID_NICHES = [
-    'FASHION',
-    'BEAUTY',
-    'TECH',
-    'PARENTING',
-    'LIFESTYLE',
-    'FOOD',
-    'HEALTH',
-    'EDUCATION',
-    'FINANCIAL',
-];
+type ReportPayload = Omit<ReportParsedRow, 'kol_name'>;
 
-const VALID_AGE_RANGES = ['13-17', '18-24', '25-34', '35-44', '45-54', '55+'];
-
-export default function ValidateKOL() {
+export default function ValidateReportPerformance() {
     const { file } = useFileStore();
-    const [data, setData] = useState<KOLParsedRow[]>([]);
+    const [data, setData] = useState<ReportParsedRow[]>([]);
     const [errors, setErrors] = useState<Record<number, string[]>>({});
     const [loadingParse, setLoadingParse] = useState(true);
     const [loadingSave, setLoadingSave] = useState(false);
@@ -71,13 +60,13 @@ export default function ValidateKOL() {
     };
 
     const handleCancel = () => {
-        router.push('/kols');
+        router.push('/reports');
     };
 
     useEffect(() => {
         if (!file) {
             toast.error('Please upload a file first.');
-            router.replace('/kols');
+            router.replace('/reports');
             return;
         }
 
@@ -88,78 +77,74 @@ export default function ValidateKOL() {
             await workbook.xlsx.load(e.target?.result as ArrayBuffer);
             const worksheet = workbook.worksheets[0];
 
-            const parsed: KOLRawRow[] = [];
-            const toPercent = (val: string | number | undefined) => {
-                const num = typeof val === 'number' ? val : parseFloat(String(val).replace(',', '.'));
-                if (isNaN(num)) return '';
-                return (num * 100).toFixed(2) + '%';
-            };
+            const campaignCodeRow = worksheet.getRow(2);
+            const campaignCode = campaignCodeRow.getCell(1).value?.toString() || '';
+            const parts = campaignCode.split('-');
+            const campaign_id = parseInt(parts[parts.length - 1]);
+
+            const parsed: ReportRawRow[] = [];
 
             worksheet.eachRow((row, rowNumber) => {
-                if (rowNumber === 1) return;
+                if (rowNumber <= 4) return;
                 const v = row.values as (string | number | undefined)[];
 
-                const nameCell = String(v[2] ?? '').trim();
-                if (!nameCell) return;
+                const kolCodeCell = String(v[2] ?? '').trim();
+                if (!kolCodeCell) return;
 
                 parsed.push({
-                    Name: nameCell,
-                    Niche: String(v[3] ?? ''),
-                    'Audience Age Range': String(v[4] ?? ''),
-                    'Audience Male (%)': toPercent(v[5]),
-                    'Audience Female (%)': toPercent(v[6]),
-                    Followers: String(v[7] ?? ''),
-                    'Engagement Rate': toPercent(v[8]),
-                    Reach: String(v[9] ?? ''),
-                    'Rate Card': String(v[10] ?? ''),
+                    No: String(v[1] ?? ''),
+                    'KOL Code': kolCodeCell,
+                    'KOL Name': String(v[3] ?? ''),
+                    Like: String(v[4] ?? ''),
+                    Comment: String(v[5] ?? ''),
+                    Share: String(v[6] ?? ''),
+                    Save: String(v[7] ?? ''),
+                    Cost: String(v[8] ?? '').replace(/\D/g, ''),
+                    Reach: String(v[9] ?? '').replace(/\D/g, ''),
                 });
             });
 
-            const processed: KOLParsedRow[] = [];
+            const processed: ReportParsedRow[] = [];
             const errs: Record<number, string[]> = {};
 
-            parsed.forEach((row: KOLRawRow, i: number) => {
+            parsed.forEach((row: ReportRawRow, i: number) => {
                 const rowErrs: string[] = [];
 
-                const name = String(row['Name'] ?? '').trim();
-                const niche = String(row['Niche'] ?? '')
-                    .trim()
-                    .toUpperCase();
-                const ageRange = String(row['Audience Age Range'] ?? '').trim();
-                const maleStr = (row['Audience Male (%)'] + '').replace('%', '').replace(',', '.');
-                const femaleStr = (row['Audience Female (%)'] + '').replace('%', '').replace(',', '.');
-                const followersStr = (row['Followers'] + '').replace(/\D/g, '');
-                const engagementStr = (row['Engagement Rate'] + '').replace('%', '').replace(',', '.');
-                const reachStr = (row['Reach'] + '').replace(/\D/g, '');
-                const rateCardStr = (row['Rate Card'] + '').replace(/\D/g, '');
+                const kolSlug = slugify(row['KOL Code'], {
+                    replacement: '-',
+                    remove: /[*+~.()'"!:@]/g,
+                    lower: false,
+                });
+                const kolIdMatch = kolSlug.match(/KOL-(\d+)/i);
+                const kolId = kolIdMatch ? parseInt(kolIdMatch[1]) : 0;
 
-                const male = parseFloat(maleStr) / 100;
-                const female = parseFloat(femaleStr) / 100;
-                const followers = parseInt(followersStr);
-                const engagement = parseFloat(engagementStr);
-                const reach = parseInt(reachStr);
-                const rateCard = parseInt(rateCardStr);
+                const likeCount = parseInt(row.Like.replace(/\D/g, '')) || 0;
+                const commentCount = parseInt(row.Comment.replace(/\D/g, '')) || 0;
+                const shareCount = parseInt(row.Share.replace(/\D/g, '')) || 0;
+                const saveCount = parseInt(row.Save.replace(/\D/g, '')) || 0;
+                const cost = parseInt(row.Cost) || 0;
+                const reach = parseInt(row.Reach) || 0;
 
-                if (!VALID_NICHES.includes(niche)) rowErrs.push('Invalid Niche');
-                if (!VALID_AGE_RANGES.includes(ageRange)) rowErrs.push('Invalid Age Range');
-                if (Math.round((male + female) * 100) !== 100) rowErrs.push('Audience Male + Female ≠ 100%');
-                if (isNaN(followers)) rowErrs.push('Invalid Followers');
-                if (isNaN(engagement)) rowErrs.push('Invalid Engagement Rate');
+                if (kolId <= 0) rowErrs.push('Invalid KOL ID');
+                if (isNaN(likeCount)) rowErrs.push('Invalid Like count');
+                if (isNaN(commentCount)) rowErrs.push('Invalid Comment count');
+                if (isNaN(shareCount)) rowErrs.push('Invalid Share count');
+                if (isNaN(saveCount)) rowErrs.push('Invalid Save count');
+                if (isNaN(cost)) rowErrs.push('Invalid Cost');
                 if (isNaN(reach)) rowErrs.push('Invalid Reach');
-                if (isNaN(rateCard)) rowErrs.push('Invalid Rate Card');
 
                 if (rowErrs.length > 0) errs[i] = rowErrs;
 
                 processed.push({
-                    name,
-                    niche,
-                    followers,
-                    engagement_rate: parseFloat(engagement.toFixed(2)),
-                    reach,
-                    rate_card: rateCard,
-                    audience_male: Math.round(male * 100),
-                    audience_female: Math.round(female * 100),
-                    audience_age_range: `AGE_${ageRange.replace('-', '_').replace('+', '_PLUS')}`,
+                    campaign_id: campaign_id,
+                    kol_id: kolId,
+                    kol_name: row['KOL Name'],
+                    like_count: likeCount,
+                    comment_count: commentCount,
+                    share_count: shareCount,
+                    save_count: saveCount,
+                    reach: reach,
+                    cost: cost,
                 });
             });
 
@@ -177,23 +162,34 @@ export default function ValidateKOL() {
             return;
         }
 
+        setModalOpen(false);
         setLoadingSave(true);
         try {
-            const response = await Fetch.POST(
-                '/kol',
-                data.filter((_, idx) => !errors[idx])
-            );
+            const payload: ReportPayload[] = data
+                .filter((_, idx) => !errors[idx])
+                .map((row) => ({
+                    campaign_id: row.campaign_id,
+                    kol_id: row.kol_id,
+                    like_count: row.like_count,
+                    comment_count: row.comment_count,
+                    share_count: row.share_count,
+                    save_count: row.save_count,
+                    reach: row.reach,
+                    cost: row.cost,
+                }));
+
+            const response = await Fetch.POST('/report', payload);
+
             if (response.success === true) {
                 toast.success(response.message);
-                router.push('/kols');
+                router.push('/reports');
             } else {
                 toast.error(response.message);
             }
         } catch {
-            toast.error('Failed to submit KOL data');
+            toast.error('Failed to submit campaign performance data');
         } finally {
             setLoadingSave(false);
-            setModalOpen(false);
         }
     };
 
@@ -201,8 +197,8 @@ export default function ValidateKOL() {
         <main className='pb-10 h-full flex flex-col'>
             <div className='w-full py-4 border-b border-gray flex flex-wrap justify-between items-center gap-3 px-6'>
                 <div className='flex items-center gap-3'>
-                    <Kol className='w-8 h-8 fill-dark' />
-                    <span className='text-lg font-semibold'>KOLs Bulk Validation Input</span>
+                    <Report className='w-8 h-8 fill-dark' />
+                    <span className='text-lg font-semibold'>Campaign Performance Bulk Validation Input</span>
                 </div>
                 <div className='hidden md:block'>
                     <Button variant='outline' className='ml-auto' onClick={() => router.back()}>
@@ -214,6 +210,11 @@ export default function ValidateKOL() {
                 <div className='space-y-1 rounded-md border border-warning bg-warning/30 p-4'>
                     <span className='font-semibold'>Note:</span>
                     <ul className='list-disc list-inside space-y-1 pl-2'>
+                        <li>
+                            Please do not alter the structure of the template file. Each campaign has a unique template,
+                            and reports must be adjusted accordingly. Make sure you are using the most up-to-date
+                            version of the template.
+                        </li>
                         <li>
                             Please <strong>do not reload</strong> the page during the validation and review process —
                             any uploaded file will be lost if the page is refreshed.
@@ -234,28 +235,27 @@ export default function ValidateKOL() {
                         <thead className='border-b border-gray'>
                             <tr className='bg-primary/50'>
                                 <th className='w-16 text-center p-4 rounded-tl-lg'>No</th>
-                                <th className='text-center min-w-32 p-4'>Name</th>
-                                <th className='text-center p-4'>Niche</th>
-                                <th className='text-center p-4'>Audience Age Range</th>
-                                <th className='text-center p-4'>Audience Male</th>
-                                <th className='text-center p-4'>Audience Female</th>
-                                <th className='text-center p-4'>Followers</th>
-                                <th className='text-center p-4'>Engagement Rate</th>
-                                <th className='text-center p-4'>Reach</th>
-                                <th className='text-center min-w-32 p-4'>Rate Card</th>
+                                <th className='text-center min-w-32 p-4'>KOL Code</th>
+                                <th className='text-center p-4'>KOL Name</th>
+                                <th className='text-center p-4'>Like</th>
+                                <th className='text-center p-4'>Comment</th>
+                                <th className='text-center p-4'>Share</th>
+                                <th className='text-center p-4'>Save</th>
+                                <th className='text-center p-4'>Cost</th>
+                                <th className='text-center p-4 '>Reach</th>
                                 <th className='text-center p-4 rounded-tr-lg'>Errors</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loadingParse ? (
                                 <tr>
-                                    <td colSpan={11} className='py-4 text-center'>
+                                    <td colSpan={10} className='py-4 text-center'>
                                         <SpinnerLoader scale='scale-80' />
                                     </td>
                                 </tr>
                             ) : data.length === 0 ? (
                                 <tr>
-                                    <td colSpan={11}>
+                                    <td colSpan={10}>
                                         <DataNotFound />
                                     </td>
                                 </tr>
@@ -270,22 +270,27 @@ export default function ValidateKOL() {
                                             <td className={`text-center px-4 py-2 ${isLast ? 'rounded-bl-lg' : ''}`}>
                                                 {idx + 1}
                                             </td>
-                                            <td className='px-4 py-2 text-left'>{row.name}</td>
-                                            <td className='px-4 py-2 text-right'>{row.niche}</td>
-                                            <td className='px-4 py-2 text-right'>
-                                                {row.audience_age_range.replace('AGE_', '').replace('_', ' - ')}
+                                            <td className='px-4 py-2 text-left'>
+                                                KOL-{row.kol_id.toString().padStart(3, '0')}
                                             </td>
-                                            <td className='px-4 py-2 text-right'>{row.audience_male}%</td>
-                                            <td className='px-4 py-2 text-right'>{row.audience_female}%</td>
+                                            <td className='px-4 py-2 text-left'>{row.kol_name}</td>
                                             <td className='px-4 py-2 text-right'>
-                                                {row.followers.toLocaleString('id-ID')}
+                                                {row.like_count.toLocaleString('id-ID')}
                                             </td>
-                                            <td className='px-4 py-2 text-right'>{row.engagement_rate.toFixed(2)}%</td>
+                                            <td className='px-4 py-2 text-right'>
+                                                {row.comment_count.toLocaleString('id-ID')}
+                                            </td>
+                                            <td className='px-4 py-2 text-right'>
+                                                {row.share_count.toLocaleString('id-ID')}
+                                            </td>
+                                            <td className='px-4 py-2 text-right'>
+                                                {row.save_count.toLocaleString('id-ID')}
+                                            </td>
+                                            <td className='px-4 py-2 text-right'>
+                                                Rp{row.cost.toLocaleString('id-ID')}
+                                            </td>
                                             <td className='px-4 py-2 text-right'>
                                                 {row.reach.toLocaleString('id-ID')}
-                                            </td>
-                                            <td className='px-4 py-2 text-right'>
-                                                Rp{row.rate_card.toLocaleString('id-ID')}
                                             </td>
                                             <td className='px-4 py-2 flex justify-center'>
                                                 {errors[idx]?.length ? (

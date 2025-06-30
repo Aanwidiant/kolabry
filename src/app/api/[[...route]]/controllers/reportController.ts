@@ -7,6 +7,7 @@ import ExcelJS from 'exceljs';
 import { KolReportGenerate } from '@/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import slugify from 'slugify';
 
 export const createReports = async (c: Context) => {
     try {
@@ -719,7 +720,151 @@ export const exportCampaignReport = async (c: Context) => {
                 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             },
         });
+    } catch (error) {
+        return new Response(
+            JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error occurred',
+                message: 'Failed export report',
+            }),
+            {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+            }
+        );
     } finally {
         await prisma.$disconnect();
+    }
+};
+
+export const getReportTemplateById = async (c: Context) => {
+    const campaignId = Number(c.req.param('id'));
+
+    if (!campaignId || isNaN(campaignId)) {
+        return c.json({ success: false, message: 'campaign_id is required and must be a valid number.' }, 400);
+    }
+
+    try {
+        const campaign = await prisma.campaigns.findUnique({
+            where: { id: campaignId },
+            include: {
+                user: { select: { username: true } },
+                kol_types: { select: { name: true, min_followers: true, max_followers: true } },
+            },
+        });
+
+        if (!campaign) {
+            return c.json({ success: false, message: `Campaign with ID ${campaignId} not found.` }, 404);
+        }
+
+        const kolList = await prisma.campaign_kol.findMany({
+            where: { campaign_id: campaignId },
+            include: { kol: { select: { id: true, name: true } } },
+        });
+
+        const reports = await prisma.kol_reports.findMany({
+            where: { campaign_id: campaignId },
+        });
+
+        const kolWithoutReports = kolList.filter((item) => !reports.some((r) => r.kol_id === item.kol.id));
+
+        if (kolWithoutReports.length === 0) {
+            return c.json(
+                {
+                    success: false,
+                    message: 'All reports for this campaign already exist.',
+                },
+                400
+            );
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Template');
+
+        const columns = [
+            { key: 1, width: 15 },
+            { key: 2, width: 20 },
+            { key: 3, width: 25 },
+            { key: 4, width: 15 },
+            { key: 5, width: 15 },
+            { key: 6, width: 15 },
+            { key: 7, width: 15 },
+            { key: 8, width: 20 },
+            { key: 9, width: 15 },
+        ];
+
+        columns.forEach((col) => {
+            worksheet.getColumn(col.key).width = col.width;
+        });
+
+        worksheet.addRow(['KOLABRY']);
+        worksheet.getCell('A1').font = { bold: true, italic: true, size: 20, color: { argb: 'FF2F80ED' } };
+        worksheet.mergeCells('A1:C1');
+
+        const campaignCode = `campaign-${slugify(campaign.name, { lower: true })}-${campaign.id}`;
+        worksheet.addRow([`Campaign Code: ${campaignCode}`]);
+        worksheet.getCell('A2').font = { bold: true };
+        worksheet.addRow([]);
+
+        const header = ['No', 'KOL Code', 'KOL Name', 'Like', 'Comment', 'Share', 'Save', 'Cost', 'Reach'];
+        const headerRow = worksheet.addRow(header);
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' },
+            };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFDCE6F1' },
+            };
+        });
+
+        let counter = 1;
+
+        kolList.forEach((item) => {
+            const report = reports.find((r) => r.kol_id === item.kol.id);
+            if (!report) {
+                const kolCode = `KOL-${item.kol.id.toString().padStart(3, '0')}`;
+                worksheet.addRow([counter++, kolCode, item.kol.name, '', '', '', '', '', '', '']);
+            }
+        });
+
+        worksheet.eachRow((row) => {
+            row.eachCell((cell) => {
+                cell.font = {
+                    ...cell.font,
+                    name: 'Arial',
+                };
+                row.height = 20;
+                cell.alignment = {
+                    ...cell.alignment,
+                    vertical: 'middle',
+                };
+            });
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        return new Response(buffer, {
+            status: 200,
+            headers: {
+                'Content-Disposition': `attachment; filename="template_${campaignCode}.xlsx"`,
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+        });
+    } catch (err) {
+        return c.json(
+            {
+                success: false,
+                message: 'Failed to fetch reports.',
+                error: err instanceof Error ? err.message : String(err),
+            },
+            500
+        );
     }
 };

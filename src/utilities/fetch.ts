@@ -74,23 +74,30 @@ const DELETE = async (url: string, config?: object) => {
 
 const DOWNLOAD = async (url: string, filename: string) => {
     try {
-        const response = await instance.get(url, {
-            responseType: 'blob',
-        });
+        const response = await instance.get(url, { responseType: 'blob' });
 
-        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const contentType = response.headers['content-type'];
+        const blob = new Blob([response.data], { type: contentType });
+
+        if (contentType?.includes('application/json')) {
+            const text = await blob.text();
+            const json = JSON.parse(text);
+            return { success: false, message: json.message || 'Failed to download file' };
+        }
+
         const blobUrl = window.URL.createObjectURL(blob);
-
         const link = document.createElement('a');
         link.href = blobUrl;
         link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
         link.remove();
-
         window.URL.revokeObjectURL(blobUrl);
+
+        return { success: true };
     } catch (err) {
         console.error('Failed to download file:', err);
+        return { success: false, message: (err as Error).message || 'Unknown error occurred' };
     }
 };
 

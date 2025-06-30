@@ -5,20 +5,33 @@ import Modal from '@/components/globals/modal';
 import { useFileStore } from '@/store/fileStore';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import Fetch from '@/utilities/fetch';
 
-interface AddBulkKolProps {
+interface Props {
     onClose: () => void;
+    campaign_id: number | undefined;
+    campaign_name: string | undefined;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const allowedExtensions = ['csv', 'xlsx'];
 
-export default function AddBulkKol({ onClose }: AddBulkKolProps) {
+export default function AddBulkReport({ onClose, campaign_id, campaign_name }: Props) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const router = useRouter();
     const { setFile } = useFileStore();
+    const id = campaign_id;
+    const name = campaign_name;
+
+    const handleGenerateTemplate = async () => {
+        if (!id) return;
+        const res = await Fetch.DOWNLOAD(`/report/template/${id}`, `${name}_template.xlsx`);
+        if (!res.success) {
+            toast.error(res.message);
+        }
+    };
 
     const isValidFile = (file: File) => {
         const ext = file.name.split('.').pop()?.toLowerCase();
@@ -60,12 +73,12 @@ export default function AddBulkKol({ onClose }: AddBulkKolProps) {
         if (!selectedFile) return;
         setFile(selectedFile);
         onClose();
-        router.push('/kols/validate-kol');
+        router.push('/reports/validate-report');
     };
 
     return (
         <Modal
-            title='Upload KOLs (Bulk)'
+            title='Upload KOL Reports (Bulk)'
             onClose={onClose}
             footer={
                 <Button onClick={handleContinue} disabled={!selectedFile}>
@@ -96,9 +109,13 @@ export default function AddBulkKol({ onClose }: AddBulkKolProps) {
                 </p>
             )}
 
-            <a href='/examples/example-kols-data.xlsx' download className='text-primary underline text-sm block mt-2'>
+            <button
+                type='button'
+                onClick={handleGenerateTemplate}
+                className='text-primary underline text-sm block mt-2'
+            >
                 Download example file
-            </a>
+            </button>
         </Modal>
     );
 }
