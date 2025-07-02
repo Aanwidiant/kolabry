@@ -96,7 +96,7 @@ export default function ValidateKOL() {
             };
 
             worksheet.eachRow((row, rowNumber) => {
-                if (rowNumber === 1) return;
+                if (rowNumber <= 3) return;
                 const v = row.values as (string | number | undefined)[];
 
                 const nameCell = String(v[2] ?? '').trim();
@@ -293,9 +293,12 @@ export default function ValidateKOL() {
                                                         <Warning
                                                             className='w-6 h-6 fill-error cursor-pointer'
                                                             data-tooltip-id={`error-tooltip-${idx}`}
-                                                            data-tooltip-content={errors[idx].join(', ')}
+                                                            data-tooltip-content={errors[idx].join('\n')}
                                                         />
-                                                        <Tooltip id={`error-tooltip-${idx}`} place='top' />
+                                                        <Tooltip
+                                                            id={`error-tooltip-${idx}`}
+                                                            className='max-w-sm whitespace-pre-line break-words'
+                                                        />
                                                     </>
                                                 ) : (
                                                     '-'

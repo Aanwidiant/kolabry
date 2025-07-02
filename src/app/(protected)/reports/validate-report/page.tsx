@@ -126,12 +126,14 @@ export default function ValidateReportPerformance() {
                 const reach = parseInt(row.Reach) || 0;
 
                 if (kolId <= 0) rowErrs.push('Invalid KOL ID');
-                if (isNaN(likeCount)) rowErrs.push('Invalid Like count');
-                if (isNaN(commentCount)) rowErrs.push('Invalid Comment count');
-                if (isNaN(shareCount)) rowErrs.push('Invalid Share count');
-                if (isNaN(saveCount)) rowErrs.push('Invalid Save count');
-                if (isNaN(cost)) rowErrs.push('Invalid Cost');
-                if (isNaN(reach)) rowErrs.push('Invalid Reach');
+
+                if (isNaN(likeCount) || likeCount <= 0) rowErrs.push('Like count must be a number greater than 0');
+                if (isNaN(commentCount) || commentCount <= 0)
+                    rowErrs.push('Comment count must be a number greater than 0');
+                if (isNaN(shareCount) || shareCount <= 0) rowErrs.push('Share count must be a number greater than 0');
+                if (isNaN(saveCount) || saveCount <= 0) rowErrs.push('Save count must be a number greater than 0');
+                if (isNaN(cost) || cost <= 0) rowErrs.push('Cost must be a number greater than 0');
+                if (isNaN(reach) || reach <= 0) rowErrs.push('Reach must be a number greater than 0');
 
                 if (rowErrs.length > 0) errs[i] = rowErrs;
 
@@ -229,7 +231,6 @@ export default function ValidateReportPerformance() {
                         </li>
                     </ul>
                 </div>
-
                 <div className='overflow-x-auto rounded-lg border border-gray'>
                     <table className='min-w-full text-sm'>
                         <thead className='border-b border-gray'>
@@ -298,9 +299,12 @@ export default function ValidateReportPerformance() {
                                                         <Warning
                                                             className='w-6 h-6 fill-error cursor-pointer'
                                                             data-tooltip-id={`error-tooltip-${idx}`}
-                                                            data-tooltip-content={errors[idx].join(', ')}
+                                                            data-tooltip-content={errors[idx].join('\n')}
                                                         />
-                                                        <Tooltip id={`error-tooltip-${idx}`} place='top' />
+                                                        <Tooltip
+                                                            id={`error-tooltip-${idx}`}
+                                                            className='max-w-sm whitespace-pre-line break-words'
+                                                        />
                                                     </>
                                                 ) : (
                                                     '-'

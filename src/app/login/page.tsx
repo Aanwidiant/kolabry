@@ -7,6 +7,7 @@ import useAuthStore from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/globals/button';
 import BarLoader from '@/components/globals/bar-loader';
+import Image from 'next/image';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -49,17 +50,20 @@ export default function LoginPage() {
 
     return (
         <main className='w-full min-h-screen grid grid-cols-2 bg-light'>
-            <div className='hidden md:col-span-1 m-2 p-12 rounded-xl bg-primary md:flex flex-col justify-center gap-4'>
-                <h1 className='text-3xl font-bold tracking-widest text-light'>KOLABRY</h1>
+            <div className='hidden md:col-span-1 m-2 p-12 rounded-xl bg-primary md:flex flex-col justify-center gap-3'>
+                <h1 className='text-4xl font-bold tracking-widest text-light'>KOLABRY</h1>
                 <h2 className='text-xl text-light font-medium tracking-wide'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, quae.
+                    The Smart Way to Manage and Match KOLs.
                 </h2>
-                <div className='w-96 h-80 self-center bg-secondary rounded-xl'>
-                    <p className='w-full h-full text-center place-content-center'>for image</p>
+                <p className='text-light font-light'>
+                    Empower your campaigns with data-driven KOL discovery and selection.
+                </p>
+                <div className='relative w-96 h-96 self-center'>
+                    <Image src='/hero-img.png' alt='kolabry-hero-img' fill className='object-contain' />
                 </div>
-                <p className='text-light font-light text-sm'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus autem consectetur, eius eos ex
-                    exercitationem fuga ipsum modi sunt temporibus!
+                <p className='text-light font-light'>
+                    Kolaby helps brands and marketers streamline influencer management using intelligent profiling and
+                    decision support technology for more effective collaborations.
                 </p>
             </div>
             <div className='col-span-2 md:col-span-1 flex justify-center items-center'>
@@ -130,11 +134,16 @@ export default function LoginPage() {
                             <Button type='submit'>Login</Button>
                         )}
                     </form>
-                    <p className='w-full text-center text-gray text-sm'>
-                        Don`t have an account?{' '}
-                        <span className='text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap'>
+                    <p className="w-full text-center text-gray text-sm">
+                        Don&apos;t have an account?{' '}
+                        <a
+                            href="https://aanwidiant.xyz/contact"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline underline-offset-2 cursor-pointer hover:text-secondary whitespace-nowrap"
+                        >
                             Contact Admin Now!
-                        </span>
+                        </a>
                     </p>
                 </div>
             </div>
